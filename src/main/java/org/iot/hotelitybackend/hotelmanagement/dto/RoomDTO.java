@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class RoomDTO {
-	public int roomCodePk;
+	public String roomCodePk;
 	public int branchCodeFk;
 	public int room_number;
 	public int roomCategoryCodeFk;

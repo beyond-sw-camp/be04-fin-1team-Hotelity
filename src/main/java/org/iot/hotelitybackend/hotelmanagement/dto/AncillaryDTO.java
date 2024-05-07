@@ -12,6 +12,6 @@ public class AncillaryDTO {
 	public String ancillaryLocation;
 	public LocalTime ancillaryOpenTime;
 	public LocalTime ancillaryCloseTime;
-	public String ancillaryPoneNumber;
+	public String ancillaryPhoneNumber;
 	public int ancillaryCategoryCodeFk;
 }

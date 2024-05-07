@@ -1,4 +1,7 @@
 package org.iot.hotelitybackend.hotelmanagement.repository;
 
-public interface RoomLevelRepository {
+import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomLevelEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface RoomLevelRepository extends JpaRepository<RoomLevelEntity, Integer> {
 }

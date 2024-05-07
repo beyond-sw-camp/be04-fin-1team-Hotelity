@@ -1,4 +1,4 @@
 package org.iot.hotelitybackend.hotelmanagement.service;
 
-public class RoomCategoryServiceImpl {
+public class RoomCategoryServiceImpl implements RoomCategoryService {
 }

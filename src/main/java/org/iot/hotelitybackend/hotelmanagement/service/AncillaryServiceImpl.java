@@ -1,4 +1,4 @@
 package org.iot.hotelitybackend.hotelmanagement.service;
 
-public class AncillaryServiceImpl {
+public class AncillaryServiceImpl implements AncillaryService{
 }

@@ -1,4 +1,4 @@
 package org.iot.hotelitybackend.hotelmanagement.service;
 
-public class BranchServiceImpl {
+public class BranchServiceImpl implements BranchService{
 }
