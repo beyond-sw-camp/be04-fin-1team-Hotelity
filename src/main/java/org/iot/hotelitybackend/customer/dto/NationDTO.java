@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class NationDTO {
-	public int nationCodePk;
-	public String nationName;
+	private int nationCodePk;
+	private String nationName;
 }

@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,4 +22,10 @@ public class NationEntity {
 	@Column(name = "nation_code_pk")
 	public Integer nationCodePk;
 	public String nationName;
+
+	@Builder
+	public NationEntity(Integer nationCodePk, String nationName) {
+		this.nationCodePk = nationCodePk;
+		this.nationName = nationName;
+	}
 }

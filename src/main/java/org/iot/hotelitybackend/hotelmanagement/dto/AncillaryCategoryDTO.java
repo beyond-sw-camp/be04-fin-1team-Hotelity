@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class AncillaryCategoryDTO {
-	public int ancillaryCategoryCodePk;
-	public int ancillaryCategoryName;
+	private int ancillaryCategoryCodePk;
+	private int ancillaryCategoryName;
 }

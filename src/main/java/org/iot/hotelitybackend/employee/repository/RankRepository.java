@@ -1,4 +1,7 @@
 package org.iot.hotelitybackend.employee.repository;
 
-public interface RankRepository {
+import org.iot.hotelitybackend.employee.aggregate.RankEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface RankRepository extends JpaRepository<RankEntity, Integer> {
 }

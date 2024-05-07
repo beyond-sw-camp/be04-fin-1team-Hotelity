@@ -4,14 +4,14 @@ import lombok.Data;
 
 @Data
 public class ResponseRoomCategory {
-	public int roomCategoryCodePk;
-	public String roomName;
-	public int roomSubRoomsCount;
-	public int roomCapacity;
-	public int roomPrice;
-	public String  roomSpecificInfo;
-	public int roomBathroomCount;
-	public String roomBedSize;
-	public int roomBedCount;
-	public int roomLevelCodeFk;
+	private int roomCategoryCodePk;
+	private String roomName;
+	private int roomSubRoomsCount;
+	private int roomCapacity;
+	private int roomPrice;
+	private String  roomSpecificInfo;
+	private int roomBathroomCount;
+	private String roomBedSize;
+	private int roomBedCount;
+	private int roomLevelCodeFk;
 }

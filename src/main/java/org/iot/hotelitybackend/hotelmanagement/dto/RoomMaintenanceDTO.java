@@ -6,8 +6,8 @@ import lombok.Data;
 
 @Data
 public class RoomMaintenanceDTO {
-	public int roomMaintenanceCodePk;
-	public Date roomMaintenanceDate;
-	public String roomMaintenanceStatus;
-	public int roomCodeFk;
+	private int roomMaintenanceCodePk;
+	private Date roomMaintenanceDate;
+	private String roomMaintenanceStatus;
+	private int roomCodeFk;
 }

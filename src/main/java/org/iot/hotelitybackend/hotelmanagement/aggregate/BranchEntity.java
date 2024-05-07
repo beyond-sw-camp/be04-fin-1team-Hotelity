@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,8 +20,16 @@ public class BranchEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "branch_code_pk")
-	public Integer branchCodePk;
-	public String branchName;
-	public String branchAddress;
-	public String branchPhoneNumber;
+	private Integer branchCodePk;
+	private String branchName;
+	private String branchAddress;
+	private String branchPhoneNumber;
+
+	@Builder
+	public BranchEntity(Integer branchCodePk, String branchName, String branchAddress, String branchPhoneNumber) {
+		this.branchCodePk = branchCodePk;
+		this.branchName = branchName;
+		this.branchAddress = branchAddress;
+		this.branchPhoneNumber = branchPhoneNumber;
+	}
 }

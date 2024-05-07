@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,6 +20,12 @@ public class RoomLevelEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "room_level_code_pk")
-	public Integer roomLevelCodePk;
-	public String roomLevelName;
+	private Integer roomLevelCodePk;
+	private String roomLevelName;
+
+	@Builder
+	public RoomLevelEntity(Integer roomLevelCodePk, String roomLevelName) {
+		this.roomLevelCodePk = roomLevelCodePk;
+		this.roomLevelName = roomLevelName;
+	}
 }

@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class ResponseBranch {
-	public int branchCodePk;
-	public String branchName;
-	public String branchAddress;
-	public String branchPhoneNumber;
+	private int branchCodePk;
+	private String branchName;
+	private String branchAddress;
+	private String branchPhoneNumber;
 }

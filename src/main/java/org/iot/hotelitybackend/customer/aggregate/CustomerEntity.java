@@ -38,7 +38,6 @@ public class CustomerEntity {
 	public String customerGender;
 
 	@Builder
-
 	public CustomerEntity(
 		Integer customerCodePk,
 		String customerName,
