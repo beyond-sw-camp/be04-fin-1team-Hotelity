@@ -2,6 +2,7 @@ package org.iot.hotelitybackend.sales.aggregate;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,8 +13,17 @@ import lombok.NoArgsConstructor;
 public class MembershipEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int membershipLevelCodePk;
+    private Integer membershipLevelCodePk;
     private String membershipLevelName;
     private String membershipInfo;
-    private int membershipCriteriaAmount;
+    private Integer membershipCriteriaAmount;
+
+	@Builder
+	public MembershipEntity(Integer membershipLevelCodePk, String membershipLevelName, String membershipInfo,
+		Integer membershipCriteriaAmount) {
+		this.membershipLevelCodePk = membershipLevelCodePk;
+		this.membershipLevelName = membershipLevelName;
+		this.membershipInfo = membershipInfo;
+		this.membershipCriteriaAmount = membershipCriteriaAmount;
+	}
 }
