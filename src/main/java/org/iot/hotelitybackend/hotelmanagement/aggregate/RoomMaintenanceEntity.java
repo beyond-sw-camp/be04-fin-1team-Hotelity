@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,8 +22,17 @@ public class RoomMaintenanceEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "room_maintenance_code_pk")
-	public Integer roomMaintenanceCodePk;
-	public Date roomMaintenanceDate;
-	public String roomMaintenanceStatus;
-	public Integer roomCodeFk;
+	private Integer roomMaintenanceCodePk;
+	private Date roomMaintenanceDate;
+	private String roomMaintenanceStatus;
+	private Integer roomCodeFk;
+
+	@Builder
+	public RoomMaintenanceEntity(Integer roomMaintenanceCodePk, Date roomMaintenanceDate, String roomMaintenanceStatus,
+		Integer roomCodeFk) {
+		this.roomMaintenanceCodePk = roomMaintenanceCodePk;
+		this.roomMaintenanceDate = roomMaintenanceDate;
+		this.roomMaintenanceStatus = roomMaintenanceStatus;
+		this.roomCodeFk = roomCodeFk;
+	}
 }

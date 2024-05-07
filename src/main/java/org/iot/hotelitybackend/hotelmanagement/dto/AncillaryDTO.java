@@ -6,12 +6,12 @@ import lombok.Data;
 
 @Data
 public class AncillaryDTO {
-	public int ancillaryCodePk;
-	public String ancillaryName;
-	public int branchCodeFk;
-	public String ancillaryLocation;
-	public LocalTime ancillaryOpenTime;
-	public LocalTime ancillaryCloseTime;
-	public String ancillaryPhoneNumber;
-	public int ancillaryCategoryCodeFk;
+	private int ancillaryCodePk;
+	private String ancillaryName;
+	private int branchCodeFk;
+	private String ancillaryLocation;
+	private LocalTime ancillaryOpenTime;
+	private LocalTime ancillaryCloseTime;
+	private String ancillaryPhoneNumber;
+	private int ancillaryCategoryCodeFk;
 }

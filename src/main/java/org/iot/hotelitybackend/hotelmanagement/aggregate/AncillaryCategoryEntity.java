@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,8 +19,14 @@ public class AncillaryCategoryEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ancillary_category_code_pk")
-	public Integer ancillaryCategoryCodePk;
+	private Integer ancillaryCategoryCodePk;
 
 	@Column(name = "ancillaryCategoryName")
-	public Integer ancillaryCategoryName;
+	private Integer ancillaryCategoryName;
+
+	@Builder
+	public AncillaryCategoryEntity(Integer ancillaryCategoryCodePk, Integer ancillaryCategoryName) {
+		this.ancillaryCategoryCodePk = ancillaryCategoryCodePk;
+		this.ancillaryCategoryName = ancillaryCategoryName;
+	}
 }

@@ -6,17 +6,17 @@ import lombok.Data;
 
 @Data
 public class CustomerDTO {
-	public int customerCodePk;
-	public String customerName;
-	public String customerEmail;
-	public String customerPhoneNumber;
-	public String customerEnglishName;
-	public String customerAddress;
-	public int customerInfoAgreement;
-	public int customerStatus;
-	public Date customerRegisteredDate;
-	public String customerType;
-	public int nationCodeFk;
-	public String customerGender;
+	private int customerCodePk;
+	private String customerName;
+	private String customerEmail;
+	private String customerPhoneNumber;
+	private String customerEnglishName;
+	private String customerAddress;
+	private int customerInfoAgreement;
+	private int customerStatus;
+	private Date customerRegisteredDate;
+	private String customerType;
+	private int nationCodeFk;
+	private String customerGender;
 
 }

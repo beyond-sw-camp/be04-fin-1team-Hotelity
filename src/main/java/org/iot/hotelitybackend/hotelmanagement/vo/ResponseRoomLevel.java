@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class ResponseRoomLevel {
-	public int roomLevelCodePk;
-	public String roomLevelName;
+	private int roomLevelCodePk;
+	private String roomLevelName;
 }
