@@ -14,7 +14,7 @@ import java.util.Date;
 public class NoticeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int noticeCodePk;
+    private Integer noticeCodePk;
     private String noticeTitle;
     private String noticeContent;
     private Date noticePostedDate;

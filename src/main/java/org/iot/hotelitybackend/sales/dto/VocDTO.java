@@ -6,15 +6,15 @@ import java.util.Date;
 
 @Data
 public class VocDTO {
-    private int vocCodePk;
+    private Integer vocCodePk;
     private String vocContent;
     private Date vocCreatedDate;
     private Date vocLastUpdatedDate;
-    private int customerCodeFk;
+    private Integer customerCodeFk;
     private String vocProcessStatus;
     private String vocCategory;
     private String vocTitle;
     private String employeeCodeFk;
-    private int branchCodeFk;
+    private Integer branchCodeFk;
     private String vocImageLink;
 }

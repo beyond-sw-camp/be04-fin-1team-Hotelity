@@ -14,9 +14,9 @@ import java.util.Date;
 public class CouponIssueEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int couponIssueCodePk;
-    private int customerCodeFk;
-    private int couponCodeFk;
+    private Integer couponIssueCodePk;
+    private Integer customerCodeFk;
+    private Integer couponCodeFk;
     private String couponIssueBarcode;
     private Date couponIssueDate;
     private Date couponExpireDate;

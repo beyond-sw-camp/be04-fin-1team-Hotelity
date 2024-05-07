@@ -6,7 +6,7 @@ import java.util.Date;
 
 @Data
 public class NoticeDTO {
-    private int noticeCodePk;
+    private Integer noticeCodePk;
     private String noticeTitle;
     private String noticeContent;
     private Date noticePostedDate;

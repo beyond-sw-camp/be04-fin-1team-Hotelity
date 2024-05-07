@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class MembershipDTO {
-    private int membershipLevelCodePk;
+    private Integer membershipLevelCodePk;
     private String membershipLevelName;
     private String membershipInfo;
-    private int membershipCriteriaAmount;
+    private Integer membershipCriteriaAmount;
 }

@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 public class MembershipEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int membershipLevelCodePk;
+    private Integer membershipLevelCodePk;
     private String membershipLevelName;
     private String membershipInfo;
-    private int membershipCriteriaAmount;
+    private Integer membershipCriteriaAmount;
 }
