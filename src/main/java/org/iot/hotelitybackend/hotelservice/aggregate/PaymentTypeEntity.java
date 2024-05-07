@@ -1,10 +1,6 @@
 package org.iot.hotelitybackend.hotelservice.aggregate;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,15 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class PaymentTypeEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer paymentTypeCodePk;
+    private String paymentTypeName;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer paymentTypeCodePk;
-	private String paymentTypeName;
-
-	@Builder
-	public PaymentTypeEntity(Integer paymentTypeCodePk, String paymentTypeName) {
-		this.paymentTypeCodePk = paymentTypeCodePk;
-		this.paymentTypeName = paymentTypeName;
-	}
+    @Builder
+    public PaymentTypeEntity(Integer paymentTypeCodePk, String paymentTypeName) {
+        this.paymentTypeCodePk = paymentTypeCodePk;
+        this.paymentTypeName = paymentTypeName;
+    }
 }

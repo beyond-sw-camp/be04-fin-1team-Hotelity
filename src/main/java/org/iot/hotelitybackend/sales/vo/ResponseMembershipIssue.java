@@ -6,8 +6,8 @@ import java.util.Date;
 
 @Data
 public class ResponseMembershipIssue {
-    private int membershipIssueCodePk;
-    private int customerCodeFk;
+    private Integer membershipIssueCodePk;
+    private Integer customerCodeFk;
     private Date membershipIssueDate;
-    private int membershipLevelCodeFk;
+    private Integer membershipLevelCodeFk;
 }

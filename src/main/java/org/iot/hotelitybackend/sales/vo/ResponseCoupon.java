@@ -6,11 +6,11 @@ import java.util.Date;
 
 @Data
 public class ResponseCoupon {
-    private int couponCodePk;
+    private Integer couponCodePk;
     private String couponName;
     private String couponType;
-    private double couponDiscountRate;
+    private Double couponDiscountRate;
     private Date couponLaunchingDate;
     private String couponInfo;
-    private int membershipLevelCodeFk;
+    private Integer membershipLevelCodeFk;
 }

@@ -1,52 +1,48 @@
 package org.iot.hotelitybackend.hotelservice.aggregate;
 
-import java.util.Date;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 @Entity
 @Table(name = "payment_log_tb")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class PaymentEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer paymentAmount;
+    private Integer reservationCodeFk;
+    private Integer paymentCodePk;
+    private Integer paymentTypeCodeFk;
+    private String paymentMethod;
+    private Date paymentDate;
+    private Integer customerCodeFk;
+    private Integer paymentCancelStatus;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer paymentCodePk;
-	private Integer paymentAmount;
-	private String paymentMethod;
-	private Date paymentDate;
-	private Integer paymentCancelStatus;
-	private Integer reservationCodeFk;
-	private Integer paymentTypeCodeFk;
-	private Integer customerCodeFk;
-
-	@Builder
-	public PaymentEntity(
-		Integer paymentCodePk,
-		Integer paymentAmount,
-		String paymentMethod,
-		Date paymentDate,
-		Integer paymentCancelStatus,
-		Integer reservationCodeFk,
-		Integer paymentTypeCodeFk,
-		Integer customerCodeFk
-	) {
-		this.paymentCodePk = paymentCodePk;
-		this.paymentAmount = paymentAmount;
-		this.paymentMethod = paymentMethod;
-		this.paymentDate = paymentDate;
-		this.paymentCancelStatus = paymentCancelStatus;
-		this.reservationCodeFk = reservationCodeFk;
-		this.paymentTypeCodeFk = paymentTypeCodeFk;
-		this.customerCodeFk = customerCodeFk;
-	}
+    @Builder
+    public PaymentEntity(
+            Integer paymentAmount,
+            Integer reservationCodeFk,
+            Integer paymentCodePk,
+            Integer paymentTypeCodeFk,
+            String paymentMethod,
+            Date paymentDate,
+            Integer customerCodeFk,
+            Integer paymentCancelStatus
+    ) {
+        this.paymentAmount = paymentAmount;
+        this.reservationCodeFk = reservationCodeFk;
+        this.paymentCodePk = paymentCodePk;
+        this.paymentTypeCodeFk = paymentTypeCodeFk;
+        this.paymentMethod = paymentMethod;
+        this.paymentDate = paymentDate;
+        this.customerCodeFk = customerCodeFk;
+        this.paymentCancelStatus = paymentCancelStatus;
+    }
 }
+

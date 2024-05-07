@@ -6,9 +6,9 @@ import java.util.Date;
 
 @Data
 public class CouponIssueDTO {
-    private int couponIssueCodePk;
-    private int customerCodeFk;
-    private int couponCodeFk;
+    private Integer couponIssueCodePk;
+    private Integer customerCodeFk;
+    private Integer couponCodeFk;
     private String couponIssueBarcode;
     private Date couponIssueDate;
     private Date couponExpireDate;
