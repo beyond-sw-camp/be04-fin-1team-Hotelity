@@ -2,6 +2,7 @@ package org.iot.hotelitybackend.hotelservice.aggregate;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,4 +15,10 @@ public class PaymentTypeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer paymentTypeCodePk;
     private String paymentTypeName;
+
+    @Builder
+    public PaymentTypeEntity(Integer paymentTypeCodePk, String paymentTypeName) {
+        this.paymentTypeCodePk = paymentTypeCodePk;
+        this.paymentTypeName = paymentTypeName;
+    }
 }

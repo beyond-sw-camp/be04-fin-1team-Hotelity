@@ -2,6 +2,7 @@ package org.iot.hotelitybackend.hotelservice.aggregate;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,4 +24,27 @@ public class ReservationEntity {
     private Integer branchCodeFk;
     private Integer reservationCancelStatus;
     private Integer reservationPersonnel;
+
+    @Builder
+    public ReservationEntity(
+            Integer reservationCodePk,
+            Date reservationDate,
+            Date reservationCheckinDate,
+            Date reservationCheckoutDate,
+            Integer customerCodeFk,
+            String roomCodeFk,
+            Integer branchCodeFk,
+            Integer reservationCancelStatus,
+            Integer reservationPersonnel
+    ) {
+        this.reservationCodePk = reservationCodePk;
+        this.reservationDate = reservationDate;
+        this.reservationCheckinDate = reservationCheckinDate;
+        this.reservationCheckoutDate = reservationCheckoutDate;
+        this.customerCodeFk = customerCodeFk;
+        this.roomCodeFk = roomCodeFk;
+        this.branchCodeFk = branchCodeFk;
+        this.reservationCancelStatus = reservationCancelStatus;
+        this.reservationPersonnel = reservationPersonnel;
+    }
 }

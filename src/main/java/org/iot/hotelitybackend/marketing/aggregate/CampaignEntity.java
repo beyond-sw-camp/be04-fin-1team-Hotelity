@@ -2,6 +2,7 @@ package org.iot.hotelitybackend.marketing.aggregate;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,4 +23,25 @@ public class CampaignEntity {
     private Integer templateCodeFk;
     private String employeeCodeFk;
     private String campaignTitle;
+
+    @Builder
+    public CampaignEntity(
+            Integer campaignCodePk,
+            String campaignSendType,
+            String campaignContent,
+            Date campaignSentDate,
+            Integer campaignSentStatus,
+            Integer templateCodeFk,
+            String employeeCodeFk,
+            String campaignTitle
+    ) {
+        this.campaignCodePk = campaignCodePk;
+        this.campaignSendType = campaignSendType;
+        this.campaignContent = campaignContent;
+        this.campaignSentDate = campaignSentDate;
+        this.campaignSentStatus = campaignSentStatus;
+        this.templateCodeFk = templateCodeFk;
+        this.employeeCodeFk = employeeCodeFk;
+        this.campaignTitle = campaignTitle;
+    }
 }

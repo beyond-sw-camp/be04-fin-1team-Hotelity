@@ -2,6 +2,7 @@ package org.iot.hotelitybackend.hotelservice.aggregate;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,4 +23,26 @@ public class PaymentEntity {
     private Date paymentDate;
     private Integer customerCodeFk;
     private Integer paymentCancelStatus;
+
+    @Builder
+    public PaymentEntity(
+            Integer paymentAmount,
+            Integer reservationCodeFk,
+            Integer paymentCodePk,
+            Integer paymentTypeCodeFk,
+            String paymentMethod,
+            Date paymentDate,
+            Integer customerCodeFk,
+            Integer paymentCancelStatus
+    ) {
+        this.paymentAmount = paymentAmount;
+        this.reservationCodeFk = reservationCodeFk;
+        this.paymentCodePk = paymentCodePk;
+        this.paymentTypeCodeFk = paymentTypeCodeFk;
+        this.paymentMethod = paymentMethod;
+        this.paymentDate = paymentDate;
+        this.customerCodeFk = customerCodeFk;
+        this.paymentCancelStatus = paymentCancelStatus;
+    }
 }
+
