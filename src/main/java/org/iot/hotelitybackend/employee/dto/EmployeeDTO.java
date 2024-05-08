@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class EmployeeDTO {
-	private String employeeCodePk;
+	private int employeeCodePk;
+	private String employeePassword;
 	private int branchCodeFk;
 	private int departmentCodeFk;
 	private String employeeName;

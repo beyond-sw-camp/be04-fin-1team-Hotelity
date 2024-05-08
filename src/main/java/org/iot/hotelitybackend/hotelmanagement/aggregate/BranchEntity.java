@@ -20,13 +20,13 @@ public class BranchEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "branch_code_pk")
-	private Integer branchCodePk;
+	private String branchCodePk;
 	private String branchName;
 	private String branchAddress;
 	private String branchPhoneNumber;
 
 	@Builder
-	public BranchEntity(Integer branchCodePk, String branchName, String branchAddress, String branchPhoneNumber) {
+	public BranchEntity(String branchCodePk, String branchName, String branchAddress, String branchPhoneNumber) {
 		this.branchCodePk = branchCodePk;
 		this.branchName = branchName;
 		this.branchAddress = branchAddress;
