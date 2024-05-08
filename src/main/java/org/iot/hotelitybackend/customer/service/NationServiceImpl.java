@@ -1,4 +1,4 @@
 package org.iot.hotelitybackend.customer.service;
 
-public class NationServiceImpl {
+public class NationServiceImpl implements NationService {
 }

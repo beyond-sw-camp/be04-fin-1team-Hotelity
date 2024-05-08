@@ -1,4 +1,7 @@
 package org.iot.hotelitybackend.customer.repository;
 
-public interface CustomerRepository {
+import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CustomerRepository extends JpaRepository<CustomerEntity, Integer> {
 }

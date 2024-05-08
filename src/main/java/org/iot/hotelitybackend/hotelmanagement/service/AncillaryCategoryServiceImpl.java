@@ -1,4 +1,4 @@
 package org.iot.hotelitybackend.hotelmanagement.service;
 
-public class AncillaryCategoryServiceImpl {
+public class AncillaryCategoryServiceImpl implements AncillaryCategoryService{
 }
