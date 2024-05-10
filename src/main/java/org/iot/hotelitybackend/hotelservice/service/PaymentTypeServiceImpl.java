@@ -1,4 +1,7 @@
 package org.iot.hotelitybackend.hotelservice.service;
 
-public class PaymentTypeServiceImpl {
+import org.springframework.stereotype.Service;
+
+@Service
+public class PaymentTypeServiceImpl implements PaymentTypeService {
 }
