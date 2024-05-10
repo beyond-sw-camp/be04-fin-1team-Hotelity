@@ -45,4 +45,11 @@ public class CustomerServiceImpl implements CustomerService {
 
         return customerPageInfo;
     }
+
+    @Override
+    public CustomerDTO selectCustomerByCustomerCodePk(int customerCodePk) {
+
+        CustomerEntity customerEntity = customerRepository.findById(customerCodePk).get();
+        return mapper.map(customerEntity, CustomerDTO.class);
+    }
 }
