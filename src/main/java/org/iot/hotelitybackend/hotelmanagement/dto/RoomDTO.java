@@ -13,4 +13,5 @@ public class RoomDTO {
 	private String roomImageLink;
 	private String roomView;
 	private RoomCategoryDTO roomCategoryDTO;
+	private BranchDTO branchDTO;
 }
