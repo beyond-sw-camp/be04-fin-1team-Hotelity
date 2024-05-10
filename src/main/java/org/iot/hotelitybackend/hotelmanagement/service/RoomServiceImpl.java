@@ -43,11 +43,11 @@ public class RoomServiceImpl implements RoomService {
 		List<RoomDTO> roomDTOList = roomEntityPage
 			.stream()
 			.map(roomEntity -> mapper.map(roomEntity, RoomDTO.class))
-			.peek(roomDTO -> roomDTO.setRoomCategoryDTO(
-				mapper.map(roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()), RoomCategoryDTO.class)
+			.peek(roomDTO -> roomDTO.setRoomName(
+				mapper.map(roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()), RoomCategoryDTO.class).getRoomName()
 			))
-			.peek(roomDTO -> roomDTO.setBranchDTO(
-				mapper.map(branchRepository.findById(roomDTO.getBranchCodeFk()), BranchDTO.class)
+			.peek(roomDTO -> roomDTO.setBranchName(
+				mapper.map(branchRepository.findById(roomDTO.getBranchCodeFk()), BranchDTO.class).getBranchName()
 			))
 			.toList();
 
