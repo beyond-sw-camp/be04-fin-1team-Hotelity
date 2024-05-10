@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomEntity;
+import org.iot.hotelitybackend.hotelmanagement.dto.BranchDTO;
 import org.iot.hotelitybackend.hotelmanagement.dto.RoomCategoryDTO;
 import org.iot.hotelitybackend.hotelmanagement.dto.RoomDTO;
+import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomCategoryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomRepository;
 import org.modelmapper.ModelMapper;
@@ -23,12 +25,14 @@ public class RoomServiceImpl implements RoomService {
 
 	private final RoomRepository roomRepository;
 	private final RoomCategoryRepository roomCategoryRepository;
+	private final BranchRepository branchRepository;
 	private final ModelMapper mapper;
 
 	@Autowired
-	public RoomServiceImpl(RoomRepository roomRepository, RoomCategoryRepository roomCategoryRepository, ModelMapper mapper) {
+	public RoomServiceImpl(RoomRepository roomRepository, RoomCategoryRepository roomCategoryRepository, BranchRepository branchRepository, ModelMapper mapper) {
 		this.roomRepository = roomRepository;
 		this.roomCategoryRepository = roomCategoryRepository;
+		this.branchRepository = branchRepository;
 		this.mapper = mapper;
 	}
 
@@ -39,8 +43,11 @@ public class RoomServiceImpl implements RoomService {
 		List<RoomDTO> roomDTOList = roomEntityPage
 			.stream()
 			.map(roomEntity -> mapper.map(roomEntity, RoomDTO.class))
-			.peek(roomDTO -> roomDTO.setRoomCategoryDTO(
-				mapper.map(roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()), RoomCategoryDTO.class)
+			.peek(roomDTO -> roomDTO.setRoomName(
+				mapper.map(roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()), RoomCategoryDTO.class).getRoomName()
+			))
+			.peek(roomDTO -> roomDTO.setBranchName(
+				mapper.map(branchRepository.findById(roomDTO.getBranchCodeFk()), BranchDTO.class).getBranchName()
 			))
 			.toList();
 

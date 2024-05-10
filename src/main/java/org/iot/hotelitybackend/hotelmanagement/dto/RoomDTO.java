@@ -12,5 +12,6 @@ public class RoomDTO {
 	private float roomDiscountRate;
 	private String roomImageLink;
 	private String roomView;
-	private RoomCategoryDTO roomCategoryDTO;
+	private String roomName;
+	private String branchName;
 }
