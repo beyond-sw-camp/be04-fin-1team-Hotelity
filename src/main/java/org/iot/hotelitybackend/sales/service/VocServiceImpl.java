@@ -3,6 +3,7 @@ package org.iot.hotelitybackend.sales.service;
 import org.iot.hotelitybackend.sales.aggregate.VocEntity;
 import org.iot.hotelitybackend.sales.dto.VocDTO;
 import org.iot.hotelitybackend.sales.repository.VocRepository;
+import org.iot.hotelitybackend.sales.vo.ResponseVoc;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -46,4 +47,14 @@ public class VocServiceImpl implements VocService {
 
         return vocPageInfo;
     }
+
+    @Override
+    public VocDTO selectVocByVocCodePk(int vocCodePk) {
+        VocEntity vocEntity = vocRepository.findById(vocCodePk)
+                .orElseThrow(IllegalArgumentException::new);
+
+
+        return mapper.map(vocEntity, VocDTO.class);
+    }
+
 }

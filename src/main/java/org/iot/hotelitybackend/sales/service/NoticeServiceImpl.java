@@ -1,4 +1,7 @@
 package org.iot.hotelitybackend.sales.service;
 
-public class NoticeServiceImpl {
+import org.springframework.stereotype.Service;
+
+@Service
+public class NoticeServiceImpl implements NoticeService{
 }

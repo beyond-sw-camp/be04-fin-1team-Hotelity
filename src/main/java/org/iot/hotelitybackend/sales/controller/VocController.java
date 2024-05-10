@@ -1,14 +1,13 @@
 package org.iot.hotelitybackend.sales.controller;
 
 import org.iot.hotelitybackend.common.vo.ResponseVO;
+import org.iot.hotelitybackend.sales.dto.VocDTO;
 import org.iot.hotelitybackend.sales.service.VocService;
+import org.iot.hotelitybackend.sales.vo.ResponseVoc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -23,8 +22,8 @@ public class VocController {
         this.vocService = vocService;
     }
 
-    @GetMapping("/vocs/{pageNum}")
-    public ResponseEntity<ResponseVO> selectVocsList(@PathVariable("pageNum") int pageNum) {
+    @GetMapping("/vocs/page")
+    public ResponseEntity<ResponseVO> selectVocsList(@RequestParam int pageNum) {
         Map<String, Object> vocPageInfo = vocService.selectVocsList(pageNum);
 
         ResponseVO response = ResponseVO.builder()
@@ -36,5 +35,7 @@ public class VocController {
     }
 
     @GetMapping("/vocs/{vocCodePk}/voc")
-    public ResponseEntity
+    public VocDTO selectVocByVocCodePk(@PathVariable int vocCodePk) {
+        return vocService.selectVocByVocCodePk(vocCodePk);
+    }
 }
