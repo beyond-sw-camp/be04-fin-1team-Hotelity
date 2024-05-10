@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
 import org.iot.hotelitybackend.hotelservice.aggregate.PaymentEntity;
 import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
@@ -44,8 +45,10 @@ public class PaymentServiceImpl implements PaymentService {
 		List<PaymentDTO> paymentDTOList =
 			paymentLogPage.stream().map(paymentEntity -> mapper.map(paymentEntity, PaymentDTO.class))
 				.peek(paymentDTO -> paymentDTO.setPaymentTypeDTO(
-					mapper.map(paymentTypeRepository.findById(paymentDTO.getPaymentTypeCodeFk()), PaymentTypeDTO.class)
-				)).toList();
+					mapper.map(paymentTypeRepository.findById(paymentDTO.getPaymentTypeCodeFk()), PaymentTypeDTO.class)))
+				.peek(paymentDTO -> paymentDTO.setCustomerDTO(
+					mapper.map(customerRepository.findById(paymentDTO.getCustomerCodeFk()), CustomerDTO.class)))
+				.toList();
 
 		int totalPagesCount = paymentLogPage.getTotalPages();
 		int currentPageIndex = paymentLogPage.getNumber();
