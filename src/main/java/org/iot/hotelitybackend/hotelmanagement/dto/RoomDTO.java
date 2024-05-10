@@ -5,10 +5,13 @@ import lombok.Data;
 @Data
 public class RoomDTO {
 	private String roomCodePk;
-	private int branchCodeFk;
-	private int room_number;
+	private String branchCodeFk;
+	private int roomNumber;
 	private int roomCategoryCodeFk;
 	private String  roomCurrentStatus;
 	private float roomDiscountRate;
 	private String roomImageLink;
+	private String roomView;
+	private String roomName;
+	private String branchName;
 }
