@@ -1,6 +1,5 @@
 package org.iot.hotelitybackend.employee.service;
 
-import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.employee.aggregate.EmployeeEntity;
 import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
-import static org.iot.hotelitybackend.common.constant.Constant.KEY_CONTENT;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -46,5 +44,18 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeePageInfo.put(KEY_CONTENT, employeeDTOList);
 
         return employeePageInfo;
+    }
+
+    @Override
+    public EmployeeDTO selectEmployeeByEmployeeCodePk(int employCode) {
+
+        EmployeeEntity employeeEntity =
+                employeeRepository.findById(employCode).orElse(null);
+
+        if (employeeEntity != null) {
+            return mapper.map(employeeEntity, EmployeeDTO.class);
+        }
+
+        return null;
     }
 }
