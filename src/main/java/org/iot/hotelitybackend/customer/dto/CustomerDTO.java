@@ -18,5 +18,4 @@ public class CustomerDTO {
 	private String customerType;
 	private int nationCodeFk;
 	private String customerGender;
-
 }
