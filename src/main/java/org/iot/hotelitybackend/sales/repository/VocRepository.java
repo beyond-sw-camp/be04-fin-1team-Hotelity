@@ -1,4 +1,7 @@
 package org.iot.hotelitybackend.sales.repository;
 
-public interface VocRepository {
+import org.iot.hotelitybackend.sales.aggregate.VocEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface VocRepository extends JpaRepository<VocEntity, Integer> {
 }
