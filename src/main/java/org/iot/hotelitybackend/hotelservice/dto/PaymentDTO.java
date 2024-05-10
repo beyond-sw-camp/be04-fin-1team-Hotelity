@@ -14,4 +14,5 @@ public class PaymentDTO {
     private Date paymentDate;
     private Integer customerCodeFk;
     private Integer paymentCancelStatus;
+    private PaymentTypeDTO paymentTypeDTO;
 }

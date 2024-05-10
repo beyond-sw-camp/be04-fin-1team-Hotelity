@@ -5,7 +5,7 @@ import java.util.Date;
 import lombok.Data;
 
 @Data
-public class PaymentDTO {
+public class CustomerDTO {
 	private int customerCodePk;
 	private String customerName;
 	private String customerEmail;

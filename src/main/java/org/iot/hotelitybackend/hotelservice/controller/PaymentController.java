@@ -1,5 +1,6 @@
 package org.iot.hotelitybackend.hotelservice.controller;
 
+import java.util.Date;
 import java.util.Map;
 
 import org.iot.hotelitybackend.common.vo.ResponseVO;
@@ -27,9 +28,22 @@ public class PaymentController {
 		this.mapper = mapper;
 	}
 
-	@GetMapping("/page")
+	@GetMapping("/payments/page")
 	public ResponseEntity<ResponseVO> selectPaymentLogList(@RequestParam int pageNum) {
 		Map<String, Object> paymentLogInfo = paymentService.selectPaymentLogList(pageNum);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(paymentLogInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	@GetMapping("/payments")
+	public ResponseEntity<ResponseVO> selectPaymentByPaymentDate(@PathVariable Date paymentDate) {
+
+		Map<String, Object> paymentLogInfo = paymentService.selectPaymentByPaymentDate(paymentDate);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(paymentLogInfo)

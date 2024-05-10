@@ -2,13 +2,17 @@ package org.iot.hotelitybackend.hotelservice.service;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.iot.hotelitybackend.customer.dto.PaymentDTO;
+import org.iot.hotelitybackend.customer.repository.CustomerRepository;
 import org.iot.hotelitybackend.hotelservice.aggregate.PaymentEntity;
+import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
+import org.iot.hotelitybackend.hotelservice.dto.PaymentTypeDTO;
 import org.iot.hotelitybackend.hotelservice.repository.PaymentRepository;
+import org.iot.hotelitybackend.hotelservice.repository.PaymentTypeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,19 +24,28 @@ import org.springframework.stereotype.Service;
 public class PaymentServiceImpl implements PaymentService {
 	private final PaymentRepository paymentRepository;
 	private final ModelMapper mapper;
+	private final PaymentTypeRepository paymentTypeRepository;
+	private final CustomerRepository customerRepository;
 
 	@Autowired
-	public PaymentServiceImpl(PaymentRepository paymentRepository, ModelMapper mapper) {
+	public PaymentServiceImpl(PaymentRepository paymentRepository, ModelMapper mapper,
+		PaymentTypeRepository paymentTypeRepository, CustomerRepository customerRepository) {
 		this.paymentRepository = paymentRepository;
 		this.mapper = mapper;
+		this.paymentTypeRepository = paymentTypeRepository;
+		this.customerRepository = customerRepository;
 	}
 
+	/* 전체 결제 내역 조회 */
 	@Override
 	public Map<String, Object> selectPaymentLogList(int pageNum) {
 		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
 		Page<PaymentEntity> paymentLogPage = paymentRepository.findAll(pageable);
 		List<PaymentDTO> paymentDTOList =
-			paymentLogPage.stream().map(paymentEntity -> mapper.map(paymentEntity, PaymentDTO.class)).toList();
+			paymentLogPage.stream().map(paymentEntity -> mapper.map(paymentEntity, PaymentDTO.class))
+				.peek(paymentDTO -> paymentDTO.setPaymentTypeDTO(
+					mapper.map(paymentTypeRepository.findById(paymentDTO.getPaymentTypeCodeFk()), PaymentTypeDTO.class)
+				)).toList();
 
 		int totalPagesCount = paymentLogPage.getTotalPages();
 		int currentPageIndex = paymentLogPage.getNumber();
@@ -45,4 +58,16 @@ public class PaymentServiceImpl implements PaymentService {
 
 		return paymentLogPageInfo;
 	}
+
+	/* 날짜별 결제 내역 조회 */
+	@Override
+	public Map<String, Object> selectPaymentByPaymentDate(Date paymentDate) {
+
+		return null;
+	}
+
+	/* 지점별 결제 내역 조회 */
+
+	/* 결제 종류별 결제 내역 조회 */
+
 }
