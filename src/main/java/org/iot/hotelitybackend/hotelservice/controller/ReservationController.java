@@ -1,5 +1,7 @@
 package org.iot.hotelitybackend.hotelservice.controller;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Map;
 
 import org.iot.hotelitybackend.common.vo.ResponseVO;
@@ -26,7 +28,24 @@ public class ReservationController {
 		this.mapper = mapper;
 	}
 
+	/* 월별 예약 리스트 전체 조회 */
+	/* 해당 월에 예약된 전체 리스트(페이징 처리 x)를 프론트로 넘겨주면
+	 * 프론트에서 해당 리스트를 받아 날짜를 기준으로 예약 건 수를 카운트 하여 캘린더에 출력 */
+	@GetMapping("/reservations/{reservationCheckinDate}")
+	public ResponseEntity<ResponseVO> selectReservationListByMonth(@PathVariable("reservationCheckinDate") LocalDateTime reservationCheckinDate) {
 
+		int year = reservationCheckinDate.getYear();
+		int month = reservationCheckinDate.getMonthValue();
+
+		Map<String, Object> reservationInfo = reservationService.selectReservationListByMonth(year, month);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(reservationInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
 
 
 }
