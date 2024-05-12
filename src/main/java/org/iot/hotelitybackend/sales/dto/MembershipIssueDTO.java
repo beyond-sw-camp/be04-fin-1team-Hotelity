@@ -10,4 +10,6 @@ public class MembershipIssueDTO {
     private Integer customerCodeFk;
     private Date membershipIssueDate;
     private Integer membershipLevelCodeFk;
+    private String membershipLevelName;
+    private String customerName;
 }

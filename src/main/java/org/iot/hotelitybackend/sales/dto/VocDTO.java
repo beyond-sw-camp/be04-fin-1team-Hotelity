@@ -1,6 +1,8 @@
 package org.iot.hotelitybackend.sales.dto;
 
 import lombok.Data;
+import org.iot.hotelitybackend.customer.dto.CustomerDTO;
+import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 
 import java.util.Date;
 
@@ -17,4 +19,6 @@ public class VocDTO {
     private String employeeCodeFk;
     private String branchCodeFk;
     private String vocImageLink;
+    private String customerName;
+    private String employeeName;
 }

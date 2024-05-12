@@ -13,4 +13,6 @@ public class CouponIssueDTO {
     private Date couponIssueDate;
     private Date couponExpireDate;
     private Date couponUseDate;
+    private String membershipLevelName;
+    private String customerName;
 }
