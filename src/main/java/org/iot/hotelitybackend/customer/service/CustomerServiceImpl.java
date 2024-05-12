@@ -1,8 +1,14 @@
 package org.iot.hotelitybackend.customer.service;
 
 import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
-import org.iot.hotelitybackend.customer.dto.PaymentDTO;
+import org.iot.hotelitybackend.customer.dto.CustomerDTO;
+import org.iot.hotelitybackend.customer.dto.NationDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
+import org.iot.hotelitybackend.customer.repository.NationRepository;
+import org.iot.hotelitybackend.sales.dto.MembershipDTO;
+import org.iot.hotelitybackend.sales.dto.MembershipIssueDTO;
+import org.iot.hotelitybackend.sales.repository.MembershipIssueRepository;
+import org.iot.hotelitybackend.sales.repository.MembershipRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,19 +26,38 @@ import static org.iot.hotelitybackend.common.constant.Constant.*;
 public class CustomerServiceImpl implements CustomerService {
     private final ModelMapper mapper;
     private final CustomerRepository customerRepository;
+    private final NationRepository nationRepository;
+    private final MembershipRepository membershipRepository;
+    private final MembershipIssueRepository membershipIssueRepository;
+
 
     @Autowired
-    public CustomerServiceImpl(ModelMapper mapper, CustomerRepository customerRepository) {
+    public CustomerServiceImpl(ModelMapper mapper, CustomerRepository customerRepository,
+        NationRepository nationRepository,
+        MembershipRepository membershipRepository, MembershipIssueRepository membershipIssueRepository) {
         this.mapper = mapper;
         this.customerRepository = customerRepository;
+        this.nationRepository = nationRepository;
+        this.membershipRepository = membershipRepository;
+        this.membershipIssueRepository = membershipIssueRepository;
     }
 
     @Override
     public Map<String, Object> selectCustomersList(int pageNum) {
         Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
         Page<CustomerEntity> customerPage = customerRepository.findAll(pageable);
-        List<PaymentDTO> customerDTOList =
-                customerPage.stream().map(customerEntity -> mapper.map(customerEntity, PaymentDTO.class)).toList();
+        MembershipIssueDTO membershipIssueDTO = new MembershipIssueDTO();
+
+
+
+        List<CustomerDTO> customerDTOList =
+            customerPage.stream()
+                .map(customerEntity -> mapper.map(customerEntity, CustomerDTO.class))
+                .peek(customerDTO -> customerDTO.setNationName(mapper.map(nationRepository.findById(customerDTO.getNationCodeFk()), NationDTO.class).getNationName()))
+                .peek(customerDTO -> customerDTO.setMembershipLevelName(membershipRepository.findById
+                    (membershipIssueRepository.findAllByCustomerCodeFk(customerDTO.getCustomerCodePk()).getMembershipLevelCodeFk()).get().getMembershipLevelName()
+                ))
+                .toList();
 
         int totalPagesCount = customerPage.getTotalPages();
         int currentPageIndex = customerPage.getNumber();

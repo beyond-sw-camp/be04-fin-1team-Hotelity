@@ -6,8 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.iot.hotelitybackend.customer.dto.PaymentDTO;
+
 import org.iot.hotelitybackend.hotelservice.aggregate.PaymentEntity;
+import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
 import org.iot.hotelitybackend.hotelservice.repository.PaymentRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
