@@ -2,11 +2,14 @@ package org.iot.hotelitybackend.hotelservice.service;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomRepository;
+import org.iot.hotelitybackend.hotelservice.aggregate.ReservationEntity;
+import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,24 @@ public class ReservationServiceImpl implements ReservationService {
 			LocalDateTime.of(year, month, startOfMonth.getMonth().length(startOfMonth.toLocalDate().isLeapYear()),
 				23, 59, 59);
 		System.out.println("해당 월의 마지막 일자: " + endOfMonth);
+
+		// 특정 월에 해당하는 예약 내역 리스트 조회
+		List<ReservationEntity> reservationInfo = reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
+
+		System.out.println("예약 내역 : ");
+
+		for (ReservationEntity reservation : reservationInfo) {
+			System.out.println("Reservation Code: " + reservation.getReservationCodePk());
+			System.out.println("Reservation Date: " + reservation.getReservationDate());
+			System.out.println("Check-in Date: " + reservation.getReservationCheckinDate());
+			System.out.println("Check-out Date: " + reservation.getReservationCheckoutDate());
+			System.out.println("Customer Code: " + reservation.getCustomerCodeFk());
+			System.out.println("Room Code: " + reservation.getRoomCodeFk());
+			System.out.println("Branch Code: " + reservation.getBranchCodeFk());
+			System.out.println("Cancel Status: " + reservation.getReservationCancelStatus());
+			System.out.println("Personnel: " + reservation.getReservationPersonnel());
+			System.out.println("---------------------------------------------");
+		}
 
 		return null;
 	}
