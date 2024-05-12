@@ -44,10 +44,10 @@ public class PaymentServiceImpl implements PaymentService {
 		Page<PaymentEntity> paymentLogPage = paymentRepository.findAll(pageable);
 		List<PaymentDTO> paymentDTOList =
 			paymentLogPage.stream().map(paymentEntity -> mapper.map(paymentEntity, PaymentDTO.class))
-				.peek(paymentDTO -> paymentDTO.setPaymentTypeDTO(
-					mapper.map(paymentTypeRepository.findById(paymentDTO.getPaymentTypeCodeFk()), PaymentTypeDTO.class)))
-				.peek(paymentDTO -> paymentDTO.setCustomerDTO(
-					mapper.map(customerRepository.findById(paymentDTO.getCustomerCodeFk()), CustomerDTO.class)))
+				.peek(paymentDTO -> paymentDTO.setPaymentTypeName(
+					mapper.map(paymentTypeRepository.findById(paymentDTO.getPaymentTypeCodeFk()), PaymentTypeDTO.class).getPaymentTypeName()))
+				.peek(paymentDTO -> paymentDTO.setCustomerName(
+					mapper.map(customerRepository.findById(paymentDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()))
 				.toList();
 
 		int totalPagesCount = paymentLogPage.getTotalPages();
@@ -61,6 +61,9 @@ public class PaymentServiceImpl implements PaymentService {
 
 		return paymentLogPageInfo;
 	}
+
+	/* 다중 조건 검색을 적용한 결제 내역 전체 조회 */
+	
 
 	/* 날짜별 결제 내역 조회 */
 	@Override

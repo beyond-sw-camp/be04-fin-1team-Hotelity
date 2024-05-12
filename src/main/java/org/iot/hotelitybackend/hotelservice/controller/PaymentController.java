@@ -28,8 +28,27 @@ public class PaymentController {
 		this.mapper = mapper;
 	}
 
+	/* 전체 결제 내역 리스트 조회 */
 	@GetMapping("/payments/page")
 	public ResponseEntity<ResponseVO> selectPaymentLogList(@RequestParam int pageNum) {
+		Map<String, Object> paymentLogInfo = paymentService.selectPaymentLogList(pageNum);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(paymentLogInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	/* 다중 조건 검색을 적용한 전체 결제 내역 리스트 조회 */
+	@GetMapping("/payments/list")
+	public ResponseEntity<ResponseVO> selectPaymentLogListWithFilter(
+		  @RequestParam int pageNum
+		, @RequestParam(value = "customerName", required = false) String searchCustomerName
+		, @RequestParam(value = "paymentTypeName", required = false) String searchPaymentTypeName
+		, @RequestParam(value = "paymentCancleStatus", required = false) int searchPaymentCancleStatus) {
+
 		Map<String, Object> paymentLogInfo = paymentService.selectPaymentLogList(pageNum);
 
 		ResponseVO response = ResponseVO.builder()
