@@ -25,12 +25,12 @@ public class VocEntity {
     private String vocCategory;
     private String vocTitle;
     private String employeeCodeFk;
-    private Integer branchCodeFk;
+    private String branchCodeFk;
     private String vocImageLink;
 
     @Builder
     public VocEntity(Integer vocCodePk, String vocContent, Date vocCreatedDate, Date vocLastUpdatedDate, Integer customerCodeFk,
-        String vocProcessStatus, String vocCategory, String vocTitle, String employeeCodeFk, Integer branchCodeFk,
+        String vocProcessStatus, String vocCategory, String vocTitle, String employeeCodeFk, String branchCodeFk,
         String vocImageLink) {
         this.vocCodePk = vocCodePk;
         this.vocContent = vocContent;
