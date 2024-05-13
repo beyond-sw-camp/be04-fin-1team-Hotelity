@@ -68,4 +68,21 @@ public class ReservationController {
 
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
+
+	/* 예약 코드로 검색 */
+	@GetMapping("/reservations")
+	public ResponseEntity<ResponseVO> selectReservationByReservationCodePk(@RequestParam int reservationCodePk) {
+
+		Map<String, Object> searchReservationInfoByCode = reservationService.selectReservationByReservationCodePk(reservationCodePk);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(searchReservationInfoByCode)
+			.resultCode(HttpStatus.OK.value())
+			.message(reservationCodePk + " 번 코드 검색 결과")
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	/* */
 }

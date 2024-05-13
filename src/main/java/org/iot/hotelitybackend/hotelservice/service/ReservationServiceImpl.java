@@ -88,6 +88,21 @@ public class ReservationServiceImpl implements ReservationService {
 		return dailyReservationInfo;
 	}
 
+	/* 예약 코드로 검색 */
+	@Override
+	public Map<String, Object> selectReservationByReservationCodePk(int reservationCodePk) {
+
+		List<ReservationEntity> reservationListByCode = reservationRepository.findById(reservationCodePk).stream().toList();;
+
+		List<ReservationDTO> reservationDTOListByCode = getFkColumnsName(reservationListByCode);
+
+		Map<String, Object> searchReservationInfoByCode = new HashMap<>();
+
+		searchReservationInfoByCode.put(KEY_CONTENT, reservationDTOListByCode);
+
+		return searchReservationInfoByCode;
+	}
+
 	/* fk 값들의 이름을 가져오는 코드 */
 	private List<ReservationDTO> getFkColumnsName(List<ReservationEntity> reservationList) {
 
