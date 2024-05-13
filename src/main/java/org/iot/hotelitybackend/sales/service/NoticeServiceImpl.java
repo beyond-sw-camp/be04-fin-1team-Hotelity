@@ -5,6 +5,7 @@ import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
 import org.iot.hotelitybackend.sales.aggregate.NoticeEntity;
 import org.iot.hotelitybackend.sales.dto.NoticeDTO;
 import org.iot.hotelitybackend.sales.repository.NoticeRepository;
+import org.iot.hotelitybackend.sales.vo.RequestModifyNotice;
 import org.iot.hotelitybackend.sales.vo.RequestNotice;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,5 +88,23 @@ public class NoticeServiceImpl implements NoticeService {
         registNoticeInfo.put(KEY_CONTENT, mapper.map(noticeRepository.save(noticeEntity), NoticeDTO.class));
 
         return registNoticeInfo;
+    }
+
+    @Override
+    public Map<String, Object> modifyNotice(RequestModifyNotice requestModifyNotice, int noticeCodePk) {
+        NoticeEntity noticeEntity = NoticeEntity.builder()
+                .noticeCodePk(noticeCodePk)
+                .noticeTitle(requestModifyNotice.getNoticeTitle())
+                .noticeContent(requestModifyNotice.getNoticeContent())
+                .employeeCodeFk(noticeRepository.findById(noticeCodePk).get().getEmployeeCodeFk())
+                .noticePostedDate(noticeRepository.findById(noticeCodePk).get().getNoticePostedDate())
+                .noticeLastUpdatedDate(new Date())
+                .build();
+
+        Map<String, Object> modifyNoticeInfo = new HashMap<>();
+
+        modifyNoticeInfo.put(KEY_CONTENT, mapper.map(noticeRepository.save(noticeEntity), NoticeDTO.class));
+
+        return modifyNoticeInfo;
     }
 }

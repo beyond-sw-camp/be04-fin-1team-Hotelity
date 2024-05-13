@@ -11,4 +11,6 @@ public interface CouponService {
     CouponDTO selectCouponByCouponCodePk(int couponCodePk);
 
     Map<String, Object> registCoupon(RequestCoupon requestCoupon);
+
+    Map<String, Object> modifyCoupon(RequestCoupon requestCoupon, int couponCodePk);
 }

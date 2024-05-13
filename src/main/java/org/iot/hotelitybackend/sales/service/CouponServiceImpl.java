@@ -88,4 +88,23 @@ public class CouponServiceImpl implements CouponService{
 
         return registCouponInfo;
     }
+
+    @Override
+    public Map<String, Object> modifyCoupon(RequestCoupon requestCoupon, int couponCodePk) {
+        CouponEntity couponEntity = CouponEntity.builder()
+                .couponCodePk(couponCodePk)
+                .couponName(requestCoupon.getCouponName())
+                .couponType(requestCoupon.getCouponType())
+                .couponDiscountRate(requestCoupon.getCouponDiscountRate())
+                .couponInfo(requestCoupon.getCouponInfo())
+                .couponLaunchingDate(couponRepository.findById(couponCodePk).get().getCouponLaunchingDate())
+                .membershipLevelCodeFk(requestCoupon.getMembershipLevelCodeFk())
+                .build();
+
+        Map<String, Object> modifyCouponInfo = new HashMap<>();
+
+        modifyCouponInfo.put(KEY_CONTENT, mapper.map(couponRepository.save(couponEntity), CouponDTO.class));
+
+        return modifyCouponInfo;
+    }
 }
