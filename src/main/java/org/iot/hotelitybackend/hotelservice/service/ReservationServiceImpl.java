@@ -18,6 +18,9 @@ import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -62,28 +65,50 @@ public class ReservationServiceImpl implements ReservationService {
 		// 특정 월에 해당하는 예약 내역 리스트 조회
 		List<ReservationEntity> reservationList = reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
 
-		List<ReservationDTO> reservationDTOList =
-			reservationList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
-				.peek(reservationDTO -> reservationDTO.setCustomerName(
-					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()))
-				.peek(reservationDTO -> reservationDTO.setRoomName(String.valueOf(roomCategoryRepository.findById(
-					roomRepository.findById(reservationDTO.getRoomCodeFk()).get().getRoomCategoryCodeFk()
-					).get().getRoomName())))
-				.peek(reservationDTO -> reservationDTO.setRoomLevelName(
-					roomLevelRepository.findById(
-						roomCategoryRepository.findById(
-							roomRepository.findById(
-								reservationDTO.getRoomCodeFk()
-							).get().getRoomCategoryCodeFk()
-						).get().getRoomLevelCodeFk()
-						).get().getRoomLevelName()
-					)
-				).toList();
+		List<ReservationDTO> reservationDTOList = getFkColumnsName(reservationList);
 
 		Map<String, Object> reservationListInfo = new HashMap<>();
 
 		reservationListInfo.put(KEY_CONTENT, reservationDTOList);
 
 		return reservationListInfo;
+	}
+
+	/* 일자별 예약 리스트 조회 */
+	@Override
+	public Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate) {
+		List<ReservationEntity> dailyReservationList = reservationRepository.findByReservationCheckinDate(reservationCheckDate);
+
+		List<ReservationDTO> dailyReservationDTOList = getFkColumnsName(dailyReservationList);
+
+		Map<String, Object> dailyReservationInfo = new HashMap<>();
+
+		dailyReservationInfo.put(KEY_CONTENT, dailyReservationDTOList);
+
+		return dailyReservationInfo;
+	}
+
+	/* fk 값들의 이름을 가져오는 코드 */
+	private List<ReservationDTO> getFkColumnsName(List<ReservationEntity> reservationList) {
+
+		List<ReservationDTO> list =
+			reservationList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
+				.peek(reservationDTO -> reservationDTO.setCustomerName(
+					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()))
+				.peek(reservationDTO -> reservationDTO.setRoomName(String.valueOf(roomCategoryRepository.findById(
+					roomRepository.findById(reservationDTO.getRoomCodeFk()).get().getRoomCategoryCodeFk()
+				).get().getRoomName())))
+				.peek(reservationDTO -> reservationDTO.setRoomLevelName(
+						roomLevelRepository.findById(
+							roomCategoryRepository.findById(
+								roomRepository.findById(
+									reservationDTO.getRoomCodeFk()
+								).get().getRoomCategoryCodeFk()
+							).get().getRoomLevelCodeFk()
+						).get().getRoomLevelName()
+					)
+				).toList();
+
+		return list;
 	}
 }

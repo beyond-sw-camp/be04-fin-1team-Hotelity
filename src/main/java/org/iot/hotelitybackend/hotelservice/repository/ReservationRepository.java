@@ -11,4 +11,5 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
 
 	List<ReservationEntity> findByReservationCheckinDateBetween(LocalDateTime start, LocalDateTime end);
 
+	List<ReservationEntity> findByReservationCheckinDate(LocalDateTime reservationCheckDate);
 }

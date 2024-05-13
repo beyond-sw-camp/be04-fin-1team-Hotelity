@@ -6,4 +6,6 @@ import java.util.Map;
 
 public interface ReservationService {
 	Map<String, Object> selectReservationListByMonth(int year, int month);
+
+	Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate);
 }
