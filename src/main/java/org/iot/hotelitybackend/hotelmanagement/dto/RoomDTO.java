@@ -6,9 +6,12 @@ import lombok.Data;
 public class RoomDTO {
 	private String roomCodePk;
 	private String branchCodeFk;
-	private int room_number;
+	private int roomNumber;
 	private int roomCategoryCodeFk;
 	private String  roomCurrentStatus;
 	private float roomDiscountRate;
 	private String roomImageLink;
+	private String roomView;
+	private String roomName;
+	private String branchName;
 }

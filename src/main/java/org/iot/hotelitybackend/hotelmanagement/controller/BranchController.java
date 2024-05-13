@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.hotelmanagement.dto.BranchDTO;
 import org.iot.hotelitybackend.hotelmanagement.service.BranchService;
+import org.iot.hotelitybackend.hotelmanagement.vo.RequestRegistBranch;
 import org.iot.hotelitybackend.hotelmanagement.vo.ResponseBranch;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -30,24 +37,25 @@ public class BranchController {
 	}
 
 	@GetMapping("/branches")
-	public ResponseEntity<Map<String, Object>> selectAllBranches() {
-		List<BranchDTO> branchDTOList = branchService.selectAllBranches();
-		Map<String, Object> result = new HashMap<>();
+	public ResponseEntity<ResponseVO> selectAllBranches(@RequestParam int pageNum) {
+		Map<String, Object> branchPageInfo = branchService.selectAllBranches(pageNum);
 
-		List<ResponseBranch> responseBranchList = branchDTOList
-			.stream()
-			.map(BranchDTO -> mapper.map(BranchDTO, ResponseBranch.class))
-			.toList();
+		ResponseVO response = ResponseVO.builder()
+			.data(branchPageInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
 
-		result.put("data", responseBranchList);
-		if (branchDTOList != null) {
-			result.put("resultCode", HttpStatus.OK);
-			result.put("message", "조회 성공");
-		} else {
-			result.put("resultCode", HttpStatus.NOT_FOUND);
-			result.put("message", "조회 실패");
-		}
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
 
-		return ResponseEntity.status((HttpStatusCode)result.get("resultCode")).body(result);
+	@PostMapping("/branches")
+	public ResponseEntity<ResponseVO> registBranch(@RequestBody RequestRegistBranch requestRegistBranch) {
+		Map<String, Object> registeredBranch = branchService.registBranch(requestRegistBranch);
+		ResponseVO response = ResponseVO.builder()
+			.data(registeredBranch)
+			.resultCode(HttpStatus.CREATED.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 }

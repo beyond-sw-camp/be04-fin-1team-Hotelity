@@ -21,8 +21,7 @@ public class EmployeeEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "employee_code_pk")
 	private Integer employeeCodePk;
-	private String employeePassword;
-	private Integer branchCodeFk;
+	private String branchCodeFk;
 	private Integer departmentCodeFk;
 	private String employeeName;
 	private String employeeAddress;
@@ -39,8 +38,7 @@ public class EmployeeEntity {
 	@Builder
 	public EmployeeEntity(
 		Integer employeeCodePk,
-		String employeePassword,
-		Integer branchCodeFk,
+		String branchCodeFk,
 		Integer departmentCodeFk,
 		String employeeName,
 		String employeeAddress,
@@ -55,7 +53,6 @@ public class EmployeeEntity {
 		String employeeProfileImageLink
 	) {
 		this.employeeCodePk = employeeCodePk;
-		this.employeePassword = employeePassword;
 		this.branchCodeFk = branchCodeFk;
 		this.departmentCodeFk = departmentCodeFk;
 		this.employeeName = employeeName;
