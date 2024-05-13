@@ -5,6 +5,7 @@ import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
 import org.iot.hotelitybackend.sales.aggregate.NoticeEntity;
 import org.iot.hotelitybackend.sales.dto.NoticeDTO;
 import org.iot.hotelitybackend.sales.repository.NoticeRepository;
+import org.iot.hotelitybackend.sales.vo.RequestNotice;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,5 +71,21 @@ public class NoticeServiceImpl implements NoticeService {
         noticeDTO.setEmployeeName(employeeName);
 
         return noticeDTO;
+    }
+
+    @Override
+    public Map<String, Object> registNotice(RequestNotice requestNotice) {
+        NoticeEntity noticeEntity = NoticeEntity.builder()
+                .noticeTitle(requestNotice.getNoticeTitle())
+                .noticeContent(requestNotice.getNoticeContent())
+                .employeeCodeFk(requestNotice.getEmployeeCodeFk())
+                .noticePostedDate(new Date())
+                .build();
+
+        Map<String, Object> registNoticeInfo = new HashMap<>();
+
+        registNoticeInfo.put(KEY_CONTENT, mapper.map(noticeRepository.save(noticeEntity), NoticeDTO.class));
+
+        return registNoticeInfo;
     }
 }
