@@ -24,8 +24,15 @@ public class CouponEntity {
     private Integer membershipLevelCodeFk;
 
     @Builder
-    public CouponEntity(Integer couponCodePk, String couponName, String couponType, double couponDiscountRate,
-        Date couponLaunchingDate, String couponInfo, Integer membershipLevelCodeFk) {
+    public CouponEntity(
+            Integer couponCodePk,
+            String couponName,
+            String couponType,
+            double couponDiscountRate,
+            Date couponLaunchingDate,
+            String couponInfo,
+            Integer membershipLevelCodeFk
+    ) {
         this.couponCodePk = couponCodePk;
         this.couponName = couponName;
         this.couponType = couponType;

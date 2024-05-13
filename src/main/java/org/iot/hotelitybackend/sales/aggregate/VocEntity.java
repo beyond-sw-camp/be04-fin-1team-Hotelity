@@ -24,14 +24,24 @@ public class VocEntity {
     private String vocProcessStatus;
     private String vocCategory;
     private String vocTitle;
-    private String employeeCodeFk;
+    private Integer employeeCodeFk;
     private String branchCodeFk;
     private String vocImageLink;
 
     @Builder
-    public VocEntity(Integer vocCodePk, String vocContent, Date vocCreatedDate, Date vocLastUpdatedDate, Integer customerCodeFk,
-        String vocProcessStatus, String vocCategory, String vocTitle, String employeeCodeFk, String branchCodeFk,
-        String vocImageLink) {
+    public VocEntity(
+            Integer vocCodePk,
+            String vocContent,
+            Date vocCreatedDate,
+            Date vocLastUpdatedDate,
+            Integer customerCodeFk,
+            String vocProcessStatus,
+            String vocCategory,
+            String vocTitle,
+            Integer employeeCodeFk,
+            String branchCodeFk,
+            String vocImageLink
+    ) {
         this.vocCodePk = vocCodePk;
         this.vocContent = vocContent;
         this.vocCreatedDate = vocCreatedDate;

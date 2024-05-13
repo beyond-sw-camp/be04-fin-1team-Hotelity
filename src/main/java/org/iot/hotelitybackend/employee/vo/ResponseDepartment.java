@@ -6,5 +6,5 @@ import lombok.Data;
 public class ResponseDepartment {
 	private int departmentCodePk;
 	private String departmentName;
-	private int branchCodeFk;
+	private String branchCodeFk;
 }
