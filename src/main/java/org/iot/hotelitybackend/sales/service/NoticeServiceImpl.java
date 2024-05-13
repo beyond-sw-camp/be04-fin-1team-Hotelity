@@ -37,8 +37,8 @@ public class NoticeServiceImpl implements NoticeService {
         Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
         Page<NoticeEntity> noticePage = noticeRepository.findAll(pageable);
         List<NoticeDTO> noticeDTOList = noticePage.stream().map(noticeEntity -> mapper.map(noticeEntity, NoticeDTO.class))
-                .peek(vocDTO -> vocDTO.setEmployeeName(
-                        mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
+                .peek(noticeDTO -> noticeDTO.setEmployeeName(
+                        mapper.map(employeeRepository.findById(noticeDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
                 ))
                 .toList();
 

@@ -19,8 +19,12 @@ public class MembershipEntity {
     private Integer membershipCriteriaAmount;
 
 	@Builder
-	public MembershipEntity(Integer membershipLevelCodePk, String membershipLevelName, String membershipInfo,
-		Integer membershipCriteriaAmount) {
+	public MembershipEntity(
+			Integer membershipLevelCodePk,
+			String membershipLevelName,
+			String membershipInfo,
+			Integer membershipCriteriaAmount
+	) {
 		this.membershipLevelCodePk = membershipLevelCodePk;
 		this.membershipLevelName = membershipLevelName;
 		this.membershipInfo = membershipInfo;
