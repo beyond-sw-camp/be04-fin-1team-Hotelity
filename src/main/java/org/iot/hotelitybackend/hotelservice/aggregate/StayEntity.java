@@ -19,7 +19,6 @@ public class StayEntity {
     private Date stayCheckinTime;
     private Date stayCheckoutTime;
     private Integer stayPeopleCount;
-    private String employeeCodeFk;
     private Integer reservationCodeFk;
 
     @Builder
@@ -28,14 +27,12 @@ public class StayEntity {
             Date stayCheckinTime,
             Date stayCheckoutTime,
             Integer stayPeopleCount,
-            String employeeCodeFk,
             Integer reservationCodeFk
     ) {
         this.stayCodePk = stayCodePk;
         this.stayCheckinTime = stayCheckinTime;
         this.stayCheckoutTime = stayCheckoutTime;
         this.stayPeopleCount = stayPeopleCount;
-        this.employeeCodeFk = employeeCodeFk;
         this.reservationCodeFk = reservationCodeFk;
     }
 }

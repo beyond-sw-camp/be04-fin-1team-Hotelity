@@ -1,6 +1,9 @@
 package org.iot.hotelitybackend.employee.dto;
 
 import lombok.Data;
+import org.iot.hotelitybackend.hotelservice.aggregate.StayEntity;
+
+import java.util.List;
 
 @Data
 public class EmployeeDTO {
@@ -19,4 +22,6 @@ public class EmployeeDTO {
 	private String nameOfRank;
 	private String nameOfDepartment;
 	private String nameOfBranch;
+
+    private List<StayEntity> stayList;
 }
