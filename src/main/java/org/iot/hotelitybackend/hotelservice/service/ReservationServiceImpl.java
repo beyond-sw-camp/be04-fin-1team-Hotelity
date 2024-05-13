@@ -1,13 +1,14 @@
 package org.iot.hotelitybackend.hotelservice.service;
 
+import static org.iot.hotelitybackend.common.constant.Constant.*;
+
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
-import org.iot.hotelitybackend.hotelmanagement.dto.RoomDTO;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomCategoryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomLevelRepository;
@@ -59,28 +60,10 @@ public class ReservationServiceImpl implements ReservationService {
 		System.out.println("해당 월의 마지막 일자: " + endOfMonth);
 
 		// 특정 월에 해당하는 예약 내역 리스트 조회
-		List<ReservationEntity> reservationInfo = reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
+		List<ReservationEntity> reservationList = reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
 
-		// 조회 확인용
-		System.out.println("예약 내역 : ");
-		for (ReservationEntity reservation : reservationInfo) {
-			System.out.println("Reservation Code: " + reservation.getReservationCodePk());
-			System.out.println("Reservation Date: " + reservation.getReservationDate());
-			System.out.println("Check-in Date: " + reservation.getReservationCheckinDate());
-			System.out.println("Check-out Date: " + reservation.getReservationCheckoutDate());
-			System.out.println("Customer Code: " + reservation.getCustomerCodeFk());
-			System.out.println("Room Code: " + reservation.getRoomCodeFk());
-			System.out.println("Branch Code: " + reservation.getBranchCodeFk());
-			System.out.println("Cancel Status: " + reservation.getReservationCancelStatus());
-			System.out.println("Personnel: " + reservation.getReservationPersonnel());
-			System.out.println("---------------------------------------------");
-		}
-
-		// 객실명: 예약(객실코드fk) -> 객실(객실카테고리코드fk) -> 객실카테고리.getRoomName
-
-		// 객실등급명:
 		List<ReservationDTO> reservationDTOList =
-			reservationInfo.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
+			reservationList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
 				.peek(reservationDTO -> reservationDTO.setCustomerName(
 					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()))
 				.peek(reservationDTO -> reservationDTO.setRoomName(String.valueOf(roomCategoryRepository.findById(
@@ -97,37 +80,10 @@ public class ReservationServiceImpl implements ReservationService {
 					)
 				).toList();
 
-		System.out.println("reservatopmDTOList: ");
-		for (ReservationDTO reservationDTO : reservationDTOList) {
-			System.out.println("Reservation Code: " + reservationDTO.getReservationCodePk());
-			System.out.println("Reservation Date: " + reservationDTO.getReservationDate());
-			System.out.println("Check-in Date: " + reservationDTO.getReservationCheckinDate());
-			System.out.println("Check-out Date: " + reservationDTO.getReservationCheckoutDate());
-			System.out.println("Customer Code: " + reservationDTO.getCustomerCodeFk());
-			System.out.println("Customer Name: " + reservationDTO.getCustomerName());
-			System.out.println("Room Code: " + reservationDTO.getRoomCodeFk());
-			System.out.println("Room Name: " + reservationDTO.getRoomName());
-			System.out.println("Room Level Name: " + reservationDTO.getRoomLevelName());
-			System.out.println("Branch Code: " + reservationDTO.getBranchCodeFk());
-			System.out.println("Reservation Cancel Status: " + reservationDTO.getReservationCancelStatus());
-			System.out.println("Reservation Personnel: " + reservationDTO.getReservationPersonnel());
-			System.out.println();
-		}
+		Map<String, Object> reservationListInfo = new HashMap<>();
 
-		// .peek(reservationDTO -> {
-		// 	String roomCategoryCode = mapper.map(
-		// 			roomRepository.findById(reservationDTO.getRoomCodeFk()),
-		// 			RoomDTO.class
-		// 		)
-		// 		.getRoomCategoryCodeFk()
-		// 		.orElse(""); // orElse에는 기본값 설정 가능
-		//
-		// 	reservationDTO.setRoomName(
-		// 		roomCategoryRepository.findById(roomCategoryCode)
-		// 	);
-		// })
+		reservationListInfo.put(KEY_CONTENT, reservationDTOList);
 
-
-		return null;
+		return reservationListInfo;
 	}
 }
