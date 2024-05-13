@@ -63,7 +63,7 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	/* 다중 조건 검색을 적용한 결제 내역 전체 조회 */
-	
+
 
 	/* 날짜별 결제 내역 조회 */
 	@Override
