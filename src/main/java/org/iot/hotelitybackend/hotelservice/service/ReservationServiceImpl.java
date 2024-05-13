@@ -76,16 +76,56 @@ public class ReservationServiceImpl implements ReservationService {
 			System.out.println("---------------------------------------------");
 		}
 
-		// 객실명: 예약(객실코드) -> 객실(객실카테고리코드) -> 객실카테고리.getRoomName
+		// 객실명: 예약(객실코드fk) -> 객실(객실카테고리코드fk) -> 객실카테고리.getRoomName
 
 		// 객실등급명:
 		List<ReservationDTO> reservationDTOList =
 			reservationInfo.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
-				.peek(reservationDTO -> reservationDTO.setCustomerCodeFk(
+				.peek(reservationDTO -> reservationDTO.setCustomerName(
 					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()))
-				.peek(reservationDTO -> reservationDTO.setRoomCodeFk(
-					mapper.map(roomRepository.findById(reservationDTO.getRoomCodeFk()), RoomDTO.class).
-				))
+				.peek(reservationDTO -> reservationDTO.setRoomName(String.valueOf(roomCategoryRepository.findById(
+					roomRepository.findById(reservationDTO.getRoomCodeFk()).get().getRoomCategoryCodeFk()
+					).get().getRoomName())))
+				.peek(reservationDTO -> reservationDTO.setRoomLevelName(
+					roomLevelRepository.findById(
+						roomCategoryRepository.findById(
+							roomRepository.findById(
+								reservationDTO.getRoomCodeFk()
+							).get().getRoomCategoryCodeFk()
+						).get().getRoomLevelCodeFk()
+						).get().getRoomLevelName()
+					)
+				).toList();
+
+		System.out.println("reservatopmDTOList: ");
+		for (ReservationDTO reservationDTO : reservationDTOList) {
+			System.out.println("Reservation Code: " + reservationDTO.getReservationCodePk());
+			System.out.println("Reservation Date: " + reservationDTO.getReservationDate());
+			System.out.println("Check-in Date: " + reservationDTO.getReservationCheckinDate());
+			System.out.println("Check-out Date: " + reservationDTO.getReservationCheckoutDate());
+			System.out.println("Customer Code: " + reservationDTO.getCustomerCodeFk());
+			System.out.println("Customer Name: " + reservationDTO.getCustomerName());
+			System.out.println("Room Code: " + reservationDTO.getRoomCodeFk());
+			System.out.println("Room Name: " + reservationDTO.getRoomName());
+			System.out.println("Room Level Name: " + reservationDTO.getRoomLevelName());
+			System.out.println("Branch Code: " + reservationDTO.getBranchCodeFk());
+			System.out.println("Reservation Cancel Status: " + reservationDTO.getReservationCancelStatus());
+			System.out.println("Reservation Personnel: " + reservationDTO.getReservationPersonnel());
+			System.out.println();
+		}
+
+		// .peek(reservationDTO -> {
+		// 	String roomCategoryCode = mapper.map(
+		// 			roomRepository.findById(reservationDTO.getRoomCodeFk()),
+		// 			RoomDTO.class
+		// 		)
+		// 		.getRoomCategoryCodeFk()
+		// 		.orElse(""); // orElse에는 기본값 설정 가능
+		//
+		// 	reservationDTO.setRoomName(
+		// 		roomCategoryRepository.findById(roomCategoryCode)
+		// 	);
+		// })
 
 
 		return null;

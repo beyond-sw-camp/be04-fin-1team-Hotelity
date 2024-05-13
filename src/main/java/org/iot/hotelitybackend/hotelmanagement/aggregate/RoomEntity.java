@@ -21,7 +21,7 @@ public class RoomEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "room_code_pk")
 	private String roomCodePk;
-	private Integer branchCodeFk;
+	private String branchCodeFk;
 	private Integer room_number;
 	private Integer roomCategoryCodeFk;
 	private String  roomCurrentStatus;
@@ -29,7 +29,7 @@ public class RoomEntity {
 	private String roomImageLink;
 
 	@Builder
-	public RoomEntity(String roomCodePk, Integer branchCodeFk, Integer room_number, Integer roomCategoryCodeFk,
+	public RoomEntity(String roomCodePk, String branchCodeFk, Integer room_number, Integer roomCategoryCodeFk,
 		String roomCurrentStatus, Float roomDiscountRate, String roomImageLink) {
 		this.roomCodePk = roomCodePk;
 		this.branchCodeFk = branchCodeFk;
