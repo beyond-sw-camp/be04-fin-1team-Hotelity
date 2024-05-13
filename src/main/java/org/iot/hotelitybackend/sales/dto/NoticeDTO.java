@@ -10,6 +10,6 @@ public class NoticeDTO {
     private String noticeTitle;
     private String noticeContent;
     private Date noticePostedDate;
-    private String employeeCodeFk;
+    private Integer employeeCodeFk;
     private String employeeName;
 }

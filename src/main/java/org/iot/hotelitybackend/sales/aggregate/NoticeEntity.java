@@ -19,7 +19,7 @@ public class NoticeEntity {
     private String noticeTitle;
     private String noticeContent;
     private Date noticePostedDate;
-    private String employeeCodeFk;
+    private Integer employeeCodeFk;
 
 	@Builder
 	public NoticeEntity(Integer noticeCodePk, String noticeTitle, String noticeContent, Date noticePostedDate,

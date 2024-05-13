@@ -16,7 +16,7 @@ public class VocDTO {
     private String vocProcessStatus;
     private String vocCategory;
     private String vocTitle;
-    private String employeeCodeFk;
+    private Integer employeeCodeFk;
     private String branchCodeFk;
     private String vocImageLink;
     private String customerName;
