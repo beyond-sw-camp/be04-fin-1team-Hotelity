@@ -14,7 +14,7 @@ public class StayDTO {
     private Integer stayPeopleCount;
     private Date stayCheckinTime;
     private Date stayCheckoutTime;
-    private String employeeCodeFk;
+    private Integer employeeCodeFk;
     private String employeeName;
     private String branchName;
     private Integer reservationCodeFk;

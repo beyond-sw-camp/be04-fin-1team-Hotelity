@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -16,19 +17,19 @@ public class StayEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer stayCodePk;
-    private Date stayCheckinTime;
-    private Date stayCheckoutTime;
+    private LocalDateTime stayCheckinTime;
+    private LocalDateTime stayCheckoutTime;
     private Integer stayPeopleCount;
-    private String employeeCodeFk;
+    private Integer employeeCodeFk;
     private Integer reservationCodeFk;
 
     @Builder
     public StayEntity(
             Integer stayCodePk,
-            Date stayCheckinTime,
-            Date stayCheckoutTime,
+            LocalDateTime stayCheckinTime,
+            LocalDateTime stayCheckoutTime,
             Integer stayPeopleCount,
-            String employeeCodeFk,
+            Integer employeeCodeFk,
             Integer reservationCodeFk
     ) {
         this.stayCodePk = stayCodePk;
