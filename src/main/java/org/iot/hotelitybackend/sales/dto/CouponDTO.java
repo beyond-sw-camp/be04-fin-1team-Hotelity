@@ -16,4 +16,5 @@ public class CouponDTO {
     private Date couponLaunchingDate;
     private String couponInfo;
     private Integer membershipLevelCodeFk;
+    private String membershipLevelName;
 }
