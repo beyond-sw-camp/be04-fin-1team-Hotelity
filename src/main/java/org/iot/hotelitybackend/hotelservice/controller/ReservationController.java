@@ -83,6 +83,4 @@ public class ReservationController {
 
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
-
-	/* */
 }
