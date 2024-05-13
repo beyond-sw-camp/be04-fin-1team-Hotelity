@@ -14,4 +14,6 @@ public interface BranchService {
 	Map<String, Object> registBranch(RequestRegistBranch requestRegistBranch);
 
 	Map<String, Object> modifyBranchInfo(RequestModifyBranch requestModifyBranch, String branchCodePk);
+
+	Map<String, Object> deleteBranch(String branchCodePk);
 }

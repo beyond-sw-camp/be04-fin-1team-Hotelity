@@ -81,4 +81,18 @@ public class BranchServiceImpl implements BranchService{
 		modifiedBranchInfo.put(KEY_CONTENT, mapper.map(branchRepository.save(branchEntity), BranchDTO.class));
 		return modifiedBranchInfo;
 	}
+
+	@Override
+	public Map<String, Object> deleteBranch(String branchCodePk) {
+
+		Map<String, Object> deleteBranchInfo = new HashMap<>();
+		try {
+			branchRepository.deleteById(branchCodePk);
+			deleteBranchInfo.put(KEY_CONTENT, "Content deleted successfully.");
+		} catch (Exception e) {
+			deleteBranchInfo.put(KEY_CONTENT, "Failed to delete content.");
+		}
+		System.out.println(deleteBranchInfo.get(KEY_CONTENT));
+		return deleteBranchInfo;
+	}
 }

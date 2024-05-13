@@ -67,7 +67,7 @@ public class BranchController {
 		@RequestBody RequestModifyBranch requestModifyBranch,
 		@PathVariable("branchCodePk") String branchCodePk) {
 		Map<String, Object> modifiedBranchInfo = branchService.modifyBranchInfo(requestModifyBranch, branchCodePk);
-		ResponseVO response= ResponseVO.builder()
+		ResponseVO response = ResponseVO.builder()
 			.data(modifiedBranchInfo)
 			.resultCode(HttpStatus.CREATED.value())
 			.message("수정 성공")
@@ -76,5 +76,15 @@ public class BranchController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
-	
+	@DeleteMapping("/branches/{branchCodePk}")
+	public ResponseEntity<ResponseVO> deleteBranch(@PathVariable("branchCodePk") String branchCodePk) {
+		Map<String, Object> deleteBranch = branchService.deleteBranch(branchCodePk);
+		ResponseVO response = ResponseVO.builder()
+			.data(deleteBranch)
+			.resultCode(HttpStatus.NO_CONTENT.value())
+			.message("삭제 성공")
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
 }
