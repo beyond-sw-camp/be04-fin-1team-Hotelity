@@ -11,4 +11,5 @@ public class NoticeDTO {
     private String noticeContent;
     private Date noticePostedDate;
     private String employeeCodeFk;
+    private String employeeName;
 }

@@ -1,4 +1,7 @@
 package org.iot.hotelitybackend.sales.repository;
 
-public interface MembershipRepository {
+import org.iot.hotelitybackend.sales.aggregate.MembershipEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface MembershipRepository extends JpaRepository<MembershipEntity, Integer> {
 }
