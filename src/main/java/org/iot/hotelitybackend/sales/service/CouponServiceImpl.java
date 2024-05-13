@@ -7,6 +7,7 @@ import org.iot.hotelitybackend.sales.dto.CouponDTO;
 import org.iot.hotelitybackend.sales.dto.VocDTO;
 import org.iot.hotelitybackend.sales.repository.CouponRepository;
 import org.iot.hotelitybackend.sales.repository.MembershipRepository;
+import org.iot.hotelitybackend.sales.vo.RequestCoupon;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,5 +69,23 @@ public class CouponServiceImpl implements CouponService{
         couponDTO.setMembershipLevelName(membershipLevelName);
 
         return couponDTO;
+    }
+
+    @Override
+    public Map<String, Object> registCoupon(RequestCoupon requestCoupon) {
+        CouponEntity couponEntity = CouponEntity.builder()
+                .couponName(requestCoupon.getCouponName())
+                .couponType(requestCoupon.getCouponType())
+                .couponDiscountRate(requestCoupon.getCouponDiscountRate())
+                .couponInfo(requestCoupon.getCouponInfo())
+                .membershipLevelCodeFk(requestCoupon.getMembershipLevelCodeFk())
+                .couponLaunchingDate(new Date())
+                .build();
+
+        Map<String, Object> registCouponInfo = new HashMap<>();
+
+        registCouponInfo.put(KEY_CONTENT, mapper.map(couponRepository.save(couponEntity), CouponDTO.class));
+
+        return registCouponInfo;
     }
 }

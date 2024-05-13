@@ -2,13 +2,11 @@ package org.iot.hotelitybackend.sales.controller;
 
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.sales.service.CouponIssueService;
+import org.iot.hotelitybackend.sales.vo.RequestCouponIssue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -30,6 +28,18 @@ public class CouponIssueController {
         ResponseVO response = ResponseVO.builder()
                 .data(couponIssuePageInfo)
                 .resultCode(HttpStatus.OK.value())
+                .build();
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
+    }
+
+    @PostMapping("coupons/issue")
+    public ResponseEntity<ResponseVO> registCouponToCustomer(@RequestBody RequestCouponIssue requestCouponIssue) {
+        Map<String, Object> registCouponIssueInfo = couponIssueService.registCouponToCustomer(requestCouponIssue);
+
+        ResponseVO response = ResponseVO.builder()
+                .data(registCouponIssueInfo)
+                .resultCode(HttpStatus.CREATED.value())
                 .build();
 
         return ResponseEntity.status(response.getResultCode()).body(response);

@@ -1,8 +1,10 @@
 package org.iot.hotelitybackend.sales.controller;
 
 import org.iot.hotelitybackend.common.vo.ResponseVO;
+import org.iot.hotelitybackend.sales.aggregate.CouponEntity;
 import org.iot.hotelitybackend.sales.dto.CouponDTO;
 import org.iot.hotelitybackend.sales.service.CouponService;
+import org.iot.hotelitybackend.sales.vo.RequestCoupon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,5 +38,17 @@ public class CouponController {
     @GetMapping("/coupons/{couponCodePk}/coupon")
     public CouponDTO selectCouponByCouponCodePk(@PathVariable int couponCodePk) {
         return couponService.selectCouponByCouponCodePk(couponCodePk);
+    }
+
+    @PostMapping("/coupons")
+    public ResponseEntity<ResponseVO> registCoupon(@RequestBody RequestCoupon requestCoupon) {
+        Map<String, Object> registCouponInfo = couponService.registCoupon(requestCoupon);
+        
+        ResponseVO response = ResponseVO.builder()
+                .data(registCouponInfo)
+                .resultCode(HttpStatus.CREATED.value())
+                .build();
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
     }
 }
