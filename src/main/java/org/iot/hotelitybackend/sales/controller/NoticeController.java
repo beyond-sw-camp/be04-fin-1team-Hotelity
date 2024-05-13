@@ -66,4 +66,19 @@ public class NoticeController {
 
         return ResponseEntity.status(response.getResultCode()).body(response);
     }
+
+    @DeleteMapping("/notices/{noticeCodePk}")
+    public ResponseEntity<ResponseVO> deleteNotice(@PathVariable("noticeCodePk") int noticeCodePk) {
+
+        Map<String, Object> deleteNotice = noticeService.deleteNotice(noticeCodePk);
+
+        ResponseVO response = ResponseVO.builder()
+                .data(deleteNotice)
+                .resultCode(HttpStatus.NO_CONTENT.value())
+                .message("삭제 성공")
+                .build();
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
+
+    }
 }

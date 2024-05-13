@@ -107,4 +107,17 @@ public class NoticeServiceImpl implements NoticeService {
 
         return modifyNoticeInfo;
     }
+
+    @Override
+    public Map<String, Object> deleteNotice(int noticeCodePk) {
+        Map<String, Object> deleteNoticeInfo = new HashMap<>();
+
+        if (noticeRepository.existsById(noticeCodePk)) {
+            noticeRepository.deleteById(noticeCodePk);
+        } else {
+            System.out.println("해당하는 공지를 찾을 수 없습니다.");
+        }
+
+        return deleteNoticeInfo;
+    }
 }
