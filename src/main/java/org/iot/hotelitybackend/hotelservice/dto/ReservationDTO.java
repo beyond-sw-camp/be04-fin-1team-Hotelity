@@ -12,6 +12,8 @@ public class ReservationDTO {
     private Date reservationCheckoutDate;
     private Integer customerCodeFk;
     private String roomCodeFk;
+    private String roomName;
+    private String roomLevelName;
     private Integer branchCodeFk;
     private Integer reservationCancelStatus;
     private Integer reservationPersonnel;

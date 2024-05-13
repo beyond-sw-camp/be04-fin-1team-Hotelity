@@ -5,8 +5,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
+import org.iot.hotelitybackend.hotelmanagement.dto.RoomDTO;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
+import org.iot.hotelitybackend.hotelmanagement.repository.RoomCategoryRepository;
+import org.iot.hotelitybackend.hotelmanagement.repository.RoomLevelRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomRepository;
 import org.iot.hotelitybackend.hotelservice.aggregate.ReservationEntity;
 import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
@@ -22,15 +26,21 @@ public class ReservationServiceImpl implements ReservationService {
 	private final ModelMapper mapper;
 	private final CustomerRepository customerRepository;
 	private final RoomRepository roomRepository;
+	private final RoomCategoryRepository roomCategoryRepository;
+	private final RoomLevelRepository roomLevelRepository;
 	private final BranchRepository branchRepository;
 
 	@Autowired
 	public ReservationServiceImpl(ReservationRepository reservationRepository, ModelMapper mapper,
-		CustomerRepository customerRepository, RoomRepository roomRepository, BranchRepository branchRepository) {
+		CustomerRepository customerRepository, RoomRepository roomRepository,
+		RoomCategoryRepository roomCategoryRepository,
+		RoomLevelRepository roomLevelRepository, BranchRepository branchRepository) {
 		this.reservationRepository = reservationRepository;
 		this.mapper = mapper;
 		this.customerRepository = customerRepository;
 		this.roomRepository = roomRepository;
+		this.roomCategoryRepository = roomCategoryRepository;
+		this.roomLevelRepository = roomLevelRepository;
 		this.branchRepository = branchRepository;
 	}
 
@@ -51,8 +61,8 @@ public class ReservationServiceImpl implements ReservationService {
 		// 특정 월에 해당하는 예약 내역 리스트 조회
 		List<ReservationEntity> reservationInfo = reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
 
+		// 조회 확인용
 		System.out.println("예약 내역 : ");
-
 		for (ReservationEntity reservation : reservationInfo) {
 			System.out.println("Reservation Code: " + reservation.getReservationCodePk());
 			System.out.println("Reservation Date: " + reservation.getReservationDate());
@@ -65,6 +75,18 @@ public class ReservationServiceImpl implements ReservationService {
 			System.out.println("Personnel: " + reservation.getReservationPersonnel());
 			System.out.println("---------------------------------------------");
 		}
+
+		// 객실명: 예약(객실코드) -> 객실(객실카테고리코드) -> 객실카테고리.getRoomName
+
+		// 객실등급명:
+		List<ReservationDTO> reservationDTOList =
+			reservationInfo.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
+				.peek(reservationDTO -> reservationDTO.setCustomerCodeFk(
+					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()))
+				.peek(reservationDTO -> reservationDTO.setRoomCodeFk(
+					mapper.map(roomRepository.findById(reservationDTO.getRoomCodeFk()), RoomDTO.class).
+				))
+
 
 		return null;
 	}
