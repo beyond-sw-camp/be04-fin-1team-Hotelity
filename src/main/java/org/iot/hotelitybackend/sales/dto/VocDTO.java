@@ -15,6 +15,6 @@ public class VocDTO {
     private String vocCategory;
     private String vocTitle;
     private String employeeCodeFk;
-    private Integer branchCodeFk;
+    private String branchCodeFk;
     private String vocImageLink;
 }

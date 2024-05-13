@@ -19,10 +19,4 @@ public class EmployeeDTO {
 	private String nameOfRank;
 	private String nameOfDepartment;
 	private String nameOfBranch;
-
-    private int permissionCodeFk;
-    private int positionCodeFk;
-    private int rankCodeFk;
-    private int departmentCodeFk;
-    private String branchCodeFk;
 }
