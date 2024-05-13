@@ -27,8 +27,8 @@ public class MembershipController {
         return null;
     }
 
-    @GetMapping("/membership/{MembershipLevelCodePk}")
-    public CustomerDTO selectCustomerByMembershipLevelCodePk(@PathVariable int membershipLevelCodePk) {
-        return membershipService.selectCustomerByMembershipLevelCodePk(membershipLevelCodePk);
-    }
+    // @GetMapping("/membership/{MembershipLevelCodePk}")
+    // public CustomerDTO selectCustomerByMembershipLevelCodePk(@PathVariable int membershipLevelCodePk) {
+    //     return membershipService.selectCustomerByMembershipLevelCodePk(membershipLevelCodePk);
+    // }
 }

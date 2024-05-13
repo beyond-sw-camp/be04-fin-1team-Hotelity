@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class BranchEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	// @GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "branch_code_pk")
 	private String branchCodePk;
 	private String branchName;

@@ -55,7 +55,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .map(customerEntity -> mapper.map(customerEntity, CustomerDTO.class))
                 .peek(customerDTO -> customerDTO.setNationName(mapper.map(nationRepository.findById(customerDTO.getNationCodeFk()), NationDTO.class).getNationName()))
                 .peek(customerDTO -> customerDTO.setMembershipLevelName(membershipRepository.findById
-                    (membershipIssueRepository.findAllByCustomerCodeFk(customerDTO.getCustomerCodePk()).getMembershipLevelCodeFk()).get().getMembershipLevelName()
+                    (membershipIssueRepository.findByCustomerCodeFk(customerDTO.getCustomerCodePk()).getMembershipLevelCodeFk()).get().getMembershipLevelName()
                 ))
                 .toList();
 
