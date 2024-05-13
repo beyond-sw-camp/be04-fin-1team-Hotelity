@@ -3,6 +3,7 @@ package org.iot.hotelitybackend.sales.controller;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.sales.dto.VocDTO;
 import org.iot.hotelitybackend.sales.service.VocService;
+import org.iot.hotelitybackend.sales.vo.RequestReplyVoc;
 import org.iot.hotelitybackend.sales.vo.ResponseVoc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,5 +38,20 @@ public class VocController {
     @GetMapping("/vocs/{vocCodePk}/voc")
     public VocDTO selectVocByVocCodePk(@PathVariable int vocCodePk) {
         return vocService.selectVocByVocCodePk(vocCodePk);
+    }
+
+    @PutMapping("/vocs/{vocCodePk}")
+    public ResponseEntity<ResponseVO> replyVoc(
+            @RequestBody RequestReplyVoc requestReplyVoc,
+            @PathVariable ("vocCodePk") int vocCodePk
+    ) {
+        Map<String, Object> vocReply = vocService.replyVoc(requestReplyVoc, vocCodePk);
+
+        ResponseVO response = ResponseVO.builder()
+                .data(vocReply)
+                .resultCode(HttpStatus.CREATED.value())
+                .build();
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
     }
 }

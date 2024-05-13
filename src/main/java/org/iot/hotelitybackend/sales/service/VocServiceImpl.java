@@ -8,6 +8,7 @@ import org.iot.hotelitybackend.hotelmanagement.dto.RoomCategoryDTO;
 import org.iot.hotelitybackend.sales.aggregate.VocEntity;
 import org.iot.hotelitybackend.sales.dto.VocDTO;
 import org.iot.hotelitybackend.sales.repository.VocRepository;
+import org.iot.hotelitybackend.sales.vo.RequestReplyVoc;
 import org.iot.hotelitybackend.sales.vo.ResponseVoc;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,5 +88,29 @@ public class VocServiceImpl implements VocService {
         vocDTO.setEmployeeName(employeeName);
 
         return vocDTO;
+    }
+
+    @Override
+    public Map<String, Object> replyVoc(RequestReplyVoc requestReplyVoc, int vocCodePk) {
+        VocEntity vocEntity = VocEntity.builder()
+                .vocCodePk(vocCodePk)
+                .vocTitle(vocRepository.findById(vocCodePk).get().getVocTitle())
+                .vocContent(vocRepository.findById(vocCodePk).get().getVocContent())
+                .vocCreatedDate(vocRepository.findById(vocCodePk).get().getVocCreatedDate())
+                .vocLastUpdatedDate(new Date())
+                .customerCodeFk(vocRepository.findById(vocCodePk).get().getCustomerCodeFk())
+                .vocCategory(vocRepository.findById(vocCodePk).get().getVocCategory())
+                .employeeCodeFk(vocRepository.findById(vocCodePk).get().getEmployeeCodeFk())
+                .branchCodeFk(vocRepository.findById(vocCodePk).get().getBranchCodeFk())
+                .vocImageLink(requestReplyVoc.getVocImageLink())
+                .vocResponse(requestReplyVoc.getVocResponse())
+                .vocProcessStatus(1)
+                .build();
+
+        Map<String, Object> vocReply = new HashMap<>();
+
+        vocReply.put(KEY_CONTENT, mapper.map(vocRepository.save(vocEntity), VocDTO.class));
+
+        return vocReply;
     }
 }
