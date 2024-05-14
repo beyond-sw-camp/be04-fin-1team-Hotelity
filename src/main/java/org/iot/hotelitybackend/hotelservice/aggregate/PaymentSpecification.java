@@ -1,21 +1,21 @@
 package org.iot.hotelitybackend.hotelservice.aggregate;
 
-import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
+import java.time.LocalDateTime;
+
 import org.springframework.data.jpa.domain.Specification;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 
 public class PaymentSpecification {
 
-	public static Specification<PaymentDTO> equalsCustomerName(String customerName) {
-		return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("customerName"), customerName);
+	public static Specification<PaymentEntity> equalsCustomerCodeFk(Integer customerCodeFk) {
+		return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("customerCodeFk"), customerCodeFk);
 	}
 
-	public static Specification<PaymentDTO> equalsPaymentTypeName(String paymentTypeName) {
-		return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("paymentTypeName"), paymentTypeName);
+	public static Specification<PaymentEntity> equalsPaymentDate(LocalDateTime paymentDate) {
+		return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("paymentDate"), paymentDate);
 	}
 
-	public static Specification<PaymentDTO> equalsPaymentCancleStatus(int paymentCancleStatus) {
-		return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("paymentCancleStatus"), paymentCancleStatus);
+	public static Specification<PaymentEntity> equalsPaymentCancelStatus(Integer paymentCancelStatus) {
+		return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("paymentCancelStatus"), paymentCancelStatus);
 	}
 }
