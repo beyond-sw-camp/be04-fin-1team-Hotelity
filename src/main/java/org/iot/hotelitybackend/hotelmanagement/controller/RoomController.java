@@ -48,10 +48,11 @@ public class RoomController {
 	public ResponseEntity<ResponseVO> selectSearchedRoomsList(
 		@RequestParam(required = false) String roomName,
 		@RequestParam(required = false) String roomCurrentStatus,
+		@RequestParam(required = false) Integer roomSubRoomsCount,
 		@RequestParam int pageNum
 	) {
 
-		Map<String, Object> roomPageInfo = roomService.selectSearchedRoomsList(pageNum, roomName, roomCurrentStatus);
+		Map<String, Object> roomPageInfo = roomService.selectSearchedRoomsList(pageNum, roomName, roomSubRoomsCount, roomCurrentStatus);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(roomPageInfo)

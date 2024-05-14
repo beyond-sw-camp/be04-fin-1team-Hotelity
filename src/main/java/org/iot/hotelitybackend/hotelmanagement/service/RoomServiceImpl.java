@@ -5,6 +5,7 @@ import static org.iot.hotelitybackend.common.constant.Constant.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomCategoryEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomEntity;
@@ -23,6 +24,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import jakarta.persistence.criteria.Predicate;
 
 @Service
 public class RoomServiceImpl implements RoomService {
@@ -67,23 +70,37 @@ public class RoomServiceImpl implements RoomService {
 		return roomPageInfo;
 	}
 
+
 	@Override
-	public Map<String, Object> selectSearchedRoomsList(int pageNum, String roomName, String roomCurrentStatus) {
+	public Map<String, Object> selectSearchedRoomsList(int pageNum, String roomName, Integer roomSubRoomsCount, String roomCurrentStatus) {
 		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
 		Specification<RoomEntity> spec = (root, query, criteriaBuilder) -> null;
+
+		Map<String, Object> roomPageInfo = new HashMap<>();
 
 		// 1. roomName 에 해당하는 roomCategoryCodeFk 찾기
 		Integer roomCategoryCodeFk = null;
 		if (!roomName.isEmpty()) {
-			roomCategoryCodeFk = roomCategoryRepository.findByRoomName(roomName).getRoomCategoryCodePk();
+			RoomCategoryEntity roomCategoryEntity = roomCategoryRepository.findByRoomName(roomName);
+			if (roomCategoryEntity != null) {
+				roomCategoryCodeFk = roomCategoryEntity.getRoomCategoryCodePk();
+				spec = spec.and(RoomSpecification.equalsRoomCategoryCodeFk(roomCategoryCodeFk));
+			} else {
+				roomPageInfo.put("message", "다시 검색하세요");
+				return roomPageInfo;
+			}
 		}
 
-		// 2-1. Integer 자료형이면 != null
-		if (roomCategoryCodeFk != null) {
-			spec = spec.and(RoomSpecification.equalsRoomCategoryCodeFk(roomCategoryCodeFk));
+		// 2. roomSubRoomsCount가 null이 아닌 경우 Specification 추가
+		if (roomSubRoomsCount != null) {
+			List<RoomCategoryEntity> roomCategoryEntityList = roomCategoryRepository.findAllByRoomSubRoomsCount(roomSubRoomsCount);
+			List<Specification<RoomEntity>> specs = roomCategoryEntityList.stream()
+				.map(roomCategoryEntity -> RoomSpecification.equalsRoomCategoryCodeFk(roomCategoryEntity.getRoomCategoryCodePk()))
+				.collect(Collectors.toList());
+			spec = spec.and(buildOrPredicate(specs));
 		}
 
-		// 2-2. String 자료형이면 !{변수명}.isEmpty()
+		// 3. roomCurrentStatus가 비어있지 않은 경우 Specification 추가
 		if (!roomCurrentStatus.isEmpty()) {
 			spec = spec.and(RoomSpecification.equalsRoomCurrentStatus(roomCurrentStatus));
 		}
@@ -97,7 +114,7 @@ public class RoomServiceImpl implements RoomService {
 		int totalPagesCount = roomEntityPage.getTotalPages();
 		int currentPageIndex = roomEntityPage.getNumber();
 
-		Map<String, Object> roomPageInfo = new HashMap<>();
+
 
 		roomPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
 		roomPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
@@ -105,6 +122,17 @@ public class RoomServiceImpl implements RoomService {
 
 		return roomPageInfo;
 	}
+
+	// Helper method to build OR predicate
+	private Specification<RoomEntity> buildOrPredicate(List<Specification<RoomEntity>> specs) {
+		return (root, query, criteriaBuilder) -> {
+			Predicate[] predicates = specs.stream()
+				.map(spec -> spec.toPredicate(root, query, criteriaBuilder))
+				.toArray(Predicate[]::new);
+			return criteriaBuilder.or(predicates);
+		};
+	}
+
 
 	@Override
 	public Map<String, Object> modifyRoomInfo(RequestModifyRoom requestModifyRoom, String roomCodePk) {
