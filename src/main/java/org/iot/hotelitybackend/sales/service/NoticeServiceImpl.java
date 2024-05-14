@@ -3,6 +3,7 @@ package org.iot.hotelitybackend.sales.service;
 import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
 import org.iot.hotelitybackend.sales.aggregate.NoticeEntity;
+import org.iot.hotelitybackend.sales.aggregate.NoticeSpecification;
 import org.iot.hotelitybackend.sales.dto.NoticeDTO;
 import org.iot.hotelitybackend.sales.repository.NoticeRepository;
 import org.iot.hotelitybackend.sales.vo.RequestModifyNotice;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -119,5 +121,33 @@ public class NoticeServiceImpl implements NoticeService {
         }
 
         return deleteNoticeInfo;
+    }
+
+    @Override
+    public Map<String, Object> selectSearchedNoticesList(int pageNum, String branchCodeFk) {
+        Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
+        Specification<NoticeEntity> spec = (root, query, criteriaBuilder) -> null;
+
+        if (!branchCodeFk.isEmpty()) {
+            spec = spec.and(NoticeSpecification.equalsBranchCode(branchCodeFk));
+        }
+
+        Page<NoticeEntity> noticeEntityPage = noticeRepository.findAll(spec, pageable);
+
+        List<NoticeDTO> noticeDTOList = noticeEntityPage
+                .stream()
+                .map(noticeEntity -> mapper.map(noticeEntity, NoticeDTO.class))
+                .toList();
+
+        int totalPagesCount = noticeEntityPage.getTotalPages();
+        int currentPageIndex = noticeEntityPage.getNumber();
+
+        Map<String, Object> noticePageInfo = new HashMap<>();
+
+        noticePageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+        noticePageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+        noticePageInfo.put(KEY_CONTENT, noticeDTOList);
+
+        return noticePageInfo;
     }
 }

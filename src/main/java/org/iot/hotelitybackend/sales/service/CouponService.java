@@ -13,4 +13,6 @@ public interface CouponService {
     Map<String, Object> registCoupon(RequestCoupon requestCoupon);
 
     Map<String, Object> modifyCoupon(RequestCoupon requestCoupon, int couponCodePk);
+
+    Map<String, Object> selectSearchedCouponsList(int pageNum, Float couponDiscountRate, String couponType);
 }
