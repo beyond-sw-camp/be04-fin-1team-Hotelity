@@ -12,4 +12,5 @@ public class NoticeDTO {
     private Date noticePostedDate;
     private Integer employeeCodeFk;
     private String employeeName;
+    private String branchCodeFk;
 }
