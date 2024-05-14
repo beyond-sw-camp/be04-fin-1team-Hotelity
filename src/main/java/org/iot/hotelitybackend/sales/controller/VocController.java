@@ -43,10 +43,11 @@ public class VocController {
             @RequestParam(required = false) Integer vocProcessStatus,
             @RequestParam(required = false) String vocCategory,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date vocCreatedDate,
+            @RequestParam(required = false) Integer customerCodeFk,
             @RequestParam int pageNum
             ) {
 
-        Map<String, Object> vocPageInfo = vocService.selectSearchedVocsList(pageNum, branchCodeFk, vocProcessStatus, vocCategory, vocCreatedDate);
+        Map<String, Object> vocPageInfo = vocService.selectSearchedVocsList(pageNum, branchCodeFk, vocProcessStatus, vocCategory, vocCreatedDate, customerCodeFk);
 
         ResponseVO response = ResponseVO.builder()
                 .data(vocPageInfo)

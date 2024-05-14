@@ -33,6 +33,22 @@ public class CouponIssueController {
         return ResponseEntity.status(response.getResultCode()).body(response);
     }
 
+    @GetMapping("/coupons/issue/search/page")
+    public ResponseEntity<ResponseVO> selectCouponIssueListByCustomerCodeFk(
+            @RequestParam(required = false) Integer customerCodeFk,
+            @RequestParam int pageNum
+    ) {
+
+        Map<String, Object> customerCouponPageInfo = couponIssueService.selectCouponIssueListByCustomerCodeFk(pageNum, customerCodeFk);
+
+        ResponseVO response = ResponseVO.builder()
+                .data(customerCouponPageInfo)
+                .resultCode(HttpStatus.OK.value())
+                .build();
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
+    }
+
     @PostMapping("coupons/issue")
     public ResponseEntity<ResponseVO> registCouponToCustomer(@RequestBody RequestCouponIssue requestCouponIssue) {
         Map<String, Object> registCouponIssueInfo = couponIssueService.registCouponToCustomer(requestCouponIssue);
