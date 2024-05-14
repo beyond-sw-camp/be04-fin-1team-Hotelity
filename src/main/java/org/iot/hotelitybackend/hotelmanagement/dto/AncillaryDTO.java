@@ -8,10 +8,12 @@ import lombok.Data;
 public class AncillaryDTO {
 	private int ancillaryCodePk;
 	private String ancillaryName;
-	private int branchCodeFk;
+	private String branchCodeFk;
 	private String ancillaryLocation;
 	private LocalTime ancillaryOpenTime;
 	private LocalTime ancillaryCloseTime;
 	private String ancillaryPhoneNumber;
 	private int ancillaryCategoryCodeFk;
+	private String branchName;
+	private String ancillaryCategoryName;
 }

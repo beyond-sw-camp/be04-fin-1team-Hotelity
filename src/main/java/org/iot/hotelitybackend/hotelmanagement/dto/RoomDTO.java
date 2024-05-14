@@ -14,4 +14,5 @@ public class RoomDTO {
 	private String roomView;
 	private String roomName;
 	private String branchName;
+	private int roomSubRoomsCount;
 }

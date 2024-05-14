@@ -5,7 +5,9 @@ import static org.iot.hotelitybackend.common.constant.Constant.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomCategoryEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomSpecification;
 import org.iot.hotelitybackend.hotelmanagement.dto.BranchDTO;
@@ -22,6 +24,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.Predicate;
 
 @Service
 public class RoomServiceImpl implements RoomService {
@@ -66,31 +71,64 @@ public class RoomServiceImpl implements RoomService {
 		return roomPageInfo;
 	}
 
+
 	@Override
-	public Map<String, Object> selectSearchedRoomsList(int pageNum, Integer roomCategoryCodeFk, String roomCurrentStatus) {
+	public Map<String, Object> selectSearchedRoomsList(int pageNum, String roomName, Integer roomSubRoomsCount, String roomCurrentStatus, String branchCodeFk) {
 		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
 		Specification<RoomEntity> spec = (root, query, criteriaBuilder) -> null;
 
-		// int 자료형이면 != null
-		if (roomCategoryCodeFk != null) {
-			spec = spec.and(RoomSpecification.equalsRoomName(roomCategoryCodeFk));
+		Map<String, Object> roomPageInfo = new HashMap<>();
+
+		// 1. 객실 카테고리별 객실 필터링
+		Integer roomCategoryCodeFk = null;
+		if (!roomName.isEmpty()) {
+
+			// 1. roomName 에 해당하는 roomCategoryCodeFk 찾기
+			RoomCategoryEntity roomCategoryEntity = roomCategoryRepository.findByRoomName(roomName);
+			if (roomCategoryEntity != null) {
+				roomCategoryCodeFk = roomCategoryEntity.getRoomCategoryCodePk();
+				spec = spec.and(RoomSpecification.equalsRoomCategoryCodeFk(roomCategoryCodeFk));
+			} else {
+				roomPageInfo.put("message", "다시 검색하세요");
+				return roomPageInfo;
+			}
 		}
 
-		// String 자료형이면 !{변수명}.isEmpty()
+		// 2. 방 개수별 객실 필터링
+		// roomSubRoomsCount가 null이 아닌 경우 Specification 추가
+		if (roomSubRoomsCount != null) {
+			List<RoomCategoryEntity> roomCategoryEntityList = roomCategoryRepository.findAllByRoomSubRoomsCount(roomSubRoomsCount);
+			List<Specification<RoomEntity>> specs = roomCategoryEntityList.stream()
+				.map(roomCategoryEntity -> RoomSpecification.equalsRoomCategoryCodeFk(roomCategoryEntity.getRoomCategoryCodePk()))
+				.collect(Collectors.toList());
+			spec = spec.and(buildOrPredicate(specs));
+		}
+
+		// 3. 현재 상태별 객실 필터링
+		// roomCurrentStatus가 비어있지 않은 경우 Specification 추가
 		if (!roomCurrentStatus.isEmpty()) {
 			spec = spec.and(RoomSpecification.equalsRoomCurrentStatus(roomCurrentStatus));
+		}
+
+		// 4. 지점별 객실 필터링
+		if (!branchCodeFk.isEmpty()) {
+			spec = spec.and(RoomSpecification.equalsBranchCodeFk(branchCodeFk));
 		}
 
 		Page<RoomEntity> roomEntityPage = roomRepository.findAll(spec, pageable);
 		List<RoomDTO> roomDTOList = roomEntityPage
 			.stream()
 			.map(roomEntity -> mapper.map(roomEntity, RoomDTO.class))
+			.peek(roomDTO -> {
+				RoomCategoryEntity foundRoomCategoryEntity = roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()).orElseThrow(IllegalArgumentException::new);
+				roomDTO.setRoomName(foundRoomCategoryEntity.getRoomName());
+				roomDTO.setRoomSubRoomsCount(foundRoomCategoryEntity.getRoomSubRoomsCount());
+				roomDTO.setBranchName(branchRepository.findById(roomDTO.getBranchCodeFk()).orElseThrow(IllegalArgumentException::new).getBranchName());
+			})
 			.toList();
 
 		int totalPagesCount = roomEntityPage.getTotalPages();
 		int currentPageIndex = roomEntityPage.getNumber();
-
-		Map<String, Object> roomPageInfo = new HashMap<>();
 
 		roomPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
 		roomPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
@@ -99,6 +137,17 @@ public class RoomServiceImpl implements RoomService {
 		return roomPageInfo;
 	}
 
+	// Helper method to build OR predicate
+	private Specification<RoomEntity> buildOrPredicate(List<Specification<RoomEntity>> specs) {
+		return (root, query, criteriaBuilder) -> {
+			Predicate[] predicates = specs.stream()
+				.map(spec -> spec.toPredicate(root, query, criteriaBuilder))
+				.toArray(Predicate[]::new);
+			return criteriaBuilder.or(predicates);
+		};
+	}
+
+	@Transactional
 	@Override
 	public Map<String, Object> modifyRoomInfo(RequestModifyRoom requestModifyRoom, String roomCodePk) {
 		RoomEntity roomEntity = RoomEntity.builder()
@@ -115,6 +164,20 @@ public class RoomServiceImpl implements RoomService {
 		Map<String, Object> modifiedRoomInfo = new HashMap<>();
 		modifiedRoomInfo.put(KEY_CONTENT, mapper.map(roomRepository.save(roomEntity), RoomDTO.class));
 		return modifiedRoomInfo;
+	}
+
+	@Transactional
+	@Override
+	public Map<String, Object> deleteRoom(String roomCodePk) {
+
+		Map<String, Object> deleteRoom = new HashMap<>();
+		try {
+			roomRepository.deleteById(roomCodePk);
+			deleteRoom.put(KEY_CONTENT, "Content deleted successfully.");
+		} catch (Exception e) {
+			deleteRoom.put(KEY_CONTENT, "Failed to delete content.");
+		}
+		return deleteRoom;
 	}
 
 }

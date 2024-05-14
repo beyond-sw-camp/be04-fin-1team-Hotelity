@@ -1,12 +1,16 @@
 package org.iot.hotelitybackend.customer.aggregate;
 
 import java.util.Date;
+import java.util.Set;
+
+import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -32,8 +36,6 @@ public class CustomerEntity {
 	public Integer customerStatus;
 	public Date customerRegisteredDate;
 	public String customerType;
-
-	@Column(name = "nation_code_fk")
 	public Integer nationCodeFk;
 	public String customerGender;
 
@@ -65,4 +67,7 @@ public class CustomerEntity {
 		this.nationCodeFk = nationCodeFk;
 		this.customerGender = customerGender;
 	}
+
+	@OneToMany(mappedBy = "customer")
+	private Set<MembershipIssueEntity> membershipIssues;
 }
