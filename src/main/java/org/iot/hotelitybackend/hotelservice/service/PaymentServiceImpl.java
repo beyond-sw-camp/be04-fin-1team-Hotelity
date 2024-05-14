@@ -2,16 +2,15 @@ package org.iot.hotelitybackend.hotelservice.service;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
 import org.iot.hotelitybackend.hotelservice.aggregate.PaymentEntity;
+import org.iot.hotelitybackend.hotelservice.aggregate.PaymentSpecification;
 import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
-import org.iot.hotelitybackend.hotelservice.dto.PaymentTypeDTO;
 import org.iot.hotelitybackend.hotelservice.repository.PaymentRepository;
 import org.iot.hotelitybackend.hotelservice.repository.PaymentTypeRepository;
 import org.modelmapper.ModelMapper;
@@ -19,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -37,43 +37,45 @@ public class PaymentServiceImpl implements PaymentService {
 		this.customerRepository = customerRepository;
 	}
 
-	/* 전체 결제 내역 조회 */
-	@Override
-	public Map<String, Object> selectPaymentLogList(int pageNum) {
-		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
-		Page<PaymentEntity> paymentLogPage = paymentRepository.findAll(pageable);
-		List<PaymentDTO> paymentDTOList =
-			paymentLogPage.stream().map(paymentEntity -> mapper.map(paymentEntity, PaymentDTO.class))
-				.peek(paymentDTO -> paymentDTO.setPaymentTypeName(
-					mapper.map(paymentTypeRepository.findById(paymentDTO.getPaymentTypeCodeFk()), PaymentTypeDTO.class).getPaymentTypeName()))
-				.peek(paymentDTO -> paymentDTO.setCustomerName(
-					mapper.map(customerRepository.findById(paymentDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()))
-				.toList();
-
-		int totalPagesCount = paymentLogPage.getTotalPages();
-		int currentPageIndex = paymentLogPage.getNumber();
-
-		Map<String, Object> paymentLogPageInfo = new HashMap<>();
-
-		paymentLogPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-		paymentLogPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-		paymentLogPageInfo.put(KEY_CONTENT, paymentDTOList);
-
-		return paymentLogPageInfo;
-	}
-
 	/* 다중 조건 검색을 적용한 결제 내역 전체 조회 */
-
-
-	/* 날짜별 결제 내역 조회 */
 	@Override
-	public Map<String, Object> selectPaymentByPaymentDate(Date paymentDate) {
+	public Map<String, Object> selectPaymentLogList(
+								int pageNum,
+								Integer customerCodeFk,
+								LocalDateTime paymentDate,
+								Integer paymentCancelStatus) {
 
-		return null;
+		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
+		Specification<PaymentEntity> spec = (root, query, criteriaBuilder) -> null;
+
+		// 고객 이름별 조건
+		if (customerCodeFk != null) {
+			spec = spec.and(PaymentSpecification.equalsCustomerCodeFk(customerCodeFk));
+		}
+		// 결제 일자별 조건
+		if (paymentDate != null) {
+			spec = spec.and(PaymentSpecification.equalsPaymentDate(paymentDate));
+		}
+		// 결제 취소 여부 별 조건
+		if(paymentCancelStatus != null) {
+			spec = spec.and(PaymentSpecification.equalsPaymentCancelStatus(paymentCancelStatus));
+		}
+
+		Page<PaymentEntity> paymentEntityPage = paymentRepository.findAll(spec, pageable);
+		List<PaymentDTO> paymentDTOList = paymentEntityPage
+			.stream()
+			.map(paymentEntity -> mapper.map(paymentEntity, PaymentDTO.class))
+			.toList();
+
+		int totalPagesCount = paymentEntityPage.getTotalPages();
+		int currentPageIndex = paymentEntityPage.getNumber();
+
+		Map<String, Object> roomPageInfo = new HashMap<>();
+
+		roomPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+		roomPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+		roomPageInfo.put(KEY_CONTENT, paymentDTOList);
+
+		return roomPageInfo;
 	}
-
-	/* 지점별 결제 내역 조회 */
-
-	/* 결제 종류별 결제 내역 조회 */
-
 }
