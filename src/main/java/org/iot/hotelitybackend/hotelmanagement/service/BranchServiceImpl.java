@@ -9,6 +9,7 @@ import java.util.Map;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.BranchEntity;
 import org.iot.hotelitybackend.hotelmanagement.dto.BranchDTO;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
+import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyBranch;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestRegistBranch;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,10 +61,38 @@ public class BranchServiceImpl implements BranchService{
 			.branchAddress(requestRegistBranch.getBranchAddress())
 			.branchPhoneNumber(requestRegistBranch.getBranchPhoneNumber())
 			.build();
-		System.out.println(mapper.map(branchEntity, BranchDTO.class));
 
 		Map<String, Object> registeredBranchInfo = new HashMap<>();
 		registeredBranchInfo.put(KEY_CONTENT, mapper.map(branchRepository.save(branchEntity), BranchDTO.class));
 		return registeredBranchInfo;
+	}
+
+	@Transactional
+	@Override
+	public Map<String, Object> modifyBranchInfo(RequestModifyBranch requestModifyBranch, String branchCodePk) {
+		BranchEntity branchEntity = BranchEntity.builder()
+			.branchCodePk(branchCodePk)
+			.branchName(requestModifyBranch.getBranchName())
+			.branchAddress(requestModifyBranch.getBranchAddress())
+			.branchPhoneNumber(requestModifyBranch.getBranchPhoneNumber())
+			.build();
+
+		Map<String, Object> modifiedBranchInfo = new HashMap<>();
+		modifiedBranchInfo.put(KEY_CONTENT, mapper.map(branchRepository.save(branchEntity), BranchDTO.class));
+		return modifiedBranchInfo;
+	}
+
+	@Override
+	public Map<String, Object> deleteBranch(String branchCodePk) {
+
+		Map<String, Object> deleteBranchInfo = new HashMap<>();
+		try {
+			branchRepository.deleteById(branchCodePk);
+			deleteBranchInfo.put(KEY_CONTENT, "Content deleted successfully.");
+		} catch (Exception e) {
+			deleteBranchInfo.put(KEY_CONTENT, "Failed to delete content.");
+		}
+		System.out.println(deleteBranchInfo.get(KEY_CONTENT));
+		return deleteBranchInfo;
 	}
 }

@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class RoomEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	// @GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "room_code_pk")
 	private String roomCodePk;
 	private String branchCodeFk;

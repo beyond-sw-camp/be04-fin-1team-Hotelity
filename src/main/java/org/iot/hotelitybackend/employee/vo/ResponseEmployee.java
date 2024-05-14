@@ -6,7 +6,7 @@ import lombok.Data;
 public class ResponseEmployee {
 	private int employeeCodePk;
 	private String employeePassword;
-	private int branchCodeFk;
+	private String branchCodeFk;
 	private int departmentCodeFk;
 	private String employeeName;
 	private String employeeAddress;

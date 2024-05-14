@@ -28,7 +28,7 @@ public class AncillaryEntity {
 	private String ancillaryName;
 
 	@Column(name = "branch_code_fk")
-	private Integer branchCodeFk;
+	private String branchCodeFk;
 
 	@Column(name = "ancillary_location")
 	private String ancillaryLocation;
@@ -46,10 +46,16 @@ public class AncillaryEntity {
 	private Integer ancillaryCategoryCodeFk;
 
 	@Builder
-	public AncillaryEntity(Integer ancillaryCodePk, String ancillaryName, Integer branchCodeFk,
-		String ancillaryLocation,
-		LocalTime ancillaryOpenTime, LocalTime ancillaryCloseTime, String ancillaryPhoneNumber,
-		Integer ancillaryCategoryCodeFk) {
+	public AncillaryEntity(
+			Integer ancillaryCodePk,
+			String ancillaryName,
+			String branchCodeFk,
+			String ancillaryLocation,
+			LocalTime ancillaryOpenTime,
+			LocalTime ancillaryCloseTime,
+			String ancillaryPhoneNumber,
+			Integer ancillaryCategoryCodeFk
+	) {
 		this.ancillaryCodePk = ancillaryCodePk;
 		this.ancillaryName = ancillaryName;
 		this.branchCodeFk = branchCodeFk;

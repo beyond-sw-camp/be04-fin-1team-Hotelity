@@ -13,12 +13,13 @@ public class VocDTO {
     private Date vocCreatedDate;
     private Date vocLastUpdatedDate;
     private Integer customerCodeFk;
-    private String vocProcessStatus;
+    private Integer vocProcessStatus;
     private String vocCategory;
     private String vocTitle;
-    private String employeeCodeFk;
+    private Integer employeeCodeFk;
     private String branchCodeFk;
     private String vocImageLink;
     private String customerName;
     private String employeeName;
+    private String vocResponse;
 }

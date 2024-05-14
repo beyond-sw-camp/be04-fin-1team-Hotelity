@@ -22,10 +22,10 @@ public class DepartmentEntity {
 	@Column(name = "department_code_pk")
 	private Integer departmentCodePk;
 	private String departmentName;
-	private Integer branchCodeFk;
+	private String branchCodeFk;
 
 	@Builder
-	public DepartmentEntity(Integer departmentCodePk, String departmentName, Integer branchCodeFk) {
+	public DepartmentEntity(Integer departmentCodePk, String departmentName, String branchCodeFk) {
 		this.departmentCodePk = departmentCodePk;
 		this.departmentName = departmentName;
 		this.branchCodeFk = branchCodeFk;

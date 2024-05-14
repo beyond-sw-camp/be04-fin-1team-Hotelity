@@ -14,15 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/sales")
 public class MembershipIssueController {
 
-    private final MembershipIssueService membershipIssueService;
+//    private final MembershipIssueService membershipIssueService;
+//
+//    @Autowired
+//    public MembershipIssueController(MembershipIssueService membershipIssueService) {
+//        this.membershipIssueService = membershipIssueService;
+//    }
 
-    @Autowired
-    public MembershipIssueController(MembershipIssueService membershipIssueService) {
-        this.membershipIssueService = membershipIssueService;
-    }
-
-    @GetMapping("/membership/{membershipLevelCodePk}/customers")
-    public MembershipIssueDTO selectAllMembershipIssueList(@PathVariable int membershipIssueCodePk) {
-        return membershipIssueService.selectAllMembershipIssueList(membershipIssueCodePk);
-    }
 }

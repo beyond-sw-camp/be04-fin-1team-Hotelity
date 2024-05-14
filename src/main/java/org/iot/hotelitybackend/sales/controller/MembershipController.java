@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/sales")
 public class MembershipController {
@@ -23,12 +25,7 @@ public class MembershipController {
     }
 
     @GetMapping("/membership")
-    public ResponseEntity<MembershipDTO> selectAllMembership() {
-        return null;
+    public List<MembershipDTO> selectAllMembership() {
+        return membershipService.selectAllMembership();
     }
-
-    // @GetMapping("/membership/{MembershipLevelCodePk}")
-    // public CustomerDTO selectCustomerByMembershipLevelCodePk(@PathVariable int membershipLevelCodePk) {
-    //     return membershipService.selectCustomerByMembershipLevelCodePk(membershipLevelCodePk);
-    // }
 }
