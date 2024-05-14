@@ -1,4 +1,8 @@
 package org.iot.hotelitybackend.hotelservice.service;
 
-public class StayServiceImpl {
+import org.springframework.stereotype.Service;
+
+@Service
+public class StayServiceImpl implements StayService {
+
 }
