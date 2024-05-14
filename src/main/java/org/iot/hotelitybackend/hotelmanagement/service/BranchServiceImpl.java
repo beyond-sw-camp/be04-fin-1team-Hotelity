@@ -92,7 +92,6 @@ public class BranchServiceImpl implements BranchService{
 		} catch (Exception e) {
 			deleteBranchInfo.put(KEY_CONTENT, "Failed to delete content.");
 		}
-		System.out.println(deleteBranchInfo.get(KEY_CONTENT));
 		return deleteBranchInfo;
 	}
 }

@@ -165,4 +165,17 @@ public class RoomServiceImpl implements RoomService {
 		return modifiedRoomInfo;
 	}
 
+	@Override
+	public Map<String, Object> deleteRoom(String roomCodePk) {
+
+		Map<String, Object> deleteRoom = new HashMap<>();
+		try {
+			roomRepository.deleteById(roomCodePk);
+			deleteRoom.put(KEY_CONTENT, "Content deleted successfully.");
+		} catch (Exception e) {
+			deleteRoom.put(KEY_CONTENT, "Failed to delete content.");
+		}
+		return deleteRoom;
+	}
+
 }
