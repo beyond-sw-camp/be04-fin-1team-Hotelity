@@ -15,7 +15,6 @@ public class EmploySpecification {
 
     public static Specification<EmployeeEntity> containsEmployeeName(String employeeName) {
         return (root, query, CriteriaBuilder) ->
-//            System.out.println(root.get("employeeName"));
             CriteriaBuilder.like(root.get("employeeName"), "%" + employeeName + "%");
     }
 }
