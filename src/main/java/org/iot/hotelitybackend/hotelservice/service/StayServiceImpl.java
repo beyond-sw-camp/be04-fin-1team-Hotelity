@@ -109,7 +109,7 @@ public class StayServiceImpl implements StayService {
 				StayEntity stayEntity = StayEntity.builder()
 					.stayCheckinTime(LocalDateTime.now())
 					.stayPeopleCount(reservationList.get(0).getReservationPersonnel())
-					.employeeCodeFk(employeeCodeFk)
+					.employeeCode(employeeCodeFk)
 					.reservationCodeFk(reservationCodePk)
 					.build();
 

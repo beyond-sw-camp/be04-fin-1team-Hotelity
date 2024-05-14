@@ -22,10 +22,10 @@ public class AncillaryCategoryEntity {
 	private Integer ancillaryCategoryCodePk;
 
 	@Column(name = "ancillaryCategoryName")
-	private Integer ancillaryCategoryName;
+	private String ancillaryCategoryName;
 
 	@Builder
-	public AncillaryCategoryEntity(Integer ancillaryCategoryCodePk, Integer ancillaryCategoryName) {
+	public AncillaryCategoryEntity(Integer ancillaryCategoryCodePk, String ancillaryCategoryName) {
 		this.ancillaryCategoryCodePk = ancillaryCategoryCodePk;
 		this.ancillaryCategoryName = ancillaryCategoryName;
 	}

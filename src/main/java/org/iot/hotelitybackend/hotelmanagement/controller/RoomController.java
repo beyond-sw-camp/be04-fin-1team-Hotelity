@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -46,12 +47,15 @@ public class RoomController {
 
 	@GetMapping("rooms/search")
 	public ResponseEntity<ResponseVO> selectSearchedRoomsList(
-		@RequestParam(required = false) Integer roomCategoryCodeFk,
+		@RequestParam(required = false) String roomName,
 		@RequestParam(required = false) String roomCurrentStatus,
+		@RequestParam(required = false) Integer roomSubRoomsCount,
+		@RequestParam(required = false) String branchCodeFk,
 		@RequestParam int pageNum
 	) {
 
-		Map<String, Object> roomPageInfo = roomService.selectSearchedRoomsList(pageNum, roomCategoryCodeFk, roomCurrentStatus);
+		Map<String, Object> roomPageInfo = roomService.selectSearchedRoomsList(pageNum, roomName, roomSubRoomsCount,
+			roomCurrentStatus, branchCodeFk);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(roomPageInfo)
@@ -72,6 +76,18 @@ public class RoomController {
 			.data(modifiedRoomInfo)
 			.resultCode(HttpStatus.CREATED.value())
 			.message("수정 성공")
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	@DeleteMapping("/rooms/{roomCodePk}")
+	public ResponseEntity<ResponseVO> deleteBranch(@PathVariable("roomCodePk") String roomCodePk) {
+		Map<String, Object> deleteRoom = roomService.deleteRoom(roomCodePk);
+		ResponseVO response = ResponseVO.builder()
+			.data(deleteRoom)
+			.resultCode(HttpStatus.NO_CONTENT.value())
+			.message("삭제 성공")
 			.build();
 
 		return ResponseEntity.status(response.getResultCode()).body(response);

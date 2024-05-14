@@ -6,10 +6,12 @@ import org.iot.hotelitybackend.sales.service.VocService;
 import org.iot.hotelitybackend.sales.vo.RequestReplyVoc;
 import org.iot.hotelitybackend.sales.vo.ResponseVoc;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.Map;
 
 @RestController
@@ -26,6 +28,26 @@ public class VocController {
     @GetMapping("/vocs/page")
     public ResponseEntity<ResponseVO> selectVocsList(@RequestParam int pageNum) {
         Map<String, Object> vocPageInfo = vocService.selectVocsList(pageNum);
+
+        ResponseVO response = ResponseVO.builder()
+                .data(vocPageInfo)
+                .resultCode(HttpStatus.OK.value())
+                .build();
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
+    }
+
+    @GetMapping("/vocs/search/page")
+    public ResponseEntity<ResponseVO> selectSearchedVocsList(
+            @RequestParam(required = false) String branchCodeFk,
+            @RequestParam(required = false) Integer vocProcessStatus,
+            @RequestParam(required = false) String vocCategory,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date vocCreatedDate,
+            @RequestParam(required = false) Integer customerCodeFk,
+            @RequestParam int pageNum
+            ) {
+
+        Map<String, Object> vocPageInfo = vocService.selectSearchedVocsList(pageNum, branchCodeFk, vocProcessStatus, vocCategory, vocCreatedDate, customerCodeFk);
 
         ResponseVO response = ResponseVO.builder()
                 .data(vocPageInfo)
