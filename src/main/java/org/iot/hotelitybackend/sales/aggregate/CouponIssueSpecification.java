@@ -7,4 +7,5 @@ public class CouponIssueSpecification {
     public static Specification<CouponIssueEntity> equalsCustomerCode(Integer customerCodeFk) {
         return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("customerCodeFk"), customerCodeFk);
     }
+
 }

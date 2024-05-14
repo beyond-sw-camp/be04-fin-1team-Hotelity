@@ -12,6 +12,7 @@ public class CampaignDTO {
     private Date campaignSentDate;
     private Integer campaignSentStatus;
     private Integer templateCodeFk;
-    private String employeeCodeFk;
+    private Integer employeeCodeFk;
     private String campaignTitle;
+    private String employeeName;
 }
