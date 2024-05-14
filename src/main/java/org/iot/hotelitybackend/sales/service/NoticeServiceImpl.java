@@ -5,6 +5,8 @@ import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
 import org.iot.hotelitybackend.sales.aggregate.NoticeEntity;
 import org.iot.hotelitybackend.sales.dto.NoticeDTO;
 import org.iot.hotelitybackend.sales.repository.NoticeRepository;
+import org.iot.hotelitybackend.sales.vo.RequestModifyNotice;
+import org.iot.hotelitybackend.sales.vo.RequestNotice;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,5 +72,52 @@ public class NoticeServiceImpl implements NoticeService {
         noticeDTO.setEmployeeName(employeeName);
 
         return noticeDTO;
+    }
+
+    @Override
+    public Map<String, Object> registNotice(RequestNotice requestNotice) {
+        NoticeEntity noticeEntity = NoticeEntity.builder()
+                .noticeTitle(requestNotice.getNoticeTitle())
+                .noticeContent(requestNotice.getNoticeContent())
+                .employeeCodeFk(requestNotice.getEmployeeCodeFk())
+                .noticePostedDate(new Date())
+                .build();
+
+        Map<String, Object> registNoticeInfo = new HashMap<>();
+
+        registNoticeInfo.put(KEY_CONTENT, mapper.map(noticeRepository.save(noticeEntity), NoticeDTO.class));
+
+        return registNoticeInfo;
+    }
+
+    @Override
+    public Map<String, Object> modifyNotice(RequestModifyNotice requestModifyNotice, int noticeCodePk) {
+        NoticeEntity noticeEntity = NoticeEntity.builder()
+                .noticeCodePk(noticeCodePk)
+                .noticeTitle(requestModifyNotice.getNoticeTitle())
+                .noticeContent(requestModifyNotice.getNoticeContent())
+                .employeeCodeFk(noticeRepository.findById(noticeCodePk).get().getEmployeeCodeFk())
+                .noticePostedDate(noticeRepository.findById(noticeCodePk).get().getNoticePostedDate())
+                .noticeLastUpdatedDate(new Date())
+                .build();
+
+        Map<String, Object> modifyNoticeInfo = new HashMap<>();
+
+        modifyNoticeInfo.put(KEY_CONTENT, mapper.map(noticeRepository.save(noticeEntity), NoticeDTO.class));
+
+        return modifyNoticeInfo;
+    }
+
+    @Override
+    public Map<String, Object> deleteNotice(int noticeCodePk) {
+        Map<String, Object> deleteNoticeInfo = new HashMap<>();
+
+        if (noticeRepository.existsById(noticeCodePk)) {
+            noticeRepository.deleteById(noticeCodePk);
+        } else {
+            System.out.println("해당하는 공지를 찾을 수 없습니다.");
+        }
+
+        return deleteNoticeInfo;
     }
 }

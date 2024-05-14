@@ -4,6 +4,8 @@ import lombok.Data;
 
 import java.util.Date;
 
+import org.iot.hotelitybackend.customer.dto.CustomerDTO;
+
 @Data
 public class PaymentDTO {
     private Integer paymentAmount;
@@ -14,4 +16,6 @@ public class PaymentDTO {
     private Date paymentDate;
     private Integer customerCodeFk;
     private Integer paymentCancelStatus;
+    private String paymentTypeName;
+    private String customerName;
 }
