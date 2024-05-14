@@ -8,4 +8,5 @@ public class CampaignCustomerDTO {
     private Integer campaignCodeFk;
     private Integer customerCodeFk;
     private Integer reservationCodeFk;
+    private String customerName;
 }
