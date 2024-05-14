@@ -24,8 +24,14 @@ public class EmployeeController {
     }
 
     @GetMapping("/page")
-    public ResponseEntity<ResponseVO> selectEmployeesList(@RequestParam int pageNum) {
-        Map<String, Object> employPageInfo = employeeService.selectEmployeesList(pageNum);
+    public ResponseEntity<ResponseVO> selectEmployeesList(
+            @RequestParam int pageNum,
+            @RequestParam(required = false) String branchCode,
+            @RequestParam(required = false) Integer departmentCode,
+            @RequestParam(required = false) String employeeName
+    ) {
+        Map<String, Object> employPageInfo =
+                employeeService.selectEmployeesList(pageNum, branchCode, departmentCode, employeeName);
 
         ResponseVO response;
 
