@@ -40,6 +40,21 @@ public class NoticeController {
         return noticeService.selectNoticeByNoticeCodePk(noticeCodePk);
     }
 
+    @GetMapping("/notices/search/page")
+    public ResponseEntity<ResponseVO> selectSearchedNoticesList(
+            @RequestParam(required = false) String branchCodeFk,
+            @RequestParam int pageNum
+    ) {
+        Map<String, Object> noticePageInfo = noticeService.selectSearchedNoticesList(pageNum, branchCodeFk);
+
+        ResponseVO response = ResponseVO.builder()
+                .data(noticePageInfo)
+                .resultCode(HttpStatus.OK.value())
+                .build();
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
+    }
+
     @PostMapping("/notices")
     public ResponseEntity<ResponseVO> registNotice(@RequestBody RequestNotice requestNotice) {
         Map<String, Object> registNoticeInfo = noticeService.registNotice(requestNotice);

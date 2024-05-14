@@ -5,8 +5,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.iot.hotelitybackend.employee.aggregate.EmployeeEntity;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "stay_tb")
@@ -16,26 +17,28 @@ public class StayEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer stayCodePk;
-    private Date stayCheckinTime;
-    private Date stayCheckoutTime;
+    private LocalDateTime stayCheckinTime;
+    private LocalDateTime stayCheckoutTime;
     private Integer stayPeopleCount;
-    private String employeeCodeFk;
+
+    @Column(name = "employee_code_fk")
+    private Integer employeeCode;
     private Integer reservationCodeFk;
 
     @Builder
     public StayEntity(
             Integer stayCodePk,
-            Date stayCheckinTime,
-            Date stayCheckoutTime,
+            LocalDateTime stayCheckinTime,
+            LocalDateTime stayCheckoutTime,
             Integer stayPeopleCount,
-            String employeeCodeFk,
+            Integer employeeCode,
             Integer reservationCodeFk
     ) {
         this.stayCodePk = stayCodePk;
         this.stayCheckinTime = stayCheckinTime;
         this.stayCheckoutTime = stayCheckoutTime;
         this.stayPeopleCount = stayPeopleCount;
-        this.employeeCodeFk = employeeCodeFk;
+        this.employeeCode = employeeCode;
         this.reservationCodeFk = reservationCodeFk;
     }
 }

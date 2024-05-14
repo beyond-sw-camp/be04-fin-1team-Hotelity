@@ -17,4 +17,6 @@ public interface NoticeService {
     Map<String, Object> modifyNotice(RequestModifyNotice requestModifyNotice, int noticeCodePk);
 
     Map<String, Object> deleteNotice(int noticeCodePk);
+
+    Map<String, Object> selectSearchedNoticesList(int pageNum, String branchCodeFk);
 }

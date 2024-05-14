@@ -6,6 +6,7 @@ import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
 import org.iot.hotelitybackend.hotelmanagement.dto.RoomCategoryDTO;
 import org.iot.hotelitybackend.sales.aggregate.VocEntity;
+import org.iot.hotelitybackend.sales.aggregate.VocSpecification;
 import org.iot.hotelitybackend.sales.dto.VocDTO;
 import org.iot.hotelitybackend.sales.repository.VocRepository;
 import org.iot.hotelitybackend.sales.vo.RequestReplyVoc;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -112,5 +114,54 @@ public class VocServiceImpl implements VocService {
         vocReply.put(KEY_CONTENT, mapper.map(vocRepository.save(vocEntity), VocDTO.class));
 
         return vocReply;
+    }
+
+    @Override
+    public Map<String, Object> selectSearchedVocsList(int pageNum, String branchCodeFk, Integer vocProcessStatus, String vocCategory, Date vocCreatedDate, Integer customerCodeFk) {
+        Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
+        Specification<VocEntity> spec = (root, query, criteriaBuilder) -> null;
+
+        if (!branchCodeFk.isEmpty()) {
+            spec = spec.and(VocSpecification.equalsBranchCode(branchCodeFk));
+        }
+
+        if (vocProcessStatus != null) {
+            spec = spec.and(VocSpecification.equalsVocProcessStatus(vocProcessStatus));
+        }
+
+        if (!vocCategory.isEmpty()) {
+            spec = spec.and(VocSpecification.equalsVocCategory(vocCategory));
+        }
+
+        if (vocCreatedDate != null) {
+            spec = spec.and(VocSpecification.equalsVocCreatedDate(vocCreatedDate));
+        }
+
+        if (customerCodeFk != null) {
+            spec = spec.and(VocSpecification.equalsCustomerCode(customerCodeFk));
+        }
+
+        Page<VocEntity> vocEntityPage = vocRepository.findAll(spec, pageable);
+        List<VocDTO> vocDTOList = vocEntityPage
+                .stream()
+                .map(vocEntity -> mapper.map(vocEntity, VocDTO.class))
+                .peek(vocDTO -> vocDTO.setCustomerName(
+                        mapper.map(customerRepository.findById(vocDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()
+                ))
+                .peek(vocDTO -> vocDTO.setEmployeeName(
+                        mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
+                ))
+                .toList();
+
+        int totalPagesCount = vocEntityPage.getTotalPages();
+        int currentPageIndex = vocEntityPage.getNumber();
+
+        Map<String, Object> vocPageInfo = new HashMap<>();
+
+        vocPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+        vocPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+        vocPageInfo.put(KEY_CONTENT, vocDTOList);
+
+        return vocPageInfo;
     }
 }

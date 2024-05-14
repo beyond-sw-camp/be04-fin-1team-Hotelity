@@ -21,6 +21,7 @@ public class NoticeEntity {
     private Date noticePostedDate;
     private Integer employeeCodeFk;
 	private Date noticeLastUpdatedDate;
+	private String branchCodeFk;
 
 	@Builder
 	public NoticeEntity(
@@ -29,7 +30,8 @@ public class NoticeEntity {
 			String noticeContent,
 			Date noticePostedDate,
 			Integer employeeCodeFk,
-			Date noticeLastUpdatedDate
+			Date noticeLastUpdatedDate,
+			String branchCodeFk
 	) {
 		this.noticeCodePk = noticeCodePk;
 		this.noticeTitle = noticeTitle;
@@ -37,5 +39,6 @@ public class NoticeEntity {
 		this.noticePostedDate = noticePostedDate;
 		this.employeeCodeFk = employeeCodeFk;
 		this.noticeLastUpdatedDate = noticeLastUpdatedDate;
+		this.branchCodeFk = branchCodeFk;
 	}
 }
