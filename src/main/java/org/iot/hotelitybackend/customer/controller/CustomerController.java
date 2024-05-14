@@ -29,8 +29,11 @@ public class CustomerController {
     }
 
     @GetMapping("/page")
-    public ResponseEntity<ResponseVO> selectCustomersList(@RequestParam int pageNum) {
-        Map<String, Object> customerPageInfo = customerService.selectCustomersList(pageNum);
+    public ResponseEntity<ResponseVO> selectCustomersList(
+        @RequestParam(required = false) String customerType,
+        @RequestParam(required = false) String membershipLevelName,
+        @RequestParam int pageNum) {
+        Map<String, Object> customerPageInfo = customerService.selectCustomersList(customerType, membershipLevelName, pageNum);
 
         ResponseVO response = ResponseVO.builder()
                 .data(customerPageInfo)

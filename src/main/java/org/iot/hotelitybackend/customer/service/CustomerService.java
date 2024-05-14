@@ -5,7 +5,7 @@ import java.util.Map;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 
 public interface CustomerService {
-    Map<String, Object> selectCustomersList(int pageNum);
+    Map<String, Object> selectCustomersList(String customerType, String membershipLevelName, int pageNum);
 
     CustomerDTO selectCustomerByCustomerCodePk(int customerCodePk);
 }

@@ -1,9 +1,6 @@
 package org.iot.hotelitybackend.hotelmanagement.aggregate;
 
-import org.iot.hotelitybackend.hotelmanagement.dto.RoomDTO;
 import org.springframework.data.jpa.domain.Specification;
-
-import jakarta.persistence.criteria.CriteriaBuilder;
 
 public class RoomSpecification {
 	public static Specification<RoomEntity> equalsRoomCategoryCodeFk(Integer roomCategoryCodeFk) {
