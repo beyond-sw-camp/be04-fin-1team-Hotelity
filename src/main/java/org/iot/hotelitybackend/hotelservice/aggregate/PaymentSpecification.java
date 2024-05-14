@@ -2,11 +2,8 @@ package org.iot.hotelitybackend.hotelservice.aggregate;
 
 import java.time.LocalDateTime;
 
-import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
-import org.springframework.boot.autoconfigure.rsocket.RSocketProperties;
 import org.springframework.data.jpa.domain.Specification;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 
 public class PaymentSpecification {
 

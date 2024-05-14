@@ -54,6 +54,37 @@ public class StayServiceImpl implements StayService {
 		this.roomLevelRepository = roomLevelRepository;
 	}
 
+	/* 투숙 내역 전체 조회(다중 조건 검색) */
+	@Override
+	public Map<String, Object> selectStaysList(int pageNum, String branchCodeFk, String roomCodeFk,
+		LocalDateTime reservationCheckinDate, LocalDateTime reservationCheckoutDate) {
+
+		// 예약쪽에서 다중 조건 검색하여 결과값을 출력하고, 해당 예약 코드들을 전달
+		ReservationServiceImpl reservationService = new ReservationServiceImpl(
+			reservationRepository, mapper, customerRepository, roomRepository,
+			roomCategoryRepository, roomLevelRepository, branchRepository
+		);
+
+		List<Integer> reservationCodes =
+			reservationService.selectStaysList(
+				pageNum, branchCodeFk, roomCodeFk, reservationCheckinDate, reservationCheckoutDate
+			);
+
+		// forEach문 돌려서 List<StayDTO>에 값 추가하기
+
+		return null;
+	}
+
+	/* 고객이름별 투숙 내역 조회 */
+	@Override
+	public Map<String, Object> selectStaysListByCustomerName(String customerName) {
+
+
+
+		return null;
+	}
+
+	/* 예약 체크인 시 투숙 정보 등록 */
 	@Transactional
 	@Override
 	public Map<String, Object> registStayByReservationCodePk(int reservationCodePk, int employeeCodeFk) {
@@ -102,5 +133,15 @@ public class StayServiceImpl implements StayService {
 			}
 		}
 		return registStayInfo;
+	}
+
+	/* 투숙 체크아웃 */
+	@Override
+	public Map<String, Object> modifyStayCheckoutDate(Integer stayCodePk) {
+
+		List<StayEntity> stayCheckout = stayRepository.findById(stayCodePk).stream().toList();
+
+
+		return null;
 	}
 }
