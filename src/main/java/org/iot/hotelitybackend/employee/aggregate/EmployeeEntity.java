@@ -1,73 +1,106 @@
 package org.iot.hotelitybackend.employee.aggregate;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.iot.hotelitybackend.hotelmanagement.aggregate.BranchEntity;
 
 @Entity
 @Table(name = "employee_tb")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class EmployeeEntity {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "employee_code_pk")
 	private Integer employeeCodePk;
-	private String employeePassword;
-	private Integer branchCodeFk;
-	private Integer departmentCodeFk;
 	private String employeeName;
 	private String employeeAddress;
 	private String employeePhoneNumber;
 	private String employeeOfficePhoneNumber;
 	private String employeeEmail;
-	private Integer positionCodeFk;
-	private Integer rankCodeFk;
 	private String employeeSystemPassword;
 	private String employeeResignStatus;
-	private Integer permissionCodeFk;
 	private String employeeProfileImageLink;
+
+	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
+	@JoinColumn(name = "permission_code_fk", nullable = false)
+	private PermissionEntity permission;
+
+	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
+	@JoinColumn(name = "position_code_fk", nullable = false)
+	private PositionEntity position;
+
+	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
+	@JoinColumn(name = "rank_code_fk", nullable = false)
+	private RankEntity rank;
+
+	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
+	@JoinColumn(name = "department_code_fk", nullable = false)
+	private DepartmentEntity department;
+
+	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
+	@JoinColumn(name = "branch_code_fk", nullable = false)
+	private BranchEntity branch;
 
 	@Builder
 	public EmployeeEntity(
 		Integer employeeCodePk,
-		String employeePassword,
-		Integer branchCodeFk,
-		Integer departmentCodeFk,
 		String employeeName,
 		String employeeAddress,
 		String employeePhoneNumber,
 		String employeeOfficePhoneNumber,
 		String employeeEmail,
-		Integer positionCodeFk,
-		Integer rankCodeFk,
 		String employeeSystemPassword,
 		String employeeResignStatus,
-		Integer permissionCodeFk,
 		String employeeProfileImageLink
 	) {
 		this.employeeCodePk = employeeCodePk;
-		this.employeePassword = employeePassword;
-		this.branchCodeFk = branchCodeFk;
-		this.departmentCodeFk = departmentCodeFk;
 		this.employeeName = employeeName;
 		this.employeeAddress = employeeAddress;
 		this.employeePhoneNumber = employeePhoneNumber;
 		this.employeeOfficePhoneNumber = employeeOfficePhoneNumber;
 		this.employeeEmail = employeeEmail;
-		this.positionCodeFk = positionCodeFk;
-		this.rankCodeFk = rankCodeFk;
 		this.employeeSystemPassword = employeeSystemPassword;
 		this.employeeResignStatus = employeeResignStatus;
-		this.permissionCodeFk = permissionCodeFk;
 		this.employeeProfileImageLink = employeeProfileImageLink;
 	}
+
+	public String getPermissionName() {
+		if (permission != null) {
+			return permission.getPermissionName();
+		}
+		return "";
+	}
+
+	public String getPositionName() {
+		if (position != null) {
+			return position.getPositionName();
+		}
+		return "";
+	}
+
+	public String getRankName() {
+		if (rank != null) {
+			return rank.getRankName();
+		}
+		return "";
+	}
+
+	public String getDepartmentName() {
+		if (department != null) {
+			return department.getDepartmentName();
+		}
+		return "";
+	}
+
+	public String getBranchName() {
+		if (branch != null) {
+			return branch.getBranchName();
+		}
+		return "";
+	}
+
 }

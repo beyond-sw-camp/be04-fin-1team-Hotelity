@@ -21,8 +21,12 @@ public class MembershipIssueEntity {
     private Integer membershipLevelCodeFk;
 
 	@Builder
-	public MembershipIssueEntity(Integer membershipIssueCodePk, Integer customerCodeFk, Date membershipIssueDate,
-		Integer membershipLevelCodeFk) {
+	public MembershipIssueEntity(
+			Integer membershipIssueCodePk,
+			Integer customerCodeFk,
+			Date membershipIssueDate,
+			Integer membershipLevelCodeFk
+	) {
 		this.membershipIssueCodePk = membershipIssueCodePk;
 		this.customerCodeFk = customerCodeFk;
 		this.membershipIssueDate = membershipIssueDate;

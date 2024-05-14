@@ -19,15 +19,23 @@ public class NoticeEntity {
     private String noticeTitle;
     private String noticeContent;
     private Date noticePostedDate;
-    private String employeeCodeFk;
+    private Integer employeeCodeFk;
+	private Date noticeLastUpdatedDate;
 
 	@Builder
-	public NoticeEntity(Integer noticeCodePk, String noticeTitle, String noticeContent, Date noticePostedDate,
-		String employeeCodeFk) {
+	public NoticeEntity(
+			Integer noticeCodePk,
+			String noticeTitle,
+			String noticeContent,
+			Date noticePostedDate,
+			Integer employeeCodeFk,
+			Date noticeLastUpdatedDate
+	) {
 		this.noticeCodePk = noticeCodePk;
 		this.noticeTitle = noticeTitle;
 		this.noticeContent = noticeContent;
 		this.noticePostedDate = noticePostedDate;
 		this.employeeCodeFk = employeeCodeFk;
+		this.noticeLastUpdatedDate = noticeLastUpdatedDate;
 	}
 }

@@ -21,7 +21,7 @@ public class ReservationEntity {
     private Date reservationCheckoutDate;
     private Integer customerCodeFk;
     private String roomCodeFk;
-    private Integer branchCodeFk;
+    private String branchCodeFk;
     private Integer reservationCancelStatus;
     private Integer reservationPersonnel;
 
@@ -33,7 +33,7 @@ public class ReservationEntity {
             Date reservationCheckoutDate,
             Integer customerCodeFk,
             String roomCodeFk,
-            Integer branchCodeFk,
+            String branchCodeFk,
             Integer reservationCancelStatus,
             Integer reservationPersonnel
     ) {

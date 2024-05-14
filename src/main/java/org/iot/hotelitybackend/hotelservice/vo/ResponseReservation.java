@@ -12,7 +12,7 @@ public class ResponseReservation {
     private Date reservationCheckoutDate;
     private Integer customerCodeFk;
     private String roomCodeFk;
-    private Integer branchCodeFk;
+    private String branchCodeFk;
     private Integer reservationCancelStatus;
     private Integer reservationPersonnel;
 }
