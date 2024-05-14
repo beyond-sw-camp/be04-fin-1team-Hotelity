@@ -22,4 +22,8 @@ public class VocSpecification {
     public static Specification<VocEntity> equalsVocCreatedDate(Date vocCreatedDate) {
         return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("vocCreatedDate"), vocCreatedDate);
     }
+
+    public static Specification<VocEntity> equalsCustomerCode(Integer customerCodeFk) {
+        return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("customerCodeFk"), customerCodeFk);
+    }
 }

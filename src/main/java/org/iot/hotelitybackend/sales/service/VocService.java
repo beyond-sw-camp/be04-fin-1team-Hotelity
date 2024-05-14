@@ -13,5 +13,5 @@ public interface VocService {
 
     Map<String, Object> replyVoc(RequestReplyVoc requestReplyVoc, int vocCodePk);
 
-    Map<String, Object> selectSearchedVocsList(int pageNum, String branchCodeFk, Integer vocProcessStatus, String vocCategory, Date vocCreatedDate);
+    Map<String, Object> selectSearchedVocsList(int pageNum, String branchCodeFk, Integer vocProcessStatus, String vocCategory, Date vocCreatedDate, Integer customerCodeFk);
 }
