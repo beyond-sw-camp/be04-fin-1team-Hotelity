@@ -1,5 +1,8 @@
 package org.iot.hotelitybackend.customer.service;
 
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
 import org.iot.hotelitybackend.customer.aggregate.CustomerSpecification;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
@@ -19,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,44 +50,6 @@ public class CustomerServiceImpl implements CustomerService {
 		this.membershipIssueRepository = membershipIssueRepository;
 	}
 
-	// @Override
-	// public Map<String, Object> selectCustomersList(int pageNum, String customerType, String membershipLevelName) {
-	//     Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
-	//     Specification<CustomerEntity> spec = (root, query, criteriaBuilder) -> null;
-	//     Specification<MembershipIssueEntity> spec1 = (root, query, criteriaBuilder) -> null;
-	//
-	//     if(!membershipLevelName.isEmpty()){
-	//         int membershipLevelCodeFk = membershipRepository.findByMembershipLevelName(membershipLevelName).getMembershipLevelCodePk();
-	//         // membershipIssueRepository.findByMembershipLevelCodeFk(membershipLevelCodePk).getCustomerCodeFk();
-	//         spec1 = spec1.and(CustomerSpecification.equalsMembershipLevelCodeFk(membershipLevelCodeFk));
-	//     }
-	//     if (!customerType.isEmpty()){
-	//         spec = spec.and(CustomerSpecification.equalsCustomerType(customerType));
-	//     }
-	//
-	//     Page<CustomerEntity> customerPage = customerRepository.findAll(spec, pageable);
-	//     MembershipIssueDTO membershipIssueDTO = membershipIssueRepository.findAll()
-	//
-	//     List<CustomerDTO> customerDTOList =
-	//         customerPage.stream()
-	//             .map(customerEntity -> mapper.map(customerEntity, CustomerDTO.class))
-	//             .peek(customerDTO -> customerDTO.setNationName(nationRepository.findById(customerDTO.getNationCodeFk()).get().getNationName()))
-	//             .peek(customerDTO -> customerDTO.setMembershipLevelName(membershipRepository.findById
-	//                 (membershipIssueRepository.findByCustomerCodeFk(spec1, customerDTO.getCustomerCodePk()).getMembershipLevelCodeFk()).get().getMembershipLevelName()
-	//             ))
-	//             .toList();
-	//
-	//     int totalPagesCount = customerPage.getTotalPages();
-	//     int currentPageIndex = customerPage.getNumber();
-	//
-	//     Map<String, Object> customerPageInfo = new HashMap<>();
-	//
-	//     customerPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-	//     customerPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-	//     customerPageInfo.put(KEY_CONTENT, customerDTOList);
-	//
-	//     return customerPageInfo;
-	// }
 	@Override
 	public Map<String, Object> selectCustomersList(String customerType, String membershipLevelName, int page) {
 		int fixedSize = 10;
@@ -133,5 +99,33 @@ public class CustomerServiceImpl implements CustomerService {
 
 		CustomerEntity customerEntity = customerRepository.findById(customerCodePk).get();
 		return mapper.map(customerEntity, CustomerDTO.class);
+	}
+
+	@Override
+	public Map<String, Object> readExcel(Workbook workbook) {
+		Sheet worksheet = workbook.getSheetAt(0);
+
+		for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
+			Row row = worksheet.getRow(i);
+
+			CustomerEntity customerEntity = CustomerEntity.builder()
+				.customerName(row.getCell(0).getStringCellValue())
+				.customerEmail(row.getCell(1).getStringCellValue())
+				.customerPhoneNumber(row.getCell(2).getStringCellValue())
+				.customerEnglishName(row.getCell(3).getStringCellValue())
+				.customerAddress(row.getCell(4).getStringCellValue())
+				.customerInfoAgreement((int)row.getCell(5).getNumericCellValue())
+				.customerStatus((int)row.getCell(6).getNumericCellValue())
+				.customerRegisteredDate(new Date())
+				.customerType(row.getCell(8).getStringCellValue())
+				.nationCodeFk((int)row.getCell(9).getNumericCellValue())
+				.customerGender(row.getCell(10).getStringCellValue())
+				.build();
+			customerRepository.save(customerEntity);
+		}
+
+		Map<String, Object> modifiedCustomerInfo = new HashMap<>();
+		modifiedCustomerInfo.put(KEY_CONTENT, "success");
+		return modifiedCustomerInfo;
 	}
 }

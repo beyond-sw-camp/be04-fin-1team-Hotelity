@@ -82,6 +82,7 @@ public class BranchServiceImpl implements BranchService{
 		return modifiedBranchInfo;
 	}
 
+	@Transactional
 	@Override
 	public Map<String, Object> deleteBranch(String branchCodePk) {
 

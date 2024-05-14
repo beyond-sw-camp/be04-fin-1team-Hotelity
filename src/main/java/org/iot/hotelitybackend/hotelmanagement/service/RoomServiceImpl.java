@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.Predicate;
 
@@ -146,7 +147,7 @@ public class RoomServiceImpl implements RoomService {
 		};
 	}
 
-
+	@Transactional
 	@Override
 	public Map<String, Object> modifyRoomInfo(RequestModifyRoom requestModifyRoom, String roomCodePk) {
 		RoomEntity roomEntity = RoomEntity.builder()
@@ -165,6 +166,7 @@ public class RoomServiceImpl implements RoomService {
 		return modifiedRoomInfo;
 	}
 
+	@Transactional
 	@Override
 	public Map<String, Object> deleteRoom(String roomCodePk) {
 
