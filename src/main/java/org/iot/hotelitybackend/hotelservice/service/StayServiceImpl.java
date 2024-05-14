@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
 import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
@@ -56,45 +57,50 @@ public class StayServiceImpl implements StayService {
 	@Transactional
 	@Override
 	public Map<String, Object> registStayByReservationCodePk(int reservationCodePk, int employeeCodeFk) {
+		Map<String, Object> registStayInfo = new HashMap<>();
 
-		ReservationServiceImpl reservationService =
-			new ReservationServiceImpl(
+		// reservationCodeFk 중복 검사
+		Optional<StayEntity> existingStayEntityOptional = stayRepository.findByReservationCodeFk(reservationCodePk);
+		if (!existingStayEntityOptional.isPresent()) {
+			ReservationServiceImpl reservationService = new ReservationServiceImpl(
 				reservationRepository, mapper, customerRepository, roomRepository,
 				roomCategoryRepository, roomLevelRepository, branchRepository
 			);
 
-		Map<String, Object> reservationInfo =
-			reservationService.selectReservationByReservationCodePk(reservationCodePk);
+			Map<String, Object> reservationInfo = reservationService.selectReservationByReservationCodePk(reservationCodePk);
 
-		// reservationInfo의 Value만 List에 담음
-		List<ReservationDTO> reservationList = (List<ReservationDTO>) reservationInfo.get("content");
+			if (reservationInfo != null && !reservationInfo.isEmpty()) {
+				// reservationInfo의 Value만 List에 담음
+				List<ReservationDTO> reservationList = (List<ReservationDTO>) reservationInfo.get("content");
 
-		StayEntity stayEntity = StayEntity.builder()
-			.stayCheckinTime(LocalDateTime.now())
-			.stayPeopleCount(reservationList.get(0).getReservationPersonnel())
-			.employeeCodeFk(employeeCodeFk)
-			.reservationCodeFk(reservationCodePk)
-			.build();
+				StayEntity stayEntity = StayEntity.builder()
+					.stayCheckinTime(LocalDateTime.now())
+					.stayPeopleCount(reservationList.get(0).getReservationPersonnel())
+					.employeeCodeFk(employeeCodeFk)
+					.reservationCodeFk(reservationCodePk)
+					.build();
 
-		// stayDTO에 reservationList에 담긴 정보들을 담아 registStayInfo에 저장
-		List<StayDTO> stayDTOList = new ArrayList<>();
+				// stayDTO에 reservationList에 담긴 정보들을 담아 registStayInfo에 저장
+				List<StayDTO> stayDTOList = new ArrayList<>();
 
-		StayDTO stayDTO = new StayDTO();
-		stayDTO.setRoomCode(reservationList.get(0).getRoomCodeFk());
-		stayDTO.setRoomLevelName(reservationList.get(0).getRoomLevelName());
-		stayDTO.setRoomName(reservationList.get(0).getRoomName());
-		stayDTO.setStayPeopleCount(reservationList.get(0).getReservationPersonnel());
-		stayDTO.setStayCheckinTime(reservationList.get(0).getReservationCheckinDate());
-		stayDTO.setEmployeeCodeFk(employeeCodeFk);
-		stayDTO.setEmployeeName(employeeRepository.findById(String.valueOf(employeeCodeFk)).get().getEmployeeName());
-		stayDTO.setBranchName(reservationList.get(0).getBranchCodeFk());
-		stayDTO.setReservationCodeFk(reservationCodePk);
+				StayDTO stayDTO = new StayDTO();
+				ReservationDTO reservationDTO = reservationList.get(0);
 
-		stayDTOList.add(stayDTO);
+				stayDTO.setRoomCode(reservationDTO.getRoomCodeFk());
+				stayDTO.setRoomLevelName(reservationDTO.getRoomLevelName());
+				stayDTO.setRoomName(reservationDTO.getRoomName());
+				stayDTO.setStayPeopleCount(reservationDTO.getReservationPersonnel());
+				stayDTO.setStayCheckinTime(reservationDTO.getReservationCheckinDate());
+				stayDTO.setEmployeeCodeFk(employeeCodeFk);
+				stayDTO.setEmployeeName(employeeRepository.findById(String.valueOf(employeeCodeFk)).get().getEmployeeName());
+				stayDTO.setBranchName(reservationDTO.getBranchCodeFk());
+				stayDTO.setReservationCodeFk(reservationCodePk);
 
-		Map<String, Object> registStayInfo = new HashMap<>();
-		registStayInfo.put(KEY_CONTENT, mapper.map(stayRepository.save(stayEntity), StayDTO.class));
+				stayDTOList.add(stayDTO);
 
+				registStayInfo.put(KEY_CONTENT, mapper.map(stayRepository.save(stayEntity), StayDTO.class));
+			}
+		}
 		return registStayInfo;
 	}
 }

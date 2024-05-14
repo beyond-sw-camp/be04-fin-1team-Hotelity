@@ -36,12 +36,15 @@ public class StayController {
 
 		Map<String, Object> registStayInfo = stayService.registStayByReservationCodePk(reservationCodePk, employeeCodeFk);
 
-		ResponseVO response = ResponseVO.builder()
-			.data(registStayInfo)
-			.resultCode(HttpStatus.CREATED.value())
-			.message("예약 코드 " + reservationCodePk + "번 투숙 등록됨")
-			.build();
-
-		return ResponseEntity.status(response.getResultCode()).body(response);
+		if (registStayInfo.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+		} else {
+			ResponseVO response = ResponseVO.builder()
+				.data(registStayInfo)
+				.resultCode(HttpStatus.CREATED.value())
+				.message("예약 코드 " + reservationCodePk + "번 투숙 등록됨")
+				.build();
+			return ResponseEntity.status(response.getResultCode()).body(response);
+		}
 	}
 }
