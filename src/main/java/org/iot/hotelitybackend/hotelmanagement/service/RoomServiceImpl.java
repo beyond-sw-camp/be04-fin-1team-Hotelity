@@ -71,10 +71,13 @@ public class RoomServiceImpl implements RoomService {
 		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
 		Specification<RoomEntity> spec = (root, query, criteriaBuilder) -> null;
 
+		// int 자료형이면 != null
 		if (roomCategoryCodeFk != null) {
 			spec = spec.and(RoomSpecification.equalsRoomName(roomCategoryCodeFk));
 		}
-		if (roomCurrentStatus != null) {
+
+		// String 자료형이면 !{변수명}.isEmpty()
+		if (!roomCurrentStatus.isEmpty()) {
 			spec = spec.and(RoomSpecification.equalsRoomCurrentStatus(roomCurrentStatus));
 		}
 
