@@ -70,9 +70,9 @@ public class ReservationServiceImpl implements ReservationService {
 		System.out.println("해당 월의 마지막 일자: " + endOfMonth);
 
 		// 특정 월에 해당하는 예약 내역 리스트 조회
-		List<ReservationEntity> reservationList = reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
+		List<ReservationEntity> reservationEntityList = reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
 
-		List<ReservationDTO> reservationDTOList = getFkColumnsName(reservationList);
+		List<ReservationDTO> reservationDTOList = getFkColumnsName(reservationEntityList);
 
 		Map<String, Object> reservationListInfo = new HashMap<>();
 
@@ -84,9 +84,9 @@ public class ReservationServiceImpl implements ReservationService {
 	/* 일자별 예약 리스트 조회 */
 	@Override
 	public Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate) {
-		List<ReservationEntity> dailyReservationList = reservationRepository.findByReservationCheckinDate(reservationCheckDate);
+		List<ReservationEntity> dailyReservationEntityList = reservationRepository.findByReservationCheckinDate(reservationCheckDate);
 
-		List<ReservationDTO> dailyReservationDTOList = getFkColumnsName(dailyReservationList);
+		List<ReservationDTO> dailyReservationDTOList = getFkColumnsName(dailyReservationEntityList);
 
 		Map<String, Object> dailyReservationInfo = new HashMap<>();
 
@@ -111,10 +111,10 @@ public class ReservationServiceImpl implements ReservationService {
 	}
 
 	/* fk 값들의 이름을 가져오는 코드 */
-	private List<ReservationDTO> getFkColumnsName(List<ReservationEntity> reservationList) {
+	private List<ReservationDTO> getFkColumnsName(List<ReservationEntity> reservationEntityList) {
 
 		List<ReservationDTO> list =
-			reservationList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
+			reservationEntityList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
 				.peek(reservationDTO -> reservationDTO.setCustomerName(
 					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()))
 				.peek(reservationDTO -> reservationDTO.setRoomName(String.valueOf(roomCategoryRepository.findById(

@@ -60,6 +60,8 @@ public class StayController {
 
 		Map<String, Object> stayInfo = stayService.selectStaysListByCustomerName(customerName);
 
+
+
 		ResponseVO response = ResponseVO.builder()
 			.data(stayInfo)
 			.resultCode(HttpStatus.OK.value())
@@ -77,31 +79,43 @@ public class StayController {
 
 		Map<String, Object> registStayInfo = stayService.registStayByReservationCodePk(reservationCodePk, employeeCodeFk);
 
+		ResponseVO response = null;
+
 		if (registStayInfo.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+			response = ResponseVO.builder()
+				.resultCode(HttpStatus.CONFLICT.value())
+				.message("이미 투숙 등록 된 예약입니다.")
+				.build();
 		} else {
-			ResponseVO response = ResponseVO.builder()
+			response = ResponseVO.builder()
 				.data(registStayInfo)
 				.resultCode(HttpStatus.CREATED.value())
-				.message("예약 코드 " + reservationCodePk + "번 투숙 등록됨")
+				.message("예약 코드 " + reservationCodePk + "번 투숙 등록 완료")
 				.build();
-			return ResponseEntity.status(response.getResultCode()).body(response);
 		}
+		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
 	/* 투숙 체크아웃 */
 	/* 화면에서 체크아웃 할 투숙 내역을 체크 후 버튼을 눌렀을 때 */
 	@PutMapping("/stays/{stayCodePk}/checkout")
 	public ResponseEntity<ResponseVO> modifyStayCheckoutDate(@PathVariable("stayCodePk") Integer stayCodePk) {
-
 		Map<String, Object> checkoutStayInfo = stayService.modifyStayCheckoutDate(stayCodePk);
 
-		ResponseVO response = ResponseVO.builder()
-			.data(checkoutStayInfo)
-			.resultCode(HttpStatus.OK.value())
-			.message(stayCodePk + "번 투숙 체크아웃 완료")
-			.build();
+		ResponseVO response = null;
 
+		if(checkoutStayInfo.isEmpty()) {
+			response = ResponseVO.builder()
+				.resultCode(HttpStatus.CONFLICT.value())
+				.message("이미 체크아웃 되었거나 해당 내역이 존재하지 않습니다.")
+				.build();
+		} else {
+			response = ResponseVO.builder()
+				.data(checkoutStayInfo)
+				.resultCode(HttpStatus.OK.value())
+				.message(stayCodePk + "번 투숙 체크아웃 완료")
+				.build();
+		}
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 }
