@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomCategoryEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomSpecification;
 import org.iot.hotelitybackend.hotelmanagement.dto.BranchDTO;
@@ -67,16 +68,22 @@ public class RoomServiceImpl implements RoomService {
 	}
 
 	@Override
-	public Map<String, Object> selectSearchedRoomsList(int pageNum, Integer roomCategoryCodeFk, String roomCurrentStatus) {
+	public Map<String, Object> selectSearchedRoomsList(int pageNum, String roomName, String roomCurrentStatus) {
 		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
 		Specification<RoomEntity> spec = (root, query, criteriaBuilder) -> null;
 
-		// int 자료형이면 != null
-		if (roomCategoryCodeFk != null) {
-			spec = spec.and(RoomSpecification.equalsRoomName(roomCategoryCodeFk));
+		// 1. roomName 에 해당하는 roomCategoryCodeFk 찾기
+		Integer roomCategoryCodeFk = null;
+		if (!roomName.isEmpty()) {
+			roomCategoryCodeFk = roomCategoryRepository.findByRoomName(roomName).getRoomCategoryCodePk();
 		}
 
-		// String 자료형이면 !{변수명}.isEmpty()
+		// 2-1. Integer 자료형이면 != null
+		if (roomCategoryCodeFk != null) {
+			spec = spec.and(RoomSpecification.equalsRoomCategoryCodeFk(roomCategoryCodeFk));
+		}
+
+		// 2-2. String 자료형이면 !{변수명}.isEmpty()
 		if (!roomCurrentStatus.isEmpty()) {
 			spec = spec.and(RoomSpecification.equalsRoomCurrentStatus(roomCurrentStatus));
 		}
