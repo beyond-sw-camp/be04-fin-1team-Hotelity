@@ -2,6 +2,7 @@ package org.iot.hotelitybackend.sales.service;
 
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.sales.aggregate.CouponEntity;
+import org.iot.hotelitybackend.sales.aggregate.CouponSpecification;
 import org.iot.hotelitybackend.sales.aggregate.VocEntity;
 import org.iot.hotelitybackend.sales.dto.CouponDTO;
 import org.iot.hotelitybackend.sales.dto.VocDTO;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -106,5 +108,37 @@ public class CouponServiceImpl implements CouponService{
         modifyCouponInfo.put(KEY_CONTENT, mapper.map(couponRepository.save(couponEntity), CouponDTO.class));
 
         return modifyCouponInfo;
+    }
+
+    @Override
+    public Map<String, Object> selectSearchedCouponsList(int pageNum, Float couponDiscountRate, String couponType) {
+        Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
+        Specification<CouponEntity> spec = (root, query, criteriaBuilder) -> null;
+
+        if (couponDiscountRate != null) {
+            spec = spec.and(CouponSpecification.equalsCouponDiscountRate(couponDiscountRate));
+        }
+
+        if (!couponType.isEmpty()) {
+            spec = spec.and(CouponSpecification.equalsCouponType(couponType));
+        }
+
+        Page<CouponEntity> couponEntityPage = couponRepository.findAll(spec, pageable);
+
+        List<CouponDTO> couponDTOList = couponEntityPage
+                .stream()
+                .map(couponEntity -> mapper.map(couponEntity, CouponDTO.class))
+                .toList();
+
+        int totalPagesCount = couponEntityPage.getTotalPages();
+        int currentPageIndex = couponEntityPage.getNumber();
+
+        Map<String, Object> couponPageInfo = new HashMap<>();
+
+        couponPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+        couponPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+        couponPageInfo.put(KEY_CONTENT, couponDTOList);
+
+        return couponPageInfo;
     }
 }

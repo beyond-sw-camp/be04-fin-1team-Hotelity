@@ -40,6 +40,22 @@ public class CouponController {
         return couponService.selectCouponByCouponCodePk(couponCodePk);
     }
 
+    @GetMapping("/coupons/search/page")
+    public ResponseEntity<ResponseVO> selectSearchedCouponsList(
+            @RequestParam(required = false) Float couponDiscountRate,
+            @RequestParam(required = false) String couponType,
+            @RequestParam int pageNum
+    ) {
+        Map<String, Object> couponPageInfo = couponService.selectSearchedCouponsList(pageNum, couponDiscountRate, couponType);
+
+        ResponseVO response = ResponseVO.builder()
+                .data(couponPageInfo)
+                .resultCode(HttpStatus.OK.value())
+                .build();
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
+    }
+
     @PostMapping("/coupons")
     public ResponseEntity<ResponseVO> registCoupon(@RequestBody RequestCoupon requestCoupon) {
         Map<String, Object> registCouponInfo = couponService.registCoupon(requestCoupon);
