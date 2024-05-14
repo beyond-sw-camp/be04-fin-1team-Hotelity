@@ -1,6 +1,5 @@
 package org.iot.hotelitybackend.employee.service;
 
-import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.employee.aggregate.EmployeeEntity;
 import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
-import static org.iot.hotelitybackend.common.constant.Constant.KEY_CONTENT;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -27,14 +25,26 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeServiceImpl(ModelMapper mapper, EmployeeRepository employeeRepository) {
         this.mapper = mapper;
         this.employeeRepository = employeeRepository;
+
+        /* custom mapping */
+        this.mapper.typeMap(EmployeeEntity.class, EmployeeDTO.class).addMappings(modelMapper -> {
+            modelMapper.map(EmployeeEntity::getPermissionName, EmployeeDTO::setNameOfPermission);
+            modelMapper.map(EmployeeEntity::getPositionName, EmployeeDTO::setNameOfPosition);
+            modelMapper.map(EmployeeEntity::getRankName, EmployeeDTO::setNameOfRank);
+            modelMapper.map(EmployeeEntity::getBranchName, EmployeeDTO::setNameOfBranch);
+            modelMapper.map(EmployeeEntity::getDepartmentName, EmployeeDTO::setNameOfDepartment);
+        });
     }
 
     @Override
     public Map<String, Object> selectEmployeesList(int pageNum) {
         Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
         Page<EmployeeEntity> employeePage = employeeRepository.findAll(pageable);
-        List<EmployeeDTO> employeeDTOList =
-                employeePage.stream().map(employeeEntity -> mapper.map(employeeEntity, EmployeeDTO.class)).toList();
+
+        List<EmployeeDTO> employeeDTOList = employeePage
+                .stream()
+                .map(employeeEntity -> mapper.map(employeeEntity, EmployeeDTO.class))
+                .toList();
 
         int totalPagesCount = employeePage.getTotalPages();
         int currentPageIndex = employeePage.getNumber();
@@ -46,5 +56,18 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeePageInfo.put(KEY_CONTENT, employeeDTOList);
 
         return employeePageInfo;
+    }
+
+    @Override
+    public EmployeeDTO selectEmployeeByEmployeeCodePk(int employCode) {
+
+        EmployeeEntity employeeEntity =
+                employeeRepository.findById(employCode).orElse(null);
+
+        if (employeeEntity != null) {
+            return mapper.map(employeeEntity, EmployeeDTO.class);
+        }
+
+        return null;
     }
 }

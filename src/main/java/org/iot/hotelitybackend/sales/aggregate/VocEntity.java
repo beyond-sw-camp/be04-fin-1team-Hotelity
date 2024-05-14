@@ -21,17 +21,29 @@ public class VocEntity {
     private Date vocCreatedDate;
     private Date vocLastUpdatedDate;
     private Integer customerCodeFk;
-    private String vocProcessStatus;
+    private Integer vocProcessStatus;
     private String vocCategory;
     private String vocTitle;
-    private String employeeCodeFk;
+    private Integer employeeCodeFk;
     private String branchCodeFk;
     private String vocImageLink;
+    private String vocResponse;
 
     @Builder
-    public VocEntity(Integer vocCodePk, String vocContent, Date vocCreatedDate, Date vocLastUpdatedDate, Integer customerCodeFk,
-        String vocProcessStatus, String vocCategory, String vocTitle, String employeeCodeFk, String branchCodeFk,
-        String vocImageLink) {
+    public VocEntity(
+            Integer vocCodePk,
+            String vocContent,
+            Date vocCreatedDate,
+            Date vocLastUpdatedDate,
+            Integer customerCodeFk,
+            Integer vocProcessStatus,
+            String vocCategory,
+            String vocTitle,
+            Integer employeeCodeFk,
+            String branchCodeFk,
+            String vocImageLink,
+            String vocResponse
+    ) {
         this.vocCodePk = vocCodePk;
         this.vocContent = vocContent;
         this.vocCreatedDate = vocCreatedDate;
@@ -43,5 +55,6 @@ public class VocEntity {
         this.employeeCodeFk = employeeCodeFk;
         this.branchCodeFk = branchCodeFk;
         this.vocImageLink = vocImageLink;
+        this.vocResponse = vocResponse;
     }
 }

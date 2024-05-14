@@ -1,6 +1,7 @@
 package org.iot.hotelitybackend.employee.controller;
 
 import org.iot.hotelitybackend.common.vo.ResponseVO;
+import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 import org.iot.hotelitybackend.employee.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,24 @@ public class EmployeeController {
         if ((Integer) employPageInfo.get(KEY_TOTAL_PAGES_COUNT) != 0) {
             response = ResponseVO.builder()
                     .data(employPageInfo)
+                    .resultCode(HttpStatus.OK.value())
+                    .build();
+        } else {
+            response = ResponseVO.builder().resultCode(HttpStatus.NO_CONTENT.value()).build();
+        }
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
+    }
+
+    @GetMapping("/{employeeCode}")
+    public ResponseEntity<ResponseVO> selectEmployeeByEmployeeCodePk(@PathVariable("employeeCode") int employCode) {
+        EmployeeDTO selectedEmployee = employeeService.selectEmployeeByEmployeeCodePk(employCode);
+
+        ResponseVO response;
+
+        if (selectedEmployee != null) {
+            response = ResponseVO.builder()
+                    .data(selectedEmployee)
                     .resultCode(HttpStatus.OK.value())
                     .build();
         } else {

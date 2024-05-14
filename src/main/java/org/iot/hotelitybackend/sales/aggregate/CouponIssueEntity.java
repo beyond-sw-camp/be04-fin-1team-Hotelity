@@ -24,8 +24,15 @@ public class CouponIssueEntity {
     private Date couponUseDate;
 
     @Builder
-    public CouponIssueEntity(Integer couponIssueCodePk, Integer customerCodeFk, Integer couponCodeFk, String couponIssueBarcode,
-        Date couponIssueDate, Date couponExpireDate, Date couponUseDate) {
+    public CouponIssueEntity(
+            Integer couponIssueCodePk,
+            Integer customerCodeFk,
+            Integer couponCodeFk,
+            String couponIssueBarcode,
+            Date couponIssueDate,
+            Date couponExpireDate,
+            Date couponUseDate
+    ) {
         this.couponIssueCodePk = couponIssueCodePk;
         this.customerCodeFk = customerCodeFk;
         this.couponCodeFk = couponCodeFk;
