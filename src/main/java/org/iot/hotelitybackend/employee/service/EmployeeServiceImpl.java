@@ -1,5 +1,6 @@
 package org.iot.hotelitybackend.employee.service;
 
+import org.iot.hotelitybackend.employee.aggregate.EmploySpecification;
 import org.iot.hotelitybackend.employee.aggregate.EmployeeEntity;
 import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -37,9 +39,25 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Map<String, Object> selectEmployeesList(int pageNum) {
+    public Map<String, Object> selectEmployeesList(
+            int pageNum, String branchCode, Integer departmentCode, String employeeName
+    ) {
+        Specification<EmployeeEntity> spec = (root, query, criteriaBuilder) -> null;
+
+        if (branchCode != null && !branchCode.isEmpty()) {
+            spec = spec.and(EmploySpecification.equalsBranch(branchCode));
+        }
+
+        if (departmentCode != null) {
+            spec = spec.and(EmploySpecification.equalsDepartment(departmentCode));
+        }
+
+        if (employeeName != null && !employeeName.isEmpty()) {
+            spec = spec.and(EmploySpecification.containsEmployeeName(employeeName));
+        }
+
         Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
-        Page<EmployeeEntity> employeePage = employeeRepository.findAll(pageable);
+        Page<EmployeeEntity> employeePage = employeeRepository.findAll(spec, pageable);
 
         List<EmployeeDTO> employeeDTOList = employeePage
                 .stream()

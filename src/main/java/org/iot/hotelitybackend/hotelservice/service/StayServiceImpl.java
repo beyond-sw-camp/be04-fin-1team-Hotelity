@@ -76,7 +76,7 @@ public class StayServiceImpl implements StayService {
 				StayEntity stayEntity = StayEntity.builder()
 					.stayCheckinTime(LocalDateTime.now())
 					.stayPeopleCount(reservationList.get(0).getReservationPersonnel())
-					.employeeCodeFk(employeeCodeFk)
+					.employeeCode(employeeCodeFk)
 					.reservationCodeFk(reservationCodePk)
 					.build();
 
@@ -92,7 +92,7 @@ public class StayServiceImpl implements StayService {
 				stayDTO.setStayPeopleCount(reservationDTO.getReservationPersonnel());
 				stayDTO.setStayCheckinTime(reservationDTO.getReservationCheckinDate());
 				stayDTO.setEmployeeCodeFk(employeeCodeFk);
-				stayDTO.setEmployeeName(employeeRepository.findById(String.valueOf(employeeCodeFk)).get().getEmployeeName());
+				stayDTO.setEmployeeName(employeeRepository.findById(employeeCodeFk).get().getEmployeeName());
 				stayDTO.setBranchName(reservationDTO.getBranchCodeFk());
 				stayDTO.setReservationCodeFk(reservationCodePk);
 
