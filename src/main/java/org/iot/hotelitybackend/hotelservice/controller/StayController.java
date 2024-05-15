@@ -5,19 +5,13 @@ import java.util.Map;
 
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.hotelservice.service.StayService;
+import org.iot.hotelitybackend.hotelservice.vo.RequestModifyStay;
 import org.iot.hotelitybackend.hotelservice.vo.RequestRegistStay;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/hotel-service")
@@ -117,5 +111,35 @@ public class StayController {
 				.build();
 		}
 		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	@PutMapping("/stays/{stayCodePk}")
+	public ResponseEntity<ResponseVO> modifyStayInfo(
+			@RequestBody RequestModifyStay requestModifyStay,
+			@PathVariable("stayCodePk") Integer stayCodePk)
+	{
+		Map<String, Object> modifyStay = stayService.modifyStayInfo(requestModifyStay, stayCodePk);
+
+		ResponseVO response = ResponseVO.builder()
+				.data(modifyStay)
+				.resultCode(HttpStatus.CREATED.value())
+				.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	@DeleteMapping("/stays/{stayCodePk}")
+	public ResponseEntity<ResponseVO> deleteStayInfo(@PathVariable("stayCodePk") int stayCodePk) {
+
+		Map<String, Object> deleteStayInfo = stayService.deleteStay(stayCodePk);
+
+		ResponseVO response = ResponseVO.builder()
+				.data(deleteStayInfo)
+				.resultCode(HttpStatus.NO_CONTENT.value())
+				.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+
+
 	}
 }

@@ -24,6 +24,7 @@ import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
 import org.iot.hotelitybackend.hotelservice.repository.StayRepository;
+import org.iot.hotelitybackend.hotelservice.vo.RequestModifyStay;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -160,7 +161,7 @@ public class StayServiceImpl implements StayService {
 					.stayCheckinTime(beforeStayEntity.getStayCheckinTime())
 					.stayCheckoutTime(currentCheckoutDate)
 					.stayPeopleCount(beforeStayEntity.getStayPeopleCount())
-					.employeeCodeFk(beforeStayEntity.getEmployeeCodeFk())
+					.employeeCode(beforeStayEntity.getEmployeeCode())
 					.reservationCodeFk(beforeStayEntity.getReservationCodeFk())
 					.build();
 
@@ -178,6 +179,37 @@ public class StayServiceImpl implements StayService {
 		}
 
 		return checkoutStayInfo;
+	}
+
+	@Override
+	public Map<String, Object> modifyStayInfo(RequestModifyStay requestModifyStay, Integer stayCodePk) {
+		StayEntity stayEntity = StayEntity.builder()
+				.stayCodePk(stayCodePk)
+				.stayCheckinTime(requestModifyStay.getStayCheckinTime())
+				.stayCheckoutTime(requestModifyStay.getStayCheckoutTime())
+				.stayPeopleCount(requestModifyStay.getStayPeopleCount())
+				.employeeCode(requestModifyStay.getEmployeeCodeFk())
+				.reservationCodeFk(requestModifyStay.getReservationCodeFk())
+				.build();
+
+		Map<String, Object> modifyStay = new HashMap<>();
+
+		modifyStay.put(KEY_CONTENT, mapper.map(stayRepository.save(stayEntity), StayDTO.class));
+
+		return modifyStay;
+	}
+
+	@Override
+	public Map<String, Object> deleteStay(int stayCodePk) {
+		Map<String, Object> deleteStay = new HashMap<>();
+
+		if (stayRepository.existsById(stayCodePk)) {
+			stayRepository.deleteById(stayCodePk);
+		} else {
+			System.out.println("해당하는 투숙 정보가 없습니다.");
+		}
+
+		return deleteStay;
 	}
 
 	/* 투숙 코드로 조회(투숙 체크아웃용 메소드) */
