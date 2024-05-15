@@ -11,6 +11,8 @@ import org.iot.hotelitybackend.hotelmanagement.dto.AncillaryDTO;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryCategoryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
+import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyFacility;
+import org.iot.hotelitybackend.hotelmanagement.vo.RequestRegistFacility;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -69,5 +71,57 @@ public class AncillaryServiceImpl implements AncillaryService{
 		ancillaryPageInfo.put(KEY_CONTENT, ancillaryDTOList);
 
 		return ancillaryPageInfo;
+	}
+
+	@Override
+	public Map<String, Object> registFacility(RequestRegistFacility requestRegistFacility) {
+		AncillaryEntity ancillaryEntity = AncillaryEntity.builder()
+				.ancillaryName(requestRegistFacility.getAncillaryName())
+				.branchCodeFk(requestRegistFacility.getBranchCodeFk())
+				.ancillaryLocation(requestRegistFacility.getAncillaryLocation())
+				.ancillaryOpenTime(requestRegistFacility.getAncillaryOpenTime())
+				.ancillaryCloseTime(requestRegistFacility.getAncillaryCloseTime())
+				.ancillaryPhoneNumber(requestRegistFacility.getAncillaryPhoneNumber())
+				.ancillaryCategoryCodeFk(requestRegistFacility.getAncillaryCategoryCodeFk())
+				.build();
+
+		Map<String, Object> registFacilityInfo = new HashMap<>();
+
+		registFacilityInfo.put(KEY_CONTENT, mapper.map(ancillaryRepository.save(ancillaryEntity), AncillaryDTO.class));
+
+		return registFacilityInfo;
+	}
+
+	@Override
+	public Map<String, Object> modifyFacilityInfo(RequestModifyFacility requestModifyFacility, int ancillaryCodePk) {
+		AncillaryEntity ancillaryEntity = AncillaryEntity.builder()
+				.ancillaryCodePk(ancillaryCodePk)
+				.ancillaryName(requestModifyFacility.getAncillaryName())
+				.branchCodeFk(requestModifyFacility.getBranchCodeFk())
+				.ancillaryLocation(requestModifyFacility.getAncillaryLocation())
+				.ancillaryOpenTime(requestModifyFacility.getAncillaryOpenTime())
+				.ancillaryCloseTime(requestModifyFacility.getAncillaryCloseTime())
+				.ancillaryPhoneNumber(requestModifyFacility.getAncillaryPhoneNumber())
+				.ancillaryCategoryCodeFk(requestModifyFacility.getAncillaryCategoryCodeFk())
+				.build();
+
+		Map<String, Object> modifyFacilityInfo = new HashMap<>();
+
+		modifyFacilityInfo.put(KEY_CONTENT, mapper.map(ancillaryRepository.save(ancillaryEntity), AncillaryDTO.class));
+
+		return modifyFacilityInfo;
+	}
+
+	@Override
+	public Map<String, Object> deleteFacilityInfo(int ancillaryCodePk) {
+		Map<String, Object> deleteFacilityInfo = new HashMap<>();
+
+		if (ancillaryRepository.existsById(ancillaryCodePk)) {
+			ancillaryRepository.deleteById(ancillaryCodePk);
+		} else {
+			System.out.println("해당하는 부대 시설을 찾을 수 없습니다.");
+		}
+
+		return deleteFacilityInfo;
 	}
 }
