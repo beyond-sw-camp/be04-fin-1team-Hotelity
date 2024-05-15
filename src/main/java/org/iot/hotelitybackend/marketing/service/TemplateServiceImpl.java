@@ -3,6 +3,7 @@ package org.iot.hotelitybackend.marketing.service;
 import org.iot.hotelitybackend.marketing.aggregate.TemplateEntity;
 import org.iot.hotelitybackend.marketing.dto.TemplateDTO;
 import org.iot.hotelitybackend.marketing.repository.TemplateRepository;
+import org.iot.hotelitybackend.marketing.vo.RequestTemplate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -55,5 +56,47 @@ public class TemplateServiceImpl implements TemplateService {
         TemplateDTO templateDTO = mapper.map(templateEntity, TemplateDTO.class);
 
         return templateDTO;
+    }
+
+    @Override
+    public Map<String, Object> registTemplate(RequestTemplate requestTemplate) {
+        TemplateEntity templateEntity = TemplateEntity.builder()
+                .templateName(requestTemplate.getTemplateName())
+                .templateContent(requestTemplate.getTemplateContent())
+                .build();
+
+        Map<String, Object> registTemplateInfo = new HashMap<>();
+
+        registTemplateInfo.put(KEY_CONTENT, mapper.map(templateRepository.save(templateEntity), TemplateDTO.class));
+
+        return registTemplateInfo;
+    }
+
+    @Override
+    public Map<String, Object> modifyTemplate(RequestTemplate requestTemplate, int templateCodePk) {
+        TemplateEntity templateEntity = TemplateEntity.builder()
+                .templateCodePk(templateCodePk)
+                .templateName(requestTemplate.getTemplateName())
+                .templateContent(requestTemplate.getTemplateContent())
+                .build();
+
+        Map<String, Object> modifyTemplateInfo = new HashMap<>();
+
+        modifyTemplateInfo.put(KEY_CONTENT, mapper.map(templateRepository.save(templateEntity), TemplateDTO.class));
+
+        return modifyTemplateInfo;
+    }
+
+    @Override
+    public Map<String, Object> deleteTemplate(int templateCodePk) {
+        Map<String, Object> deleteTemplateInfo = new HashMap<>();
+
+        if (templateRepository.existsById(templateCodePk)) {
+            templateRepository.deleteById(templateCodePk);
+        } else {
+            System.out.println("해당하는 템플릿을 찾을 수 없습니다.");
+        }
+
+        return deleteTemplateInfo;
     }
 }
