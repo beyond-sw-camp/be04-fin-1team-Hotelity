@@ -10,6 +10,7 @@ public class RequestEmployee {
 	private String employeeOfficePhoneNumber;
 	private String employeeEmail;
 	private String employeeSystemPassword;
+	private String employeeResignStatus;
 	private String employeeProfileImageLink;
 
 	private int permissionCodeFk;

@@ -98,11 +98,25 @@ public class EmployeeEntity {
 		return "";
 	}
 
+	public int getPermissionId() {
+		if (permission != null) {
+			return permission.getPermissionCodePk();
+		}
+		return -1;
+	}
+
 	public String getPositionName() {
 		if (position != null) {
 			return position.getPositionName();
 		}
 		return "";
+	}
+
+	public int getPositionId() {
+		if (position != null) {
+			return position.getPositionCodePk();
+		}
+		return -1;
 	}
 
 	public String getRankName() {
@@ -112,11 +126,25 @@ public class EmployeeEntity {
 		return "";
 	}
 
+	public int getRankId() {
+		if (rank != null) {
+			return rank.getRankCodePk();
+		}
+		return -1;
+	}
+
 	public String getDepartmentName() {
 		if (department != null) {
 			return department.getDepartmentName();
 		}
 		return "";
+	}
+
+	public int getDepartmentId() {
+		if (department != null) {
+			return department.getDepartmentCodePk();
+		}
+		return -1;
 	}
 
 	public String getBranchName() {
@@ -126,4 +154,10 @@ public class EmployeeEntity {
 		return "";
 	}
 
+	public String getBranchId() {
+		if (branch != null) {
+			return branch.getBranchCodePk();
+		}
+		return "";
+	}
 }

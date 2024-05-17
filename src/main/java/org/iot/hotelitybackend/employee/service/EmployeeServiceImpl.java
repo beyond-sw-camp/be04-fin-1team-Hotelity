@@ -7,15 +7,14 @@ import org.iot.hotelitybackend.employee.vo.RequestEmployee;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.BranchEntity;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Permission;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +56,12 @@ public class EmployeeServiceImpl implements EmployeeService {
             modelMapper.map(EmployeeEntity::getRankName, EmployeeDTO::setNameOfRank);
             modelMapper.map(EmployeeEntity::getBranchName, EmployeeDTO::setNameOfBranch);
             modelMapper.map(EmployeeEntity::getDepartmentName, EmployeeDTO::setNameOfDepartment);
+
+            modelMapper.map(EmployeeEntity::getPermissionId, EmployeeDTO::setDepartmentCodeFk);
+            modelMapper.map(EmployeeEntity::getPositionId, EmployeeDTO::setPositionCodeFk);
+            modelMapper.map(EmployeeEntity::getBranchId, EmployeeDTO::setBranchCodeFk);
+            modelMapper.map(EmployeeEntity::getDepartmentId, EmployeeDTO::setDepartmentCodeFk);
+            modelMapper.map(EmployeeEntity::getPositionId, EmployeeDTO::setPositionCodeFk);
         });
     }
 
@@ -111,6 +116,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return null;
     }
 
+    @Transactional
     @Override
     public EmployeeDTO registEmployee(EmployeeDTO newEmployee) {
         PermissionEntity permission =
@@ -139,29 +145,44 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         EmployeeEntity createdEmployeeEntity = employeeRepository.save(employeeEntity);
 
-        EmployeeDTO employeeDTO = new EmployeeDTO();
-        employeeDTO.setEmployeeCodePk(createdEmployeeEntity.getEmployeeCodePk());
-        employeeDTO.setEmployeeName(createdEmployeeEntity.getEmployeeName());
-        employeeDTO.setEmployeeAddress(createdEmployeeEntity.getEmployeeAddress());
-        employeeDTO.setEmployeePhoneNumber(createdEmployeeEntity.getEmployeePhoneNumber());
-        employeeDTO.setEmployeeOfficePhoneNumber(createdEmployeeEntity.getEmployeeOfficePhoneNumber());
-        employeeDTO.setEmployeeEmail(createdEmployeeEntity.getEmployeeEmail());
-        employeeDTO.setEmployeeSystemPassword(createdEmployeeEntity.getEmployeeSystemPassword());
-        employeeDTO.setEmployeeResignStatus(createdEmployeeEntity.getEmployeeResignStatus());
-        employeeDTO.setEmployeeProfileImageLink(createdEmployeeEntity.getEmployeeProfileImageLink());
+        return mapper.map(employeeRepository.save(createdEmployeeEntity), EmployeeDTO.class);
+    }
 
-        employeeDTO.setPermissionCodeFk(createdEmployeeEntity.getPermission().getPermissionCodePk());
-        employeeDTO.setPositionCodeFk(createdEmployeeEntity.getPosition().getPositionCodePk());
-        employeeDTO.setRankCodeFk(createdEmployeeEntity.getRank().getRankCodePk());
-        employeeDTO.setDepartmentCodeFk(createdEmployeeEntity.getDepartment().getDepartmentCodePk());
-        employeeDTO.setBranchCodeFk(createdEmployeeEntity.getBranch().getBranchCodePk());
+    @Transactional
+    @Override
+    public EmployeeDTO modifyEmployeeByEmployeeCodePk(int employCode, RequestEmployee modifiedEmployInfo) {
+        EmployeeEntity employeeEntity = employeeRepository.findById(employCode).orElse(null);
 
-        employeeDTO.setNameOfPermission(createdEmployeeEntity.getPermissionName());
-        employeeDTO.setNameOfPosition(createdEmployeeEntity.getPositionName());
-        employeeDTO.setNameOfRank(createdEmployeeEntity.getRankName());
-        employeeDTO.setNameOfDepartment(createdEmployeeEntity.getDepartmentName());
-        employeeDTO.setNameOfBranch(createdEmployeeEntity.getBranchName());
+        if (employeeEntity != null) {
+            PermissionEntity permission =
+                    permissionRepository.findById(modifiedEmployInfo.getPermissionCodeFk()).orElse(null);
+            DepartmentEntity department =
+                    departmentRepository.findById(modifiedEmployInfo.getDepartmentCodeFk()).orElse(null);
+            PositionEntity position = positionRepository.findById(modifiedEmployInfo.getPositionCodeFk()).orElse(null);
+            BranchEntity branch = branchRepository.findById(modifiedEmployInfo.getBranchCodeFk()).orElse(null);
+            RankEntity rank = rankRepository.findById(modifiedEmployInfo.getRankCodeFk()).orElse(null);
 
-        return employeeDTO;
+            EmployeeEntity modifiedEmployee = EmployeeEntity.builder()
+                    .employeeCodePk(employeeEntity.getEmployeeCodePk())
+                    .employeeName(modifiedEmployInfo.getEmployeeName())
+                    .employeeAddress(modifiedEmployInfo.getEmployeeAddress())
+                    .employeePhoneNumber(modifiedEmployInfo.getEmployeePhoneNumber())
+                    .employeeOfficePhoneNumber(modifiedEmployInfo.getEmployeeOfficePhoneNumber())
+                    .employeeEmail(modifiedEmployInfo.getEmployeeEmail())
+                    .employeeSystemPassword(modifiedEmployInfo.getEmployeeSystemPassword())
+                    .employeeResignStatus(modifiedEmployInfo.getEmployeeResignStatus())
+                    .employeeProfileImageLink(modifiedEmployInfo.getEmployeeProfileImageLink())
+                    .employPermission(permission)
+                    .employPosition(position)
+                    .employRank(rank)
+                    .employDepartment(department)
+                    .employBranch(branch)
+                    .stayList(employeeEntity.getStayList())
+                    .build();
+
+            return mapper.map(employeeRepository.save(modifiedEmployee), EmployeeDTO.class);
+        }
+
+        return null;
     }
 }

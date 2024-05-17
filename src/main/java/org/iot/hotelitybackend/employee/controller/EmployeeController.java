@@ -83,4 +83,26 @@ public class EmployeeController {
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    /* 직원 수정 */
+    @PutMapping("/{employeeCode}")
+    public ResponseEntity<ResponseVO> modifyEmployeeByEmployeeCodePk(
+            @PathVariable("employeeCode") int employCode,
+            @RequestBody RequestEmployee modifiedEmployInfo
+    ) {
+        EmployeeDTO modifiedEmployee = employeeService.modifyEmployeeByEmployeeCodePk(employCode, modifiedEmployInfo);
+
+        ResponseVO response;
+
+        if (modifiedEmployee != null) {
+            response = ResponseVO.builder()
+                    .data(modifiedEmployee)
+                    .resultCode(HttpStatus.OK.value())
+                    .build();
+        } else {
+            response = ResponseVO.builder().resultCode(HttpStatus.NO_CONTENT.value()).build();
+        }
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
+    }
 }

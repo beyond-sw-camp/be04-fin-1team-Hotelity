@@ -11,4 +11,6 @@ public interface EmployeeService {
     EmployeeDTO selectEmployeeByEmployeeCodePk(int employCode);
 
     EmployeeDTO registEmployee(EmployeeDTO newEmployee);
+
+    EmployeeDTO modifyEmployeeByEmployeeCodePk(int employCode, RequestEmployee modifiedEmployInfo);
 }
