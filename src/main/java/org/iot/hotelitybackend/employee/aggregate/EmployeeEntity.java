@@ -63,6 +63,13 @@ public class EmployeeEntity {
             String employeeSystemPassword,
             String employeeResignStatus,
             String employeeProfileImageLink,
+
+			PermissionEntity employPermission,
+			PositionEntity employPosition,
+			RankEntity employRank,
+			DepartmentEntity employDepartment,
+			BranchEntity employBranch,
+
 			List<StayEntity> stayList
     ) {
 		this.employeeCodePk = employeeCodePk;
@@ -74,6 +81,13 @@ public class EmployeeEntity {
 		this.employeeSystemPassword = employeeSystemPassword;
 		this.employeeResignStatus = employeeResignStatus;
 		this.employeeProfileImageLink = employeeProfileImageLink;
+
+		this.permission = employPermission;
+		this.position = employPosition;
+		this.rank = employRank;
+		this.department = employDepartment;
+		this.branch = employBranch;
+
         this.stayList = stayList;
     }
 
