@@ -10,6 +10,8 @@ import org.iot.hotelitybackend.customer.service.CustomerService;
 import org.iot.hotelitybackend.customer.vo.ResponseCustomer;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -21,11 +23,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
@@ -86,5 +92,27 @@ public class CustomerController {
             .build();
 
         return ResponseEntity.status(response.getResultCode()).body(response);
+    }
+
+    @GetMapping("/excel/download")
+    public ResponseEntity<InputStreamResource> downloadExcel(){
+        try{
+            ByteArrayInputStream result = customerService.downloadExcel();
+
+            String fileName = "Customer.xlsx";
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/vnd.ms-excel");
+            headers.add("Content-Disposition", "attachment; filename=" + fileName);
+
+            return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(result));
+
+        } catch(Exception e){
+            log.info(e.getMessage());
+        }
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
