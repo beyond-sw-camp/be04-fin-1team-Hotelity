@@ -1,8 +1,14 @@
 package org.iot.hotelitybackend.customer.service;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
 import org.iot.hotelitybackend.customer.aggregate.CustomerSpecification;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
@@ -22,15 +28,20 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class CustomerServiceImpl implements CustomerService {
 	private final ModelMapper mapper;
@@ -107,7 +118,6 @@ public class CustomerServiceImpl implements CustomerService {
 
 		for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
 			Row row = worksheet.getRow(i);
-
 			CustomerEntity customerEntity = CustomerEntity.builder()
 				.customerName(row.getCell(0).getStringCellValue())
 				.customerEmail(row.getCell(1).getStringCellValue())
@@ -127,5 +137,83 @@ public class CustomerServiceImpl implements CustomerService {
 		Map<String, Object> modifiedCustomerInfo = new HashMap<>();
 		modifiedCustomerInfo.put(KEY_CONTENT, "success");
 		return modifiedCustomerInfo;
+	}
+
+	@Override
+	public ByteArrayInputStream downloadExcel() throws IOException {
+		List<CustomerEntity> customer = customerRepository.findAll();
+
+		Workbook workbook = new XSSFWorkbook();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+		Font headerFont = workbook.createFont();
+		headerFont.setBold(true);
+		headerFont.setColor(IndexedColors.BLACK.getIndex());
+
+		CellStyle headerCellStyle = workbook.createCellStyle();
+		headerCellStyle.setFont(headerFont);
+		headerCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+		Sheet customerSheet = workbook.createSheet("고객");
+
+		createDashboardSheet(customer, customerSheet, headerCellStyle);
+
+		workbook.write(out);
+		log.info("[ReportService:getCustomerToExcel] create Customer list done. row count:[{}]", customer.size());
+
+		return new ByteArrayInputStream(out.toByteArray());
+	}
+
+	private void createDashboardSheet(List<CustomerEntity> customer, Sheet customerSheet, CellStyle headerCellStyle) {
+		Row headerRow = customerSheet.createRow(0);
+		String[] headerStrings = {"고객번호", "고객이름",	"고객이메일",	"고객전화번호"	, "고객영문이름",	"고객주소", "고객개인정보제공동의여부"
+			, "고객상태", "고객가입일자", "고객타입", "국가코드", "고객성별"};
+
+		int idx = 0;
+		Cell headerCell = null;
+		for(String s: headerStrings){
+			headerCell = headerRow.createCell(idx++);
+			headerCell.setCellValue(s);
+			headerCell.setCellStyle(headerCellStyle);
+		}
+
+		Row bodyRow = null;
+		Cell bodyCell = null;
+		int index = 1;
+		for(CustomerEntity data: customer){
+			bodyRow = customerSheet.createRow(index++);
+			bodyCell = bodyRow.createCell(0);
+			bodyCell.setCellValue(data.getCustomerCodePk());
+			bodyCell = bodyRow.createCell(1);
+			bodyCell.setCellValue(data.getCustomerName());
+			bodyCell = bodyRow.createCell(2);
+			bodyCell.setCellValue(data.getCustomerEmail());
+			bodyCell = bodyRow.createCell(3);
+			bodyCell.setCellValue(data.getCustomerPhoneNumber());
+			bodyCell = bodyRow.createCell(4);
+			bodyCell.setCellValue(data.getCustomerEnglishName());
+			bodyCell = bodyRow.createCell(5);
+			bodyCell.setCellValue(data.getCustomerAddress());
+			bodyCell = bodyRow.createCell(6);
+			bodyCell.setCellValue(data.getCustomerInfoAgreement());
+			bodyCell = bodyRow.createCell(7);
+			bodyCell.setCellValue(data.getCustomerStatus());
+			bodyCell = bodyRow.createCell(8);
+			bodyCell.setCellValue(data.getCustomerRegisteredDate());
+			bodyCell = bodyRow.createCell(9);
+			bodyCell.setCellValue(data.getCustomerType());
+			bodyCell = bodyRow.createCell(10);
+			bodyCell.setCellValue(data.getNationCodeFk());
+			bodyCell = bodyRow.createCell(11);
+			bodyCell.setCellValue(data.getCustomerGender());
+
+		}
+
+		for (int i = 0; i < headerStrings.length; i++) {
+			customerSheet.autoSizeColumn(i);
+			customerSheet.setColumnWidth(i, (customerSheet.getColumnWidth(i)) + (short)1024);
+		}
+
 	}
 }

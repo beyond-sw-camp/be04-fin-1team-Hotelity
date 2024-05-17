@@ -18,8 +18,8 @@ public class StayEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer stayCodePk;
-    private Date stayCheckinTime;
-    private Date stayCheckoutTime;
+    private LocalDateTime stayCheckinTime;
+    private LocalDateTime stayCheckoutTime;
     private Integer stayPeopleCount;
 
     @Column(name = "employee_code_fk")
@@ -29,8 +29,8 @@ public class StayEntity {
     @Builder
     public StayEntity(
             Integer stayCodePk,
-            Date stayCheckinTime,
-            Date stayCheckoutTime,
+            LocalDateTime stayCheckinTime,
+            LocalDateTime stayCheckoutTime,
             Integer stayPeopleCount,
             Integer employeeCode,
             Integer reservationCodeFk
