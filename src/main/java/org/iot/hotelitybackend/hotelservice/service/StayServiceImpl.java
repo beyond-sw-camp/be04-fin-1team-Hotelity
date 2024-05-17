@@ -19,7 +19,10 @@ import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomCategoryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomLevelRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomRepository;
+import org.iot.hotelitybackend.hotelservice.aggregate.PaymentEntity;
+import org.iot.hotelitybackend.hotelservice.aggregate.PaymentSpecification;
 import org.iot.hotelitybackend.hotelservice.aggregate.StayEntity;
+import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
 import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
@@ -27,6 +30,10 @@ import org.iot.hotelitybackend.hotelservice.repository.StayRepository;
 import org.iot.hotelitybackend.hotelservice.vo.RequestModifyStay;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,6 +82,39 @@ public class StayServiceImpl implements StayService {
 			);
 
 		// forEach문 돌려서 List<StayDTO>에 값 추가하기
+
+		// Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
+		// Specification<PaymentEntity> spec = (root, query, criteriaBuilder) -> null;
+		//
+		// // 고객 이름별 조건
+		// if (customerCodeFk != null) {
+		// 	spec = spec.and(PaymentSpecification.equalsCustomerCodeFk(customerCodeFk));
+		// }
+		// // 결제 일자별 조건
+		// if (paymentDate != null) {
+		// 	spec = spec.and(PaymentSpecification.equalsPaymentDate(paymentDate));
+		// }
+		// // 결제 취소 여부 별 조건
+		// if(paymentCancelStatus != null) {
+		// 	spec = spec.and(PaymentSpecification.equalsPaymentCancelStatus(paymentCancelStatus));
+		// }
+		//
+		// Page<PaymentEntity> paymentEntityPage = paymentRepository.findAll(spec, pageable);
+		// List<PaymentDTO> paymentDTOList = paymentEntityPage
+		// 	.stream()
+		// 	.map(paymentEntity -> mapper.map(paymentEntity, PaymentDTO.class))
+		// 	.toList();
+		//
+		// int totalPagesCount = paymentEntityPage.getTotalPages();
+		// int currentPageIndex = paymentEntityPage.getNumber();
+		//
+		// Map<String, Object> roomPageInfo = new HashMap<>();
+		//
+		// roomPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+		// roomPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+		// roomPageInfo.put(KEY_CONTENT, paymentDTOList);
+		//
+		// return roomPageInfo;
 
 		return null;
 	}

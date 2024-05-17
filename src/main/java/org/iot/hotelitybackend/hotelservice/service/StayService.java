@@ -10,8 +10,6 @@ public interface StayService {
 
 	Map<String, Object> selectStaysList(int pageNum, String branchCodeFk, String roomCodeFk, LocalDateTime reservationCheckinDate, LocalDateTime reservationCheckoutDate);
 
-	Map<String, Object> selectStaysListByCustomerName(String customerName);
-
 	Map<String, Object> modifyStayCheckoutDate(Integer stayCodePk);
 
     Map<String, Object> modifyStayInfo(RequestModifyStay requestModifyStay, Integer stayCodePk);

@@ -48,23 +48,6 @@ public class StayController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
-	/* 고객 이름별 투숙 내역 조회 */
-	@GetMapping("/stays/customers")
-	public ResponseEntity<ResponseVO> selectStaysListByCustomerName(@RequestParam String customerName) {
-
-		Map<String, Object> stayInfo = stayService.selectStaysListByCustomerName(customerName);
-
-
-
-		ResponseVO response = ResponseVO.builder()
-			.data(stayInfo)
-			.resultCode(HttpStatus.OK.value())
-			.message(customerName + " 고객님 투숙 내역 조회")
-			.build();
-
-		return ResponseEntity.status(response.getResultCode()).body(response);
-	}
-
 	/* 예약 체크인 선택 시 투숙 정보 생성 */
 	@PostMapping("/stays")
 	public ResponseEntity<ResponseVO> registStayByReservationCodePk(
