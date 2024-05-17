@@ -1,8 +1,10 @@
 package org.iot.hotelitybackend.customer.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
+import org.iot.hotelitybackend.sales.dto.MembershipDTO;
 
 @Data
 public class CustomerDTO {
@@ -20,4 +22,5 @@ public class CustomerDTO {
 	private String customerGender;
 	private String nationName;
 	private String membershipLevelName;
+	private List<MembershipDTO> memberships;
 }
