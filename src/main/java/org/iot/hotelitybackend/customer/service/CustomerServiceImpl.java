@@ -17,6 +17,7 @@ import org.iot.hotelitybackend.customer.repository.NationRepository;
 import org.iot.hotelitybackend.sales.aggregate.MembershipEntity;
 import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
 import org.iot.hotelitybackend.customer.aggregate.NationEntity;
+import org.iot.hotelitybackend.sales.dto.MembershipDTO;
 import org.iot.hotelitybackend.sales.repository.MembershipIssueRepository;
 import org.iot.hotelitybackend.sales.repository.MembershipRepository;
 import org.modelmapper.ModelMapper;
@@ -109,7 +110,21 @@ public class CustomerServiceImpl implements CustomerService {
 	public CustomerDTO selectCustomerByCustomerCodePk(int customerCodePk) {
 
 		CustomerEntity customerEntity = customerRepository.findById(customerCodePk).get();
-		return mapper.map(customerEntity, CustomerDTO.class);
+
+		List<MembershipIssueEntity> membershipIssueEntities = membershipIssueRepository.findMembershipByCustomerCodeFk(customerCodePk);
+
+		CustomerDTO customerDTO = mapper.map(customerEntity, CustomerDTO.class);
+
+		List<MembershipDTO> membershipDTOs = membershipIssueEntities.stream()
+				.map(membershipIssue -> {
+					MembershipDTO membershipDTO = new MembershipDTO();
+					membershipDTO.setMembershipLevelName(membershipIssue.getMembership().getMembershipLevelName());
+					return membershipDTO;
+				}).collect(Collectors.toList());
+
+		customerDTO.setMemberships(membershipDTOs);
+
+		return customerDTO;
 	}
 
 	@Override
