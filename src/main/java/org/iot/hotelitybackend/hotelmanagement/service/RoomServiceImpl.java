@@ -2,11 +2,27 @@ package org.iot.hotelitybackend.hotelmanagement.service;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomCategoryEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomSpecification;
@@ -23,12 +39,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.Predicate;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class RoomServiceImpl implements RoomService {
 
 	private final RoomRepository roomRepository;
@@ -51,12 +70,12 @@ public class RoomServiceImpl implements RoomService {
 		List<RoomDTO> roomDTOList = roomEntityPage
 			.stream()
 			.map(roomEntity -> mapper.map(roomEntity, RoomDTO.class))
-			.peek(roomDTO -> roomDTO.setRoomName(
-				mapper.map(roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()), RoomCategoryDTO.class).getRoomName()
-			))
-			.peek(roomDTO -> roomDTO.setBranchName(
-				mapper.map(branchRepository.findById(roomDTO.getBranchCodeFk()), BranchDTO.class).getBranchName()
-			))
+			.peek(roomDTO -> {
+				RoomCategoryEntity foundRoomCategoryEntity = roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()).orElseThrow(IllegalArgumentException::new);
+				roomDTO.setRoomName(foundRoomCategoryEntity.getRoomName());
+				roomDTO.setRoomSubRoomsCount(foundRoomCategoryEntity.getRoomSubRoomsCount());
+				roomDTO.setBranchName(branchRepository.findById(roomDTO.getBranchCodeFk()).orElseThrow(IllegalArgumentException::new).getBranchName());
+			})
 			.toList();
 
 		int totalPagesCount = roomEntityPage.getTotalPages();
@@ -180,4 +199,111 @@ public class RoomServiceImpl implements RoomService {
 		return deleteRoom;
 	}
 
+	@Override
+	public List<RoomDTO> selectAllRoomsForExcel() {
+		return roomRepository.findAll()
+			.stream()
+			.map(roomEntity -> mapper.map(roomEntity, RoomDTO.class))
+			.toList();
+	}
+
+	@Override
+	public List<RoomDTO> pageToList(
+		Map<String, Object> roomPageInfo
+	) {
+		List<RoomDTO> joined = new ArrayList<>();
+		for (int i = 0; i < (int)roomPageInfo.get(KEY_TOTAL_PAGES_COUNT); i++) {
+			joined.addAll((List<RoomDTO>)selectRoomsList(i).get(KEY_CONTENT));
+		}
+		return joined;
+	}
+
+	@Override
+	public List<RoomDTO> pageToSearchedList(
+		Map<String, Object> roomPageInfo,
+		String roomName, Integer roomSubRoomsCount, String roomCurrentStatus, String branchCodeFk
+	) {
+		List<RoomDTO> joined = new ArrayList<>();
+		for (int i = 0; i < (int)roomPageInfo.get(KEY_TOTAL_PAGES_COUNT); i++) {
+			joined.addAll((List<RoomDTO>)selectSearchedRoomsList(i, roomName, roomSubRoomsCount, roomCurrentStatus, branchCodeFk).get(KEY_CONTENT));
+		}
+		return joined;
+	}
+
+	@Override
+	public Map<String, Object> createRoomsExcelFile(List<RoomDTO> roomDTOList) throws
+		IOException,
+		NoSuchFieldException,
+		IllegalAccessException {
+
+		Workbook workbook = new XSSFWorkbook();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+		Font headerFont = workbook.createFont();
+		headerFont.setBold(true);
+		headerFont.setColor(IndexedColors.BLACK.getIndex());
+
+		CellStyle headerCellStyle = workbook.createCellStyle();
+		headerCellStyle.setFont(headerFont);
+		headerCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+		Sheet sheet = workbook.createSheet("객실");
+
+		createDashboardSheet(roomDTOList, sheet, headerCellStyle);
+
+		workbook.write(out);
+		log.info("[ReportService:getExcel] create Excel list done. row count:[{}]", roomDTOList.size());
+
+		Calendar calendar = Calendar.getInstance();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
+		String time = dateFormat.format(calendar.getTime());
+		String fileName = "Rooms_"+ time +".xlsx";
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", "application/vnd.ms-excel");
+		headers.add("Content-Disposition", "attachment; filename=" + fileName);
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("result", new ByteArrayInputStream(out.toByteArray()));
+		result.put("fileName", fileName);
+		result.put("headers", headers);
+		return result;
+	}
+
+	private void createDashboardSheet(List<RoomDTO> roomDTOList, Sheet sheet, CellStyle headerCellStyle) throws
+		NoSuchFieldException, IllegalAccessException {
+		Row headerRow = sheet.createRow(0);
+		RoomDTO roomDTO = new RoomDTO();
+		int idx1 = 0;
+		Cell headerCell;
+		List<String> headerStrings = new ArrayList<>();
+		for (Field field : roomDTO.getClass().getDeclaredFields()) {
+			field.setAccessible(true);
+			String fieldName = field.getName();
+			headerStrings.add(fieldName);
+			headerCell = headerRow.createCell(idx1++);
+			headerCell.setCellValue(fieldName);
+			headerCell.setCellStyle(headerCellStyle);
+		}
+
+		Row bodyRow;
+		Cell bodyCell;
+		int idx2 = 1;
+		for (RoomDTO roomDTOIter : roomDTOList) {
+			bodyRow = sheet.createRow(idx2++);
+			int idx3 = 0;
+			for (String headerString : headerStrings) {
+				Field field = roomDTOIter.getClass().getDeclaredField(headerString);
+				field.setAccessible(true);
+				bodyCell = bodyRow.createCell(idx3);
+				bodyCell.setCellValue(String.valueOf(field.get(roomDTOIter)));
+				idx3++;
+			}
+		}
+
+		for (int i = 0; i < headerStrings.size(); i++) {
+			sheet.autoSizeColumn(i);
+			sheet.setColumnWidth(i, (sheet.getColumnWidth(i)) + (short)1024);
+		}
+	}
 }

@@ -1,14 +1,19 @@
 package org.iot.hotelitybackend.hotelmanagement.controller;
 
+import java.io.ByteArrayInputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
-import org.hibernate.annotations.Parameter;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
+import org.iot.hotelitybackend.hotelmanagement.dto.RoomDTO;
 import org.iot.hotelitybackend.hotelmanagement.service.RoomService;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyRoom;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,8 +25,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("hotel-management")
+@Slf4j
 public class RoomController {
 
 	private final RoomService roomService;
@@ -91,5 +99,46 @@ public class RoomController {
 			.build();
 
 		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	@GetMapping("/rooms/excel/download")
+	public ResponseEntity<InputStreamResource> downloadAllRoomsAsExcel() {
+		try {
+			List<RoomDTO> roomDTOList = roomService.pageToList(roomService.selectRoomsList(0));
+			Map<String, Object> result = roomService.createRoomsExcelFile(roomDTOList);
+
+			return ResponseEntity
+				.ok()
+				.headers((HttpHeaders)result.get("headers"))
+				.body(new InputStreamResource((ByteArrayInputStream)result.get("result")));
+
+		} catch (Exception e) {
+			log.info(e.getMessage());
+		}
+
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+	}
+
+	@GetMapping("rooms/search/excel/download")
+	public ResponseEntity<InputStreamResource> downloadSearchedRoomsAsExcel(
+		@RequestParam(required = false) String roomName,
+		@RequestParam(required = false) String roomCurrentStatus,
+		@RequestParam(required = false) Integer roomSubRoomsCount,
+		@RequestParam(required = false) String branchCodeFk
+	) {
+		try {
+			List<RoomDTO> roomDTOList = roomService.pageToSearchedList(roomService.selectSearchedRoomsList(0, roomName, roomSubRoomsCount, roomCurrentStatus, branchCodeFk), roomName, roomSubRoomsCount, roomCurrentStatus, branchCodeFk);
+			Map<String, Object> result = roomService.createRoomsExcelFile(roomDTOList);
+
+			return ResponseEntity
+				.ok()
+				.headers((HttpHeaders)result.get("headers"))
+				.body(new InputStreamResource((ByteArrayInputStream)result.get("result")));
+
+		} catch (Exception e) {
+			log.info(e.getMessage());
+		}
+
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 }
