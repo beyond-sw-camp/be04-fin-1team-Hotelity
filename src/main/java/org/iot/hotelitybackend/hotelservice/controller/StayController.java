@@ -31,13 +31,13 @@ public class StayController {
 	public ResponseEntity<ResponseVO> selectStaysList(
 		@RequestParam int pageNum,
 		@RequestParam(required = false) String branchCodeFk,
-		@RequestParam(required = false) String roomCodeFk,
-		@RequestParam(required = false) LocalDateTime reservationCheckinDate,
-		@RequestParam(required = false) LocalDateTime reservationCheckoutDate
+		@RequestParam(required = false) String roomLevelName,
+		@RequestParam(required = false) LocalDateTime stayCheckinTime,
+		@RequestParam(required = false) LocalDateTime stayCheckoutTime
 	) {
 
 		Map<String, Object> stayListInfo =
-			stayService.selectStaysList(pageNum, branchCodeFk, roomCodeFk, reservationCheckinDate, reservationCheckoutDate);
+			stayService.selectStaysList(pageNum, branchCodeFk, roomLevelName, stayCheckinTime, stayCheckoutTime);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(stayListInfo)

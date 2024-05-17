@@ -24,8 +24,9 @@ public class StayEntity {
 	private Integer stayPeopleCount;
 
 	@Column(name = "employee_code_fk")
-	private Integer employeeCode;
+	private Integer employeeCodeFk;
 	private Integer reservationCodeFk;
+
 
 	@Builder
 	public StayEntity(
@@ -33,14 +34,14 @@ public class StayEntity {
 		LocalDateTime stayCheckinTime,
 		LocalDateTime stayCheckoutTime,
 		Integer stayPeopleCount,
-		Integer employeeCode,
+		Integer employeeCodeFk,
 		Integer reservationCodeFk
 	) {
 		this.stayCodePk = stayCodePk;
 		this.stayCheckinTime = stayCheckinTime;
 		this.stayCheckoutTime = stayCheckoutTime;
 		this.stayPeopleCount = stayPeopleCount;
-		this.employeeCode = employeeCode;
+		this.employeeCodeFk = employeeCodeFk;
 		this.reservationCodeFk = reservationCodeFk;
 	}
 }

@@ -8,7 +8,7 @@ import java.util.Map;
 public interface StayService {
 	Map<String, Object> registStayByReservationCodePk(int reservationCodePk, int employeeCodeFk);
 
-	Map<String, Object> selectStaysList(int pageNum, String branchCodeFk, String roomCodeFk, LocalDateTime reservationCheckinDate, LocalDateTime reservationCheckoutDate);
+	Map<String, Object> selectStaysList(int pageNum, String branchCodeFk, String roomLevelName, LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime);
 
 	Map<String, Object> modifyStayCheckoutDate(Integer stayCodePk);
 
