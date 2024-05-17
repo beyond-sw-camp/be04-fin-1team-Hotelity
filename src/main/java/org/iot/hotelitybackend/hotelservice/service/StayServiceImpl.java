@@ -79,13 +79,6 @@ public class StayServiceImpl implements StayService {
 		return null;
 	}
 
-	/* 고객이름별 투숙 내역 조회 */
-	@Override
-	public Map<String, Object> selectStaysListByCustomerName(String customerName) {
-
-		return null;
-	}
-
 	/* 예약 체크인 시 투숙 정보 등록 */
 	@Transactional
 	@Override
