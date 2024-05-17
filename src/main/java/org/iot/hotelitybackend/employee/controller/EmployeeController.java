@@ -105,4 +105,22 @@ public class EmployeeController {
 
         return ResponseEntity.status(response.getResultCode()).body(response);
     }
+
+    /* 직원 삭제 */
+    @DeleteMapping("/{employeeCode}")
+    public ResponseEntity<ResponseVO> deleteEmployeeByEmployeeCodePk(@PathVariable("employeeCode") int employCode) {
+
+        /* -1: exception, 0: not exist, 1: success */
+        int resultCode = employeeService.deleteEmployeeByEmployeeCodePk(employCode);
+        ResponseVO response = switch (resultCode) {
+            case -1 -> ResponseVO.builder().resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).build();
+            case 0 -> ResponseVO.builder().resultCode(HttpStatus.NO_CONTENT.value()).build();
+            case 1 -> ResponseVO.builder()
+                    .resultCode(HttpStatus.OK.value())
+                    .build();
+            default -> throw new IllegalStateException("Unexpected value: " + resultCode);
+        };
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
+    }
 }

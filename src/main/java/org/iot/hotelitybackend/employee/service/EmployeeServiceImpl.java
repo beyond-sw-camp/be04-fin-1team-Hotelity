@@ -1,5 +1,6 @@
 package org.iot.hotelitybackend.employee.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.employee.aggregate.*;
 import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 import org.iot.hotelitybackend.employee.repository.*;
@@ -21,6 +22,7 @@ import java.util.Map;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
+@Slf4j
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
     private final ModelMapper mapper;
@@ -184,5 +186,21 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         return null;
+    }
+
+    @Override
+    public int deleteEmployeeByEmployeeCodePk(int employCode) {
+        /* -1: exception, 0: not exist, 1: success */
+        try {
+            if (employeeRepository.existsById(employCode)) {
+                employeeRepository.deleteById(employCode);
+                return 1;
+            }
+
+            return 0;
+        } catch (Exception e) {
+            log.warn("deleteEmployeeException: " + e);
+            return -1;
+        }
     }
 }
