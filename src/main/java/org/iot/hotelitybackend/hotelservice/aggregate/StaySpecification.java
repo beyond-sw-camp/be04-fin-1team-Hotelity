@@ -13,15 +13,16 @@ import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 
 public class StaySpecification {
 
 	public static Specification<StayEntity> equalsBranchCodeFk(String branchCodeFk) {
-		return (root, query, CriteriaBuilder) -> {
+		return (root, query, criteriaBuilder) -> {
 			Join<StayEntity, ReservationEntity> reservationCodeJoin = root.join("reservation");
 			Join<ReservationEntity, BranchEntity> branchCodeJoin = reservationCodeJoin.join("branch");
 
-			return CriteriaBuilder.equal(branchCodeJoin.get("branchCodePk"), branchCodeFk);
+			return criteriaBuilder.equal(branchCodeJoin.get("branchCodePk"), branchCodeFk);
 		};
 	}
 

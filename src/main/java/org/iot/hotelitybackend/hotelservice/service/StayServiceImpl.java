@@ -161,7 +161,7 @@ public class StayServiceImpl implements StayService {
 					.stayCheckinTime(LocalDateTime.now())
 					.stayPeopleCount(reservationList.get(0).getReservationPersonnel())
 					.employeeCodeFk(employeeCodeFk)
-					.reservationCodeFk(reservationCodePk)
+					.reservation(reservationRepository.findById(reservationCodePk).get())
 					.build();
 
 				// stayDTO에 reservationList에 담긴 정보들을 담아 registStayInfo에 저장
@@ -212,7 +212,7 @@ public class StayServiceImpl implements StayService {
 					.stayCheckoutTime(currentCheckoutDate)
 					.stayPeopleCount(beforeStayEntity.getStayPeopleCount())
 					.employeeCodeFk(beforeStayEntity.getEmployeeCodeFk())
-					.reservationCodeFk(beforeStayEntity.getReservationCodeFk())
+					// .reservationCodeFk(beforeStayEntity.getReservationCodeFk())
 					.build();
 
 				stayRepository.save(checkoutStayEntity);
@@ -240,7 +240,7 @@ public class StayServiceImpl implements StayService {
 				.stayCheckoutTime(requestModifyStay.getStayCheckoutTime())
 				.stayPeopleCount(requestModifyStay.getStayPeopleCount())
 				.employeeCodeFk(requestModifyStay.getEmployeeCodeFk())
-				.reservationCodeFk(requestModifyStay.getReservationCodeFk())
+				// .reservationCodeFk(requestModifyStay.getReservationCodeFk())
 				.build();
 
 		Map<String, Object> modifyStay = new HashMap<>();
@@ -270,15 +270,15 @@ public class StayServiceImpl implements StayService {
 		List<StayEntity> stayEntityList = stayRepository.findById(stayCodePk).stream().toList();
 
 		// List<StayEntity> stayEntityList 조회
-		for (StayEntity stayEntity : stayEntityList) {
-			System.out.println("Stay Code: " + stayEntity.getStayCodePk());
-			System.out.println("Check-in Time: " + stayEntity.getStayCheckinTime());
-			System.out.println("Check-out Time: " + stayEntity.getStayCheckoutTime());
-			System.out.println("People Count: " + stayEntity.getStayPeopleCount());
-			System.out.println("Employee Code: " + stayEntity.getEmployeeCodeFk());
-			System.out.println("Reservation Code: " + stayEntity.getReservationCodeFk());
-			System.out.println("-----------------------------------");
-		}
+		// for (StayEntity stayEntity : stayEntityList) {
+		// 	System.out.println("Stay Code: " + stayEntity.getStayCodePk());
+		// 	System.out.println("Check-in Time: " + stayEntity.getStayCheckinTime());
+		// 	System.out.println("Check-out Time: " + stayEntity.getStayCheckoutTime());
+		// 	System.out.println("People Count: " + stayEntity.getStayPeopleCount());
+		// 	System.out.println("Employee Code: " + stayEntity.getEmployeeCodeFk());
+		// 	System.out.println("Reservation Code: " + stayEntity.getReservationCodeFk());
+		// 	System.out.println("-----------------------------------");
+		// }
 
 		List<StayDTO> stayDTOList = getFkColumnName(stayEntityList);
 
