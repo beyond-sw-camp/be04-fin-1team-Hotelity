@@ -2,14 +2,15 @@ package org.iot.hotelitybackend.hotelservice.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
 public class ReservationDTO {
     private Integer reservationCodePk;
-    private Date reservationDate;
-    private Date reservationCheckinDate;
-    private Date reservationCheckoutDate;
+    private LocalDateTime reservationDate;
+    private LocalDateTime reservationCheckinDate;
+    private LocalDateTime reservationCheckoutDate;
     private Integer customerCodeFk;
     private String customerName;
     private String roomCodeFk;

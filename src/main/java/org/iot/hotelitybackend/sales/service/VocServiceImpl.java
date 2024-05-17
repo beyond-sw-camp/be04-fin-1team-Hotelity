@@ -117,7 +117,7 @@ public class VocServiceImpl implements VocService {
     }
 
     @Override
-    public Map<String, Object> selectSearchedVocsList(int pageNum, String branchCodeFk, Integer vocProcessStatus, String vocCategory, Date vocCreatedDate) {
+    public Map<String, Object> selectSearchedVocsList(int pageNum, String branchCodeFk, Integer vocProcessStatus, String vocCategory, Date vocCreatedDate, Integer customerCodeFk) {
         Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
         Specification<VocEntity> spec = (root, query, criteriaBuilder) -> null;
 
@@ -137,10 +137,20 @@ public class VocServiceImpl implements VocService {
             spec = spec.and(VocSpecification.equalsVocCreatedDate(vocCreatedDate));
         }
 
+        if (customerCodeFk != null) {
+            spec = spec.and(VocSpecification.equalsCustomerCode(customerCodeFk));
+        }
+
         Page<VocEntity> vocEntityPage = vocRepository.findAll(spec, pageable);
         List<VocDTO> vocDTOList = vocEntityPage
                 .stream()
                 .map(vocEntity -> mapper.map(vocEntity, VocDTO.class))
+                .peek(vocDTO -> vocDTO.setCustomerName(
+                        mapper.map(customerRepository.findById(vocDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()
+                ))
+                .peek(vocDTO -> vocDTO.setEmployeeName(
+                        mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
+                ))
                 .toList();
 
         int totalPagesCount = vocEntityPage.getTotalPages();

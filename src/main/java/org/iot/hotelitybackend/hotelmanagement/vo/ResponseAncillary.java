@@ -8,7 +8,7 @@ import lombok.Data;
 public class ResponseAncillary {
 	private int ancillaryCodePk;
 	private String ancillaryName;
-	private int branchCodeFk;
+	private String branchCodeFk;
 	private String ancillaryLocation;
 	private LocalTime ancillaryOpenTime;
 	private LocalTime ancillaryCloseTime;
