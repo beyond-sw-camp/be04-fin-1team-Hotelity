@@ -382,10 +382,10 @@ public class StayServiceImpl implements StayService {
 					reservationRepository.findById(stayDTO.getReservationCodeFk()).get().getBranchCodeFk()))
 				.toList();
 
-		System.out.println("========= stayDTOList 조회 =========");
-		for (StayDTO stayDTO1 : list) {
-			System.out.println(stayDTO1);
-		}
+		// System.out.println("========= stayDTOList 조회 =========");
+		// for (StayDTO stayDTO1 : list) {
+		// 	System.out.println(stayDTO1);
+		// }
 
 		return list;
 	}
