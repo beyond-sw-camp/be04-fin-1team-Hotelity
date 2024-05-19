@@ -7,13 +7,9 @@ import org.iot.hotelitybackend.hotelmanagement.aggregate.BranchEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomCategoryEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomLevelEntity;
-import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
-import org.iot.hotelitybackend.sales.aggregate.MembershipEntity;
-import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Predicate;
 
 public class StaySpecification {
 
@@ -26,12 +22,25 @@ public class StaySpecification {
 		};
 	}
 
+	public static Specification<StayEntity> equalsCustomerName(String customerName) {
+		return (root, query, criteriaBuilder) -> {
+			if (customerName == null || customerName.isEmpty()) {
+				return criteriaBuilder.conjunction();
+			}
+			Join<StayEntity, ReservationEntity> reservationJoin = root.join("reservation");
+			Join<ReservationEntity, CustomerEntity> customerJoin = reservationJoin.join("customer");
+
+			return criteriaBuilder.equal(customerJoin.get("customerName"), customerName);
+		};
+	}
+
 	public static Specification<StayEntity> equalsRoomLevelName(String roomLevelName) {
 		return (root, query, CriteriaBuilder) -> {
 			Join<StayEntity, ReservationEntity> reservationJoin = root.join("reservation");
 			Join<ReservationEntity, RoomEntity> roomJoin = reservationJoin.join("room");
 			Join<RoomEntity, RoomCategoryEntity> roomCategoryJoin = roomJoin.join("roomCategory");
 			Join<RoomCategoryEntity, RoomLevelEntity> roomLevelJoin = roomCategoryJoin.join("roomLevel");
+
 
 			return CriteriaBuilder.equal(roomLevelJoin.get("roomLevelName"), roomLevelName);
 		};

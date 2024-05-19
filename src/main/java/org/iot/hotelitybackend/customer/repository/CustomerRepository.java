@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface CustomerRepository extends JpaRepository<CustomerEntity, Integer>,
 	JpaSpecificationExecutor<CustomerEntity> {
+	CustomerEntity findByCustomerName(String customerName);
 }

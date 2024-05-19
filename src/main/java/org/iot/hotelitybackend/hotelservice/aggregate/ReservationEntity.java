@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.BranchEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomEntity;
 
@@ -23,11 +24,19 @@ public class ReservationEntity {
     private Date reservationDate;
     private Date reservationCheckinDate;
     private Date reservationCheckoutDate;
+
+    @Column(name = "customer_code_fk")
     private Integer customerCodeFk;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_code_fk", insertable = false, updatable = false)
+    private CustomerEntity customer;
+
+    @Column(name = "room_code_fk")
     private String roomCodeFk;
 
     @ManyToOne
-    @JoinColumn(name = "roomCodeFk", insertable = false, updatable = false)
+    @JoinColumn(name = "room_code_fk", insertable = false, updatable = false)
     private RoomEntity room;
 
     @Column(name = "branch_code_fk")

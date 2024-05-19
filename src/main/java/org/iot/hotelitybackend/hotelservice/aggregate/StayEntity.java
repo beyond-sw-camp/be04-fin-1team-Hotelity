@@ -6,12 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import org.iot.hotelitybackend.employee.aggregate.EmployeeEntity;
-import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Set;
 
 @Entity
 @Table(name = "stay_tb")

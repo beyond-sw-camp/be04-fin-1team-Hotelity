@@ -6,7 +6,6 @@ import java.util.Map;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.hotelservice.service.StayService;
 import org.iot.hotelitybackend.hotelservice.vo.RequestModifyStay;
-import org.iot.hotelitybackend.hotelservice.vo.RequestRegistStay;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,18 +32,27 @@ public class StayController {
 		@RequestParam(required = false) String branchCodeFk,
 		@RequestParam(required = false) String roomLevelName,
 		@RequestParam(required = false) LocalDateTime stayCheckinTime,
-		@RequestParam(required = false) LocalDateTime stayCheckoutTime
+		@RequestParam(required = false) LocalDateTime stayCheckoutTime,
+		@RequestParam(required = false) String customerName
 	) {
 
 		Map<String, Object> stayListInfo =
-			stayService.selectStaysList(pageNum, branchCodeFk, roomLevelName, stayCheckinTime, stayCheckoutTime);
+			stayService.selectStaysList(pageNum, branchCodeFk, roomLevelName, stayCheckinTime, stayCheckoutTime, customerName);
 
-		ResponseVO response = ResponseVO.builder()
-			.data(stayListInfo)
-			.resultCode(HttpStatus.OK.value())
-			.message("조회 성공")
-			.build();
+		ResponseVO response = null;
 
+		if(!stayListInfo.isEmpty()) {
+			response = ResponseVO.builder()
+				.data(stayListInfo)
+				.resultCode(HttpStatus.OK.value())
+				.message("조회 성공")
+				.build();
+		} else {
+			response = ResponseVO.builder()
+				.resultCode(HttpStatus.CONTINUE.value())
+				.message("조회 실패")
+				.build();
+		}
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
