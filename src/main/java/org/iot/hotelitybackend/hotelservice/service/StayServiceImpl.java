@@ -27,6 +27,7 @@ import org.iot.hotelitybackend.hotelmanagement.repository.RoomLevelRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomRepository;
 import org.iot.hotelitybackend.hotelservice.aggregate.PaymentEntity;
 import org.iot.hotelitybackend.hotelservice.aggregate.PaymentSpecification;
+import org.iot.hotelitybackend.hotelservice.aggregate.ReservationEntity;
 import org.iot.hotelitybackend.hotelservice.aggregate.StayEntity;
 import org.iot.hotelitybackend.hotelservice.aggregate.StaySpecification;
 import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
@@ -132,44 +133,62 @@ public class StayServiceImpl implements StayService {
 		// reservationCodeFk 중복 검사
 		List<StayEntity> existingStayEntity = stayRepository.findByReservationCodeFk(reservationCodePk).stream().toList();
 		if (existingStayEntity.isEmpty()) {
+
+			System.out.println("===== 해당 예약코드로 등록된 투숙 정보 없음. =====");
+
 			ReservationServiceImpl reservationService = new ReservationServiceImpl(
 				reservationRepository, mapper, customerRepository, roomRepository,
 				roomCategoryRepository, roomLevelRepository, branchRepository
 			);
 
-			Map<String, Object> reservationInfo = reservationService.selectReservationByReservationCodePk(
-				reservationCodePk);
+			List<ReservationEntity> reservationInfo =
+				reservationRepository.findById(reservationCodePk).stream().toList();
 
-			if (reservationInfo != null && !reservationInfo.isEmpty()) {
-				// reservationInfo의 Value만 List에 담음
-				List<ReservationDTO> reservationList = (List<ReservationDTO>)reservationInfo.get("content");
+			List<ReservationDTO> reservationDTOList = reservationService.getFkColumnsName(reservationInfo);
+
+			ReservationDTO reservationDTO = reservationDTOList.get(0);
+
+			// Map<String, Object> reservationInfo =
+			// 	reservationService.selectReservationByReservationCodePk(reservationCodePk);
+			//
+			// System.out.println("Printing Map:");
+			// for (Map.Entry<String, Object> entry : reservationInfo.entrySet()) {
+			// 	String key = entry.getKey();
+			// 	Object value = entry.getValue();
+			// 	System.out.println(key + ": " + value);
+			// }
+
+			if (!reservationInfo.isEmpty()) {
+
+				System.out.println("===== 해당 예약코드의 reservationInfo가 존재함. =====");
+
+				// String list = reservationInfo.values().toString();
+				// //ReservationDTO reservationDTO = mapper.map(reservationInfo.get("content"), ReservationDTO.class);
+				// System.out.println("==== count: " + list + " ===== ");
 
 				StayEntity stayEntity = StayEntity.builder()
 					.stayCheckinTime(LocalDateTime.now())
-					.stayPeopleCount(reservationList.get(0).getReservationPersonnel())
+					.stayPeopleCount(reservationDTO.getReservationPersonnel())
 					.employeeCodeFk(employeeCodeFk)
 					.reservationCodeFk(reservationCodePk)
 					.build();
 
-				// stayDTO에 reservationList에 담긴 정보들을 담아 registStayInfo에 저장
-				List<StayDTO> stayDTOList = new ArrayList<>();
+				stayRepository.save(stayEntity);
 
 				StayDTO stayDTO = new StayDTO();
-				ReservationDTO reservationDTO = reservationList.get(0);
 
+				stayDTO.setStayCodePk(stayEntity.getStayCodePk());
 				stayDTO.setRoomCode(reservationDTO.getRoomCodeFk());
 				stayDTO.setRoomLevelName(reservationDTO.getRoomLevelName());
 				stayDTO.setRoomName(reservationDTO.getRoomName());
 				stayDTO.setStayPeopleCount(reservationDTO.getReservationPersonnel());
-				stayDTO.setStayCheckinTime(reservationDTO.getReservationCheckinDate());
+				stayDTO.setStayCheckinTime(LocalDateTime.now());
 				stayDTO.setEmployeeCodeFk(employeeCodeFk);
 				stayDTO.setEmployeeName(employeeRepository.findById(employeeCodeFk).get().getEmployeeName());
 				stayDTO.setBranchName(reservationDTO.getBranchCodeFk());
 				stayDTO.setReservationCodeFk(reservationCodePk);
 
-				stayDTOList.add(stayDTO);
-
-				registStayInfo.put(KEY_CONTENT, mapper.map(stayRepository.save(stayEntity), StayDTO.class));
+				registStayInfo.put(KEY_CONTENT, stayDTO);
 			}
 		}
 		return registStayInfo;
@@ -311,7 +330,7 @@ public class StayServiceImpl implements StayService {
 				reservationRepository.findById(stayDTO.getReservationCodeFk()).get().getBranchCodeFk()))
 			.toList();
 
-		// System.out.println("========= stayDTOList 조회 =========");
+		System.out.println("========= stayDTOList 조회 =========");
 		for (StayDTO stayDTO1: list) {
 			System.out.println(stayDTO1);
 		}
