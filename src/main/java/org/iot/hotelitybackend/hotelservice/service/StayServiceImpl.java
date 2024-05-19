@@ -148,23 +148,9 @@ public class StayServiceImpl implements StayService {
 
 			ReservationDTO reservationDTO = reservationDTOList.get(0);
 
-			// Map<String, Object> reservationInfo =
-			// 	reservationService.selectReservationByReservationCodePk(reservationCodePk);
-			//
-			// System.out.println("Printing Map:");
-			// for (Map.Entry<String, Object> entry : reservationInfo.entrySet()) {
-			// 	String key = entry.getKey();
-			// 	Object value = entry.getValue();
-			// 	System.out.println(key + ": " + value);
-			// }
-
 			if (!reservationInfo.isEmpty()) {
 
 				System.out.println("===== 해당 예약코드의 reservationInfo가 존재함. =====");
-
-				// String list = reservationInfo.values().toString();
-				// //ReservationDTO reservationDTO = mapper.map(reservationInfo.get("content"), ReservationDTO.class);
-				// System.out.println("==== count: " + list + " ===== ");
 
 				StayEntity stayEntity = StayEntity.builder()
 					.stayCheckinTime(LocalDateTime.now())
