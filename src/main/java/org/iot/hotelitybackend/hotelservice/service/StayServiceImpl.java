@@ -81,17 +81,6 @@ public class StayServiceImpl implements StayService {
 	public Map<String, Object> selectStaysList(int pageNum, String branchCodeFk, String roomLevelName,
 		LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime) {
 
-		// 예약쪽에서 다중 조건 검색하여 결과값을 출력하고, 해당 예약 코드들을 전달
-		// ReservationServiceImpl reservationService = new ReservationServiceImpl(
-		// 	reservationRepository, mapper, customerRepository, roomRepository,
-		// 	roomCategoryRepository, roomLevelRepository, branchRepository
-		// );
-
-		// List<Integer> reservationCodes =
-		// 	reservationService.selectStaysList(
-		// 		pageNum, branchCodeFk, roomLevelName, reservationCheckinDate, reservationCheckoutDate
-		// 	);
-
 		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("stayCheckinTime").descending());
 
 		Specification<StayEntity> spec = Specification.where(null);
@@ -126,8 +115,6 @@ public class StayServiceImpl implements StayService {
 		List<StayEntity> stayEntityList = stayPage.stream().toList();
 		List<StayDTO> stayDTOList = getFkColumnName(stayEntityList);
 
-		// // forEach문 돌려서 List<StayDTO>에 값 추가하기
-
 		Map<String, Object> stayPageInfo = new HashMap<>();
 		stayPageInfo.put(KEY_TOTAL_PAGES_COUNT, stayPage.getTotalPages());
 		stayPageInfo.put(KEY_CURRENT_PAGE_INDEX, stayPage.getNumber());
@@ -143,8 +130,8 @@ public class StayServiceImpl implements StayService {
 		Map<String, Object> registStayInfo = new HashMap<>();
 
 		// reservationCodeFk 중복 검사
-		Optional<StayEntity> existingStayEntityOptional = stayRepository.findByReservationCodeFk(reservationCodePk);
-		if (!existingStayEntityOptional.isPresent()) {
+		List<StayEntity> existingStayEntity = stayRepository.findByReservationCodeFk(reservationCodePk).stream().toList();
+		if (existingStayEntity.isEmpty()) {
 			ReservationServiceImpl reservationService = new ReservationServiceImpl(
 				reservationRepository, mapper, customerRepository, roomRepository,
 				roomCategoryRepository, roomLevelRepository, branchRepository
@@ -161,7 +148,7 @@ public class StayServiceImpl implements StayService {
 					.stayCheckinTime(LocalDateTime.now())
 					.stayPeopleCount(reservationList.get(0).getReservationPersonnel())
 					.employeeCodeFk(employeeCodeFk)
-					.reservation(reservationRepository.findById(reservationCodePk).get())
+					.reservationCodeFk(reservationCodePk)
 					.build();
 
 				// stayDTO에 reservationList에 담긴 정보들을 담아 registStayInfo에 저장
@@ -212,7 +199,7 @@ public class StayServiceImpl implements StayService {
 					.stayCheckoutTime(currentCheckoutDate)
 					.stayPeopleCount(beforeStayEntity.getStayPeopleCount())
 					.employeeCodeFk(beforeStayEntity.getEmployeeCodeFk())
-					// .reservationCodeFk(beforeStayEntity.getReservationCodeFk())
+					.reservationCodeFk(beforeStayEntity.getReservationCodeFk())
 					.build();
 
 				stayRepository.save(checkoutStayEntity);
@@ -240,7 +227,7 @@ public class StayServiceImpl implements StayService {
 				.stayCheckoutTime(requestModifyStay.getStayCheckoutTime())
 				.stayPeopleCount(requestModifyStay.getStayPeopleCount())
 				.employeeCodeFk(requestModifyStay.getEmployeeCodeFk())
-				// .reservationCodeFk(requestModifyStay.getReservationCodeFk())
+				.reservationCodeFk(requestModifyStay.getReservationCodeFk())
 				.build();
 
 		Map<String, Object> modifyStay = new HashMap<>();
@@ -323,6 +310,11 @@ public class StayServiceImpl implements StayService {
 			.peek(stayDTO -> stayDTO.setBranchName(
 				reservationRepository.findById(stayDTO.getReservationCodeFk()).get().getBranchCodeFk()))
 			.toList();
+
+		// System.out.println("========= stayDTOList 조회 =========");
+		for (StayDTO stayDTO1: list) {
+			System.out.println(stayDTO1);
+		}
 
 		return list;
 	}

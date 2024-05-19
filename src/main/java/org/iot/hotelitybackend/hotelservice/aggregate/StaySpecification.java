@@ -19,21 +19,21 @@ public class StaySpecification {
 
 	public static Specification<StayEntity> equalsBranchCodeFk(String branchCodeFk) {
 		return (root, query, criteriaBuilder) -> {
-			Join<StayEntity, ReservationEntity> reservationCodeJoin = root.join("reservation");
-			Join<ReservationEntity, BranchEntity> branchCodeJoin = reservationCodeJoin.join("branch");
+			Join<StayEntity, ReservationEntity> reservationJoin = root.join("reservation");
+			Join<ReservationEntity, BranchEntity> branchJoin = reservationJoin.join("branch");
 
-			return criteriaBuilder.equal(branchCodeJoin.get("branchCodePk"), branchCodeFk);
+			return criteriaBuilder.equal(branchJoin.get("branchCodePk"), branchCodeFk);
 		};
 	}
 
 	public static Specification<StayEntity> equalsRoomLevelName(String roomLevelName) {
 		return (root, query, CriteriaBuilder) -> {
-			Join<StayEntity, ReservationEntity> reservationCodeJoin = root.join("reservation");
-			Join<ReservationEntity, RoomEntity> roomCodeJoin = reservationCodeJoin.join("room");
-			Join<RoomEntity, RoomCategoryEntity> roomCategoryCodeJoin = roomCodeJoin.join("roomCategory");
-			Join<RoomCategoryEntity, RoomLevelEntity> roomLevelCodeJoin = roomCategoryCodeJoin.join("roomLevel");
+			Join<StayEntity, ReservationEntity> reservationJoin = root.join("reservation");
+			Join<ReservationEntity, RoomEntity> roomJoin = reservationJoin.join("room");
+			Join<RoomEntity, RoomCategoryEntity> roomCategoryJoin = roomJoin.join("roomCategory");
+			Join<RoomCategoryEntity, RoomLevelEntity> roomLevelJoin = roomCategoryJoin.join("roomLevel");
 
-			return CriteriaBuilder.equal(roomLevelCodeJoin.get("roomLevelName"), roomLevelName);
+			return CriteriaBuilder.equal(roomLevelJoin.get("roomLevelName"), roomLevelName);
 		};
 	}
 

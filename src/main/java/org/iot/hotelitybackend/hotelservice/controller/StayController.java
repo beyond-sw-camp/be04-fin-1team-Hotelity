@@ -122,7 +122,5 @@ public class StayController {
 				.build();
 
 		return ResponseEntity.status(response.getResultCode()).body(response);
-
-
 	}
 }
