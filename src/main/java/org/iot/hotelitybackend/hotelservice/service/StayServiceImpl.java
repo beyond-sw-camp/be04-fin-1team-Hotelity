@@ -69,59 +69,6 @@ public class StayServiceImpl implements StayService {
 	}
 
 	/* 투숙 내역 전체 조회(다중 조건 검색) */
-	// @Override
-	// public Map<String, Object> selectStaysList(int pageNum, String branchCodeFk, String roomLevelName,
-	// 	LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime, String customerName) {
-	//
-	// 	Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("stayCheckinTime").descending());
-	//
-	// 	Specification<StayEntity> spec = Specification.where(null);
-	//
-	// 	// 지점명
-	// 	if(branchCodeFk != null) {
-	// 		List<BranchEntity> branch = branchRepository.findById(branchCodeFk).stream().toList();
-	// 		if (branch != null) {
-	// 			spec = spec.and(StaySpecification.equalsBranchCodeFk(branchCodeFk));
-	// 		}
-	// 	}
-	//
-	// 	// 객실 등급
-	// 	if(roomLevelName != null) {
-	// 		RoomLevelEntity roomLevel = roomLevelRepository.findByRoomLevelName(roomLevelName);
-	// 		if (roomLevel != null) {
-	// 			spec = spec.and(StaySpecification.equalsRoomLevelName(roomLevelName));
-	// 		}
-	// 	}
-	//
-	// 	if(customerName != null) {
-	// 		CustomerEntity customer = customerRepository.findByCustomerName(customerName);
-	// 		if (customer != null) {
-	// 			spec = spec.and(StaySpecification.equalsCustomerName(customerName));
-	// 		}
-	// 	}
-	//
-	// 	// 체크인
-	// 	if(stayCheckinTime != null) {
-	// 		spec = spec.and(StaySpecification.equalsStayCheckinTime(stayCheckinTime));
-	// 	}
-	//
-	// 	// 체크아웃
-	// 	if(stayCheckoutTime != null) {
-	// 		spec = spec.and(StaySpecification.equalsStayCheckoutTime(stayCheckoutTime));
-	// 	}
-	//
-	// 	Page<StayEntity> stayPage = stayRepository.findAll(spec, pageable);
-	// 	List<StayEntity> stayEntityList = stayPage.stream().toList();
-	// 	List<StayDTO> stayDTOList = getFkColumnName(stayEntityList);
-	//
-	// 	Map<String, Object> stayPageInfo = new HashMap<>();
-	// 	stayPageInfo.put(KEY_TOTAL_PAGES_COUNT, stayPage.getTotalPages());
-	// 	stayPageInfo.put(KEY_CURRENT_PAGE_INDEX, stayPage.getNumber());
-	// 	stayPageInfo.put(KEY_CONTENT, stayDTOList);
-	//
-	// 	return stayPageInfo;
-	// }
-
 	public Map<String, Object> selectStaysList(int pageNum, String branchCodeFk, String roomLevelName,
 		LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime, String customerName) {
 
