@@ -9,6 +9,8 @@ import java.util.Date;
 @Data
 public class StayDTO {
     private Integer stayCodePk;
+    private Integer customerCodeFk;
+    private String customerName;
     private String roomCode;
     private String roomLevelName;
     private String roomName;

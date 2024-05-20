@@ -24,9 +24,9 @@ public class StaySpecification {
 
 	public static Specification<StayEntity> equalsCustomerName(String customerName) {
 		return (root, query, criteriaBuilder) -> {
-			if (customerName == null || customerName.isEmpty()) {
-				return criteriaBuilder.conjunction();
-			}
+			// if (customerName == null || customerName.isEmpty()) {
+			// 	return criteriaBuilder.conjunction();
+			// }
 			Join<StayEntity, ReservationEntity> reservationJoin = root.join("reservation");
 			Join<ReservationEntity, CustomerEntity> customerJoin = reservationJoin.join("customer");
 

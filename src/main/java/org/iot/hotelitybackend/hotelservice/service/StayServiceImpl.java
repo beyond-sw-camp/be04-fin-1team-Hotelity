@@ -106,12 +106,12 @@ public class StayServiceImpl implements StayService {
 		}
 
 		// 고객명
-		// if (customerName != null) {
-		// 	CustomerEntity customer = customerRepository.findByCustomerName(customerName);
-		// 	if (customer != null) {
-		// 		spec = spec.and(StaySpecification.equalsCustomerName(customerName));
-		// 	}
-		// }
+		if (customerName != null) {
+			CustomerEntity customer = customerRepository.findByCustomerName(customerName);
+			if (customer != null) {
+				spec = spec.and(StaySpecification.equalsCustomerName(customerName));
+			}
+		}
 
 		// 체크인
 		if (stayCheckinTime != null) {
@@ -309,6 +309,14 @@ public class StayServiceImpl implements StayService {
 	private List<StayDTO> getFkColumnName(List<StayEntity> stayEntityList) {
 		List<StayDTO> list =
 			stayEntityList.stream().map(stayEntity -> mapper.map(stayEntity, StayDTO.class))
+				.peek(stayDTO -> stayDTO.setCustomerCodeFk(
+					mapper.map(reservationRepository.findById(stayDTO.getReservationCodeFk()), ReservationDTO.class)
+						.getCustomerCodeFk()))
+				.peek(stayDTO -> stayDTO.setCustomerName(
+					customerRepository.findById(
+						reservationRepository.findById(stayDTO.getReservationCodeFk())
+							.get().getCustomerCodeFk()
+					).get().customerName))
 				// 객실 코드
 				.peek(stayDTO -> stayDTO.setRoomCode(
 					mapper.map(reservationRepository.findById(stayDTO.getReservationCodeFk()), ReservationDTO.class)
