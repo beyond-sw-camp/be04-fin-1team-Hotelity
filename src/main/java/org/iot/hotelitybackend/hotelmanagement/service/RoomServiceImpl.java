@@ -339,6 +339,7 @@ public class RoomServiceImpl implements RoomService {
 		return result;
 	}
 
+	// 첫번째 인자인 List<RoomDTO> 만 바꿔서 쓰면 됨
 	private void createDashboardSheet(List<RoomDTO> roomDTOList, Sheet sheet, CellStyle headerCellStyle) throws
 		NoSuchFieldException, IllegalAccessException {
 		Row headerRow = sheet.createRow(0);
