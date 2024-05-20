@@ -41,6 +41,7 @@ public class PaymentController {
 		ResponseVO response = ResponseVO.builder()
 			.data(paymentLogInfo)
 			.resultCode(HttpStatus.OK.value())
+			.message("조회 성공")
 			.build();
 
 		return ResponseEntity.status(response.getResultCode()).body(response);

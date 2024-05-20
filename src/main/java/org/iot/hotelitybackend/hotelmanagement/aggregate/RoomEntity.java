@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,6 +26,11 @@ public class RoomEntity {
 	private String branchCodeFk;
 	private Integer roomNumber;
 	private Integer roomCategoryCodeFk;
+
+	@ManyToOne
+	@JoinColumn(name = "roomCategoryCodeFk", insertable = false, updatable = false)
+	private RoomCategoryEntity roomCategory;
+
 	private String  roomCurrentStatus;
 	private Float roomDiscountRate;
 	private String roomImageLink;
