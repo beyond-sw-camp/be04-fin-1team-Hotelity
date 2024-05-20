@@ -1,5 +1,7 @@
 package org.iot.hotelitybackend.hotelmanagement.controller;
 
+import static org.iot.hotelitybackend.common.constant.Constant.*;
+
 import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -90,7 +92,7 @@ public class RoomController {
 	}
 
 	@DeleteMapping("/rooms/{roomCodePk}")
-	public ResponseEntity<ResponseVO> deleteBranch(@PathVariable("roomCodePk") String roomCodePk) {
+	public ResponseEntity<ResponseVO> deleteRoom(@PathVariable("roomCodePk") String roomCodePk) {
 		Map<String, Object> deleteRoom = roomService.deleteRoom(roomCodePk);
 		ResponseVO response = ResponseVO.builder()
 			.data(deleteRoom)
@@ -104,7 +106,7 @@ public class RoomController {
 	@GetMapping("/rooms/excel/download")
 	public ResponseEntity<InputStreamResource> downloadAllRoomsAsExcel() {
 		try {
-			List<RoomDTO> roomDTOList = roomService.pageToList(roomService.selectRoomsList(0));
+			List<RoomDTO> roomDTOList = roomService.selectRoomsForExcel();
 			Map<String, Object> result = roomService.createRoomsExcelFile(roomDTOList);
 
 			return ResponseEntity
@@ -127,8 +129,8 @@ public class RoomController {
 		@RequestParam(required = false) String branchCodeFk
 	) {
 		try {
-			List<RoomDTO> roomDTOList = roomService.pageToSearchedList(roomService.selectSearchedRoomsList(0, roomName, roomSubRoomsCount, roomCurrentStatus, branchCodeFk), roomName, roomSubRoomsCount, roomCurrentStatus, branchCodeFk);
-			Map<String, Object> result = roomService.createRoomsExcelFile(roomDTOList);
+			Map<String, Object> roomInfo = roomService.selectSearchedRoomsForExcel(roomName, roomSubRoomsCount, roomCurrentStatus, branchCodeFk);
+			Map<String, Object> result = roomService.createRoomsExcelFile((List<RoomDTO>)roomInfo.get(KEY_CONTENT));
 
 			return ResponseEntity
 				.ok()

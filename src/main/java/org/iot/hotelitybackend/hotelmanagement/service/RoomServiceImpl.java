@@ -200,35 +200,104 @@ public class RoomServiceImpl implements RoomService {
 	}
 
 	@Override
-	public List<RoomDTO> selectAllRoomsForExcel() {
+	public List<RoomDTO> selectRoomsForExcel() {
 		return roomRepository.findAll()
 			.stream()
 			.map(roomEntity -> mapper.map(roomEntity, RoomDTO.class))
+			.peek(roomDTO -> {
+				RoomCategoryEntity foundRoomCategoryEntity = roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()).orElseThrow(IllegalArgumentException::new);
+				roomDTO.setRoomName(foundRoomCategoryEntity.getRoomName());
+				roomDTO.setRoomSubRoomsCount(foundRoomCategoryEntity.getRoomSubRoomsCount());
+				roomDTO.setBranchName(branchRepository.findById(roomDTO.getBranchCodeFk()).orElseThrow(IllegalArgumentException::new).getBranchName());
+			})
 			.toList();
 	}
 
 	@Override
-	public List<RoomDTO> pageToList(
-		Map<String, Object> roomPageInfo
-	) {
-		List<RoomDTO> joined = new ArrayList<>();
-		for (int i = 0; i < (int)roomPageInfo.get(KEY_TOTAL_PAGES_COUNT); i++) {
-			joined.addAll((List<RoomDTO>)selectRoomsList(i).get(KEY_CONTENT));
+	public Map<String, Object> selectSearchedRoomsForExcel(String roomName, Integer roomSubRoomsCount,
+		String roomCurrentStatus, String branchCodeFk) {
+
+		Specification<RoomEntity> spec = (root, query, criteriaBuilder) -> null;
+
+		Map<String, Object> roomInfo = new HashMap<>();
+
+		// 1. 객실 카테고리별 객실 필터링
+		Integer roomCategoryCodeFk = null;
+		if (!roomName.isEmpty()) {
+
+			// 1. roomName 에 해당하는 roomCategoryCodeFk 찾기
+			RoomCategoryEntity roomCategoryEntity = roomCategoryRepository.findByRoomName(roomName);
+			if (roomCategoryEntity != null) {
+				roomCategoryCodeFk = roomCategoryEntity.getRoomCategoryCodePk();
+				spec = spec.and(RoomSpecification.equalsRoomCategoryCodeFk(roomCategoryCodeFk));
+			} else {
+				roomInfo.put("message", "다시 검색하세요");
+				return roomInfo;
+			}
 		}
-		return joined;
+
+		// 2. 방 개수별 객실 필터링
+		// roomSubRoomsCount가 null이 아닌 경우 Specification 추가
+		if (roomSubRoomsCount != null) {
+			List<RoomCategoryEntity> roomCategoryEntityList = roomCategoryRepository.findAllByRoomSubRoomsCount(roomSubRoomsCount);
+			List<Specification<RoomEntity>> specs = roomCategoryEntityList.stream()
+				.map(roomCategoryEntity -> RoomSpecification.equalsRoomCategoryCodeFk(roomCategoryEntity.getRoomCategoryCodePk()))
+				.collect(Collectors.toList());
+			spec = spec.and(buildOrPredicate(specs));
+		}
+
+		// 3. 현재 상태별 객실 필터링
+		// roomCurrentStatus가 비어있지 않은 경우 Specification 추가
+		if (!roomCurrentStatus.isEmpty()) {
+			spec = spec.and(RoomSpecification.equalsRoomCurrentStatus(roomCurrentStatus));
+		}
+
+		// 4. 지점별 객실 필터링
+		if (!branchCodeFk.isEmpty()) {
+			spec = spec.and(RoomSpecification.equalsBranchCodeFk(branchCodeFk));
+		}
+
+		List<RoomEntity> roomEntityList = roomRepository.findAll(spec);
+
+		List<RoomDTO> roomDTOList = roomEntityList
+			.stream()
+			.map(roomEntity -> mapper.map(roomEntity, RoomDTO.class))
+			.peek(roomDTO -> {
+				RoomCategoryEntity foundRoomCategoryEntity = roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()).orElseThrow(IllegalArgumentException::new);
+				roomDTO.setRoomName(foundRoomCategoryEntity.getRoomName());
+				roomDTO.setRoomSubRoomsCount(foundRoomCategoryEntity.getRoomSubRoomsCount());
+				roomDTO.setBranchName(branchRepository.findById(roomDTO.getBranchCodeFk()).orElseThrow(IllegalArgumentException::new).getBranchName());
+			})
+			.toList();
+
+		roomInfo.put("message", "다중 조건 조회 성공");
+		roomInfo.put(KEY_CONTENT, roomDTOList);
+
+		return roomInfo;
 	}
 
-	@Override
-	public List<RoomDTO> pageToSearchedList(
-		Map<String, Object> roomPageInfo,
-		String roomName, Integer roomSubRoomsCount, String roomCurrentStatus, String branchCodeFk
-	) {
-		List<RoomDTO> joined = new ArrayList<>();
-		for (int i = 0; i < (int)roomPageInfo.get(KEY_TOTAL_PAGES_COUNT); i++) {
-			joined.addAll((List<RoomDTO>)selectSearchedRoomsList(i, roomName, roomSubRoomsCount, roomCurrentStatus, branchCodeFk).get(KEY_CONTENT));
-		}
-		return joined;
-	}
+	// @Override
+	// public List<RoomDTO> pageToList(
+	// 	Map<String, Object> roomPageInfo
+	// ) {
+	// 	List<RoomDTO> joined = new ArrayList<>();
+	// 	for (int i = 0; i < (int)roomPageInfo.get(KEY_TOTAL_PAGES_COUNT); i++) {
+	// 		joined.addAll((List<RoomDTO>)selectRoomsList(i).get(KEY_CONTENT));
+	// 	}
+	// 	return joined;
+	// }
+	//
+	// @Override
+	// public List<RoomDTO> pageToSearchedList(
+	// 	Map<String, Object> roomPageInfo,
+	// 	String roomName, Integer roomSubRoomsCount, String roomCurrentStatus, String branchCodeFk
+	// ) {
+	// 	List<RoomDTO> joined = new ArrayList<>();
+	// 	for (int i = 0; i < (int)roomPageInfo.get(KEY_TOTAL_PAGES_COUNT); i++) {
+	// 		joined.addAll((List<RoomDTO>)selectSearchedRoomsList(i, roomName, roomSubRoomsCount, roomCurrentStatus, branchCodeFk).get(KEY_CONTENT));
+	// 	}
+	// 	return joined;
+	// }
 
 	@Override
 	public Map<String, Object> createRoomsExcelFile(List<RoomDTO> roomDTOList) throws
