@@ -17,6 +17,7 @@ import org.iot.hotelitybackend.customer.repository.NationRepository;
 import org.iot.hotelitybackend.sales.aggregate.MembershipEntity;
 import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
 import org.iot.hotelitybackend.customer.aggregate.NationEntity;
+import org.iot.hotelitybackend.sales.dto.MembershipDTO;
 import org.iot.hotelitybackend.sales.repository.MembershipIssueRepository;
 import org.iot.hotelitybackend.sales.repository.MembershipRepository;
 import org.modelmapper.ModelMapper;
@@ -35,13 +36,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.hibernate.query.sqm.tree.SqmNode.*;
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -112,7 +111,21 @@ public class CustomerServiceImpl implements CustomerService {
 	public CustomerDTO selectCustomerByCustomerCodePk(int customerCodePk) {
 
 		CustomerEntity customerEntity = customerRepository.findById(customerCodePk).get();
-		return mapper.map(customerEntity, CustomerDTO.class);
+
+		List<MembershipIssueEntity> membershipIssueEntities = membershipIssueRepository.findMembershipByCustomerCodeFk(customerCodePk);
+
+		CustomerDTO customerDTO = mapper.map(customerEntity, CustomerDTO.class);
+
+		List<MembershipDTO> membershipDTOs = membershipIssueEntities.stream()
+				.map(membershipIssue -> {
+					MembershipDTO membershipDTO = new MembershipDTO();
+					membershipDTO.setMembershipLevelName(membershipIssue.getMembership().getMembershipLevelName());
+					return membershipDTO;
+				}).collect(Collectors.toList());
+
+		customerDTO.setMemberships(membershipDTOs);
+
+		return customerDTO;
 	}
 
 	@Override
@@ -121,6 +134,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 		for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
 			Row row = worksheet.getRow(i);
+
 			CustomerEntity customerEntity = CustomerEntity.builder()
 				.customerName(row.getCell(0).getStringCellValue())
 				.customerEmail(row.getCell(1).getStringCellValue())
