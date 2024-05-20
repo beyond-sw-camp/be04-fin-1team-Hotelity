@@ -104,10 +104,10 @@ public class RoomController {
 	}
 
 	@GetMapping("/rooms/excel/download")
-	public ResponseEntity<InputStreamResource> downloadAllRoomsAsExcel() {
+	public ResponseEntity<InputStreamResource> downloadAllRoomsExcel() {
 		try {
 			List<RoomDTO> roomDTOList = roomService.selectRoomsForExcel();
-			Map<String, Object> result = roomService.createRoomsExcelFile(roomDTOList);
+				Map<String, Object> result = roomService.createRoomsExcelFile(roomDTOList);
 
 			return ResponseEntity
 				.ok()
