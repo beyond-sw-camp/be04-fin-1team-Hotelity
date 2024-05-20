@@ -1,6 +1,7 @@
 package org.iot.hotelitybackend.hotelservice.controller;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.iot.hotelitybackend.common.vo.ResponseVO;
@@ -37,11 +38,12 @@ public class StayController {
 	) {
 
 		Map<String, Object> stayListInfo =
-			stayService.selectStaysList(pageNum, branchCodeFk, roomLevelName, stayCheckinTime, stayCheckoutTime, customerName);
+			stayService.selectStaysList(pageNum, branchCodeFk, roomLevelName, stayCheckinTime, stayCheckoutTime,
+				customerName);
 
 		ResponseVO response = null;
 
-		if(!stayListInfo.isEmpty()) {
+		if (!stayListInfo.isEmpty()) {
 			response = ResponseVO.builder()
 				.data(stayListInfo)
 				.resultCode(HttpStatus.OK.value())
@@ -62,7 +64,8 @@ public class StayController {
 		@RequestParam int reservationCodePk,
 		@RequestParam int employeeCodeFk) {
 
-		Map<String, Object> registStayInfo = stayService.registStayByReservationCodePk(reservationCodePk, employeeCodeFk);
+		Map<String, Object> registStayInfo = stayService.registStayByReservationCodePk(reservationCodePk,
+			employeeCodeFk);
 
 		ResponseVO response = null;
 
@@ -89,7 +92,7 @@ public class StayController {
 
 		ResponseVO response = null;
 
-		if(checkoutStayInfo.isEmpty()) {
+		if (checkoutStayInfo.isEmpty()) {
 			response = ResponseVO.builder()
 				.resultCode(HttpStatus.CONFLICT.value())
 				.message("이미 체크아웃 되었거나 해당 내역이 존재하지 않습니다.")
@@ -104,30 +107,33 @@ public class StayController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
+	/* 투숙 정보 수정 */
 	@PutMapping("/stays/{stayCodePk}")
 	public ResponseEntity<ResponseVO> modifyStayInfo(
-			@RequestBody RequestModifyStay requestModifyStay,
-			@PathVariable("stayCodePk") Integer stayCodePk)
-	{
+		@RequestBody RequestModifyStay requestModifyStay,
+		@PathVariable("stayCodePk") Integer stayCodePk) {
 		Map<String, Object> modifyStay = stayService.modifyStayInfo(requestModifyStay, stayCodePk);
 
 		ResponseVO response = ResponseVO.builder()
-				.data(modifyStay)
-				.resultCode(HttpStatus.CREATED.value())
-				.build();
+			.data(modifyStay)
+			.resultCode(HttpStatus.CREATED.value())
+			.message(stayCodePk + "번 투숙 정보 수정 완료")
+			.build();
 
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
+	/* 투숙 정보 삭제 */
 	@DeleteMapping("/stays/{stayCodePk}")
-	public ResponseEntity<ResponseVO> deleteStayInfo(@PathVariable("stayCodePk") int stayCodePk) {
+	public ResponseEntity<ResponseVO> deleteStayInfo(@PathVariable("stayCodePk") Integer stayCodePk) {
 
 		Map<String, Object> deleteStayInfo = stayService.deleteStay(stayCodePk);
 
 		ResponseVO response = ResponseVO.builder()
-				.data(deleteStayInfo)
-				.resultCode(HttpStatus.NO_CONTENT.value())
-				.build();
+			.data(deleteStayInfo)
+			.resultCode(HttpStatus.NO_CONTENT.value())
+			.message(stayCodePk + "번 투숙 정보 삭제 완료")
+			.build();
 
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}

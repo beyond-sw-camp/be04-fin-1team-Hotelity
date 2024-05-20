@@ -141,29 +141,27 @@ public class StayServiceImpl implements StayService {
 	public Map<String, Object> registStayByReservationCodePk(int reservationCodePk, int employeeCodeFk) {
 		Map<String, Object> registStayInfo = new HashMap<>();
 
-		// reservationCodeFk 중복 검사
-		List<StayEntity> existingStayEntity = stayRepository.findByReservationCodeFk(reservationCodePk)
-			.stream()
-			.toList();
-		if (existingStayEntity.isEmpty()) {
+		ReservationServiceImpl reservationService = new ReservationServiceImpl(
+			reservationRepository, mapper, customerRepository, roomRepository,
+			roomCategoryRepository, roomLevelRepository, branchRepository
+		);
 
-			System.out.println("===== 해당 예약코드로 등록된 투숙 정보 없음. =====");
+		List<ReservationEntity> reservationInfo =
+			reservationRepository.findById(reservationCodePk).stream().toList();
 
-			ReservationServiceImpl reservationService = new ReservationServiceImpl(
-				reservationRepository, mapper, customerRepository, roomRepository,
-				roomCategoryRepository, roomLevelRepository, branchRepository
-			);
+		if(!reservationInfo.isEmpty()) {
 
-			List<ReservationEntity> reservationInfo =
-				reservationRepository.findById(reservationCodePk).stream().toList();
+			// reservationCodeFk 중복 검사
+			List<StayEntity> existingStayEntity = stayRepository.findByReservationCodeFk(reservationCodePk)
+				.stream()
+				.toList();
+			if (existingStayEntity.isEmpty()) {
 
-			List<ReservationDTO> reservationDTOList = reservationService.getFkColumnsName(reservationInfo);
+				System.out.println("===== 해당 예약코드로 등록된 투숙 정보 없음. =====");
 
-			ReservationDTO reservationDTO = reservationDTOList.get(0);
+				List<ReservationDTO> reservationDTOList = reservationService.getFkColumnsName(reservationInfo);
 
-			if (!reservationInfo.isEmpty()) {
-
-				System.out.println("===== 해당 예약코드의 reservationInfo가 존재함. =====");
+				ReservationDTO reservationDTO = reservationDTOList.get(0);
 
 				StayEntity stayEntity = StayEntity.builder()
 					.stayCheckinTime(LocalDateTime.now())
@@ -189,6 +187,9 @@ public class StayServiceImpl implements StayService {
 
 				registStayInfo.put(KEY_CONTENT, stayDTO);
 			}
+		} else {
+			System.out.println("===== 해당 예약 코드가 존재하지 않습니다. =====");
+			throw new RuntimeException("Reservation code:" + reservationCodePk + " 해당 예약 코드가 존재하지 않습니다.");
 		}
 		return registStayInfo;
 	}
@@ -239,6 +240,11 @@ public class StayServiceImpl implements StayService {
 	/* 투숙 정보 수정 */
 	@Override
 	public Map<String, Object> modifyStayInfo(RequestModifyStay requestModifyStay, Integer stayCodePk) {
+
+		Integer reservationCodeFk = requestModifyStay.getReservationCodeFk();
+		List<StayEntity> stayEntityList =
+			stayRepository.findByReservationCodeFk(reservationCodeFk).stream().toList();
+
 		StayEntity stayEntity = StayEntity.builder()
 			.stayCodePk(stayCodePk)
 			.stayCheckinTime(requestModifyStay.getStayCheckinTime())
@@ -248,9 +254,15 @@ public class StayServiceImpl implements StayService {
 			.reservationCodeFk(requestModifyStay.getReservationCodeFk())
 			.build();
 
+		stayRepository.save(stayEntity);
+
+		List<StayDTO> stayDTOList = getFkColumnName(stayEntityList);
+
+		StayDTO stayDTO = new StayDTO();
+
 		Map<String, Object> modifyStay = new HashMap<>();
 
-		modifyStay.put(KEY_CONTENT, mapper.map(stayRepository.save(stayEntity), StayDTO.class));
+		modifyStay.put(KEY_CONTENT, stayDTOList);
 
 		return modifyStay;
 	}
