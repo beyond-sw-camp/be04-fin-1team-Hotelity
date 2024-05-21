@@ -9,9 +9,18 @@ import org.iot.hotelitybackend.hotelmanagement.dto.RoomDTO;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyRoom;
 
 public interface RoomService {
-	Map<String, Object> selectRoomsList(int pageNum);
 
-	Map<String, Object> selectSearchedRoomsList(int pageNum, String roomName, Integer roomSubRoomsCount, String roomCurrentStatus, String branchCodeFk);
+	Map<String, Object> selectSearchedRoomsList(
+		Integer pageNum,
+		String roomCodePk,
+		String branchCodeFk,
+		Integer roomNumber,
+		String roomName,
+		String roomCurrentStatus,
+		Float roomDiscountRate,
+		String roomView,
+		Integer roomSubRoomsCount
+	);
 
 	Map<String, Object> modifyRoomInfo(RequestModifyRoom requestModifyRoom, String roomCodePk);
 

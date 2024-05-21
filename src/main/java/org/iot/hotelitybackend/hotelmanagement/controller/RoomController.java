@@ -43,29 +43,21 @@ public class RoomController {
 		this.mapper = mapper;
 	}
 
-	@GetMapping("rooms")
-	public ResponseEntity<ResponseVO> selectRoomsList(@RequestParam int pageNum) {
-		Map<String, Object> roomPageInfo = roomService.selectRoomsList(pageNum);
-
-		ResponseVO response = ResponseVO.builder()
-			.data(roomPageInfo)
-			.resultCode(HttpStatus.OK.value())
-			.build();
-
-		return ResponseEntity.status(response.getResultCode()).body(response);
-	}
-
-	@GetMapping("rooms/search")
+	@GetMapping("/rooms")
 	public ResponseEntity<ResponseVO> selectSearchedRoomsList(
+		@RequestParam(required = false) Integer pageNum,
+		@RequestParam(required = false) String roomCodePk,
+		@RequestParam(required = false) String branchCodeFk,
+		@RequestParam(required = false) Integer roomNumber,
 		@RequestParam(required = false) String roomName,
 		@RequestParam(required = false) String roomCurrentStatus,
-		@RequestParam(required = false) Integer roomSubRoomsCount,
-		@RequestParam(required = false) String branchCodeFk,
-		@RequestParam int pageNum
+		@RequestParam(required = false) Float roomDiscountRate,
+		@RequestParam(required = false) String roomView,
+		@RequestParam(required = false) Integer roomSubRoomsCount
 	) {
 
-		Map<String, Object> roomPageInfo = roomService.selectSearchedRoomsList(pageNum, roomName, roomSubRoomsCount,
-			roomCurrentStatus, branchCodeFk);
+		Map<String, Object> roomPageInfo = roomService.selectSearchedRoomsList(
+			pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(roomPageInfo)
