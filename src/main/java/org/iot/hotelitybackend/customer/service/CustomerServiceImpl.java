@@ -64,8 +64,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public Map<String, Object> selectCustomersList(String customerType, String membershipLevelName, int page) {
-		int fixedSize = 10;
-		Pageable pageable = PageRequest.of(page, fixedSize, Sort.by("customerRegisteredDate").descending());
+		Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("customerRegisteredDate").descending());
 
 		Specification<CustomerEntity> spec = Specification.where(null);
 
