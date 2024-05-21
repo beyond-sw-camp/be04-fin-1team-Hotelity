@@ -116,7 +116,7 @@ public class ReservationServiceImpl implements ReservationService {
 		List<ReservationDTO> list =
 			reservationEntityList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
 				.peek(reservationDTO -> reservationDTO.setCustomerName(
-					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()))
+					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()).orElse(null), CustomerDTO.class).getCustomerName()))
 				.peek(reservationDTO -> reservationDTO.setRoomName(String.valueOf(roomCategoryRepository.findById(
 					roomRepository.findById(reservationDTO.getRoomCodeFk()).get().getRoomCategoryCodeFk()
 				).get().getRoomName())))

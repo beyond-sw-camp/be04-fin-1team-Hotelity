@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
@@ -21,9 +22,9 @@ public class ReservationEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer reservationCodePk;
 
-    private Date reservationDate;
-    private Date reservationCheckinDate;
-    private Date reservationCheckoutDate;
+    private LocalDateTime reservationDate;
+    private LocalDateTime reservationCheckinDate;
+    private LocalDateTime reservationCheckoutDate;
 
     @Column(name = "customer_code_fk")
     private Integer customerCodeFk;
@@ -55,9 +56,9 @@ public class ReservationEntity {
     @Builder
     public ReservationEntity(
             Integer reservationCodePk,
-            Date reservationDate,
-            Date reservationCheckinDate,
-            Date reservationCheckoutDate,
+            LocalDateTime reservationDate,
+            LocalDateTime reservationCheckinDate,
+            LocalDateTime reservationCheckoutDate,
             Integer customerCodeFk,
             String roomCodeFk,
             String branchCodeFk,

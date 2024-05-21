@@ -51,6 +51,7 @@ public class ReservationController {
 
 	/* 일자별 예약 내역 리스트 조회 */
 	/* 캘린더에서 특정 일자 선택 시 조회되는 리스트 */
+	/* => 프론트에서 월별 리스트의 값을 처리하여 일별로 나누어 list에 append 할 것 */
 	@GetMapping("reservations/{reservationCheckinDate}/day")
 	public ResponseEntity<ResponseVO> selectReservationListByDay
 										(@PathVariable("reservationCheckinDate") LocalDateTime reservationCheckDate) {
@@ -69,7 +70,7 @@ public class ReservationController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
-	/* 예약 코드로 검색 */
+	/* 예약 코드로 검색 => 다중필터로 처리 */
 	@GetMapping("/reservations")
 	public ResponseEntity<ResponseVO> selectReservationByReservationCodePk(@RequestParam int reservationCodePk) {
 
@@ -83,4 +84,9 @@ public class ReservationController {
 
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
+
+	/* 예약 체크인 취소
+	*  reservation
+	*  */
+
 }
