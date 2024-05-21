@@ -16,11 +16,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "customer_tb")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+// @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Setter
 public class CustomerEntity {
 
 	@Id
@@ -70,4 +72,8 @@ public class CustomerEntity {
 
 	@OneToMany(mappedBy = "customer")
 	private Set<MembershipIssueEntity> membershipIssues;
+
+	public CustomerEntity() {
+
+	}
 }
