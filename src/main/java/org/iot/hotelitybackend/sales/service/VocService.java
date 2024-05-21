@@ -23,4 +23,6 @@ public interface VocService {
 		IOException,
 		NoSuchFieldException,
 		IllegalAccessException;
+
+	Map<String, Object> deleteVoc(int vocCodePk);
 }

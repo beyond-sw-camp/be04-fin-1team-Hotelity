@@ -201,6 +201,18 @@ public class VocServiceImpl implements VocService {
     }
 
     @Override
+    public Map<String, Object> deleteVoc(int vocCodePk) {
+        Map<String, Object> deleteVoc = new HashMap<>();
+        try {
+            vocRepository.deleteById(vocCodePk);
+            deleteVoc.put(KEY_CONTENT, "Content deleted successfully.");
+        } catch (Exception e) {
+            deleteVoc.put(KEY_CONTENT, "Failed to delete content.");
+        }
+        return deleteVoc;
+    }
+
+    @Override
     public Map<String, Object> createVocsExcelFile(List<VocDTO> vocDTOList) throws
         IOException,
         NoSuchFieldException,
