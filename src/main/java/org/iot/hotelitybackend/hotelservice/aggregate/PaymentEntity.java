@@ -24,19 +24,11 @@ public class PaymentEntity {
     @Column(name = "payment_type_code_fk")
     private Integer paymentTypeCodeFk;
 
-    @ManyToOne
-    @JoinColumn(name = "payment_type_code_fk", insertable = false, updatable = false)
-    private PaymentTypeEntity paymentType;
-
     private String paymentMethod;
     private Date paymentDate;
 
     @Column(name = "customer_code_fk")
     private Integer customerCodeFk;
-
-    @ManyToOne
-    @JoinColumn(name = "customer_code_fk", insertable = false, updatable = false)
-    private CustomerEntity customer;
 
     private Integer paymentCancelStatus;
 
@@ -60,5 +52,13 @@ public class PaymentEntity {
         this.customerCodeFk = customerCodeFk;
         this.paymentCancelStatus = paymentCancelStatus;
     }
+
+    @ManyToOne
+    @JoinColumn(name = "payment_type_code_fk", insertable = false, updatable = false)
+    private PaymentTypeEntity paymentType;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_code_fk", insertable = false, updatable = false)
+    private CustomerEntity customer;
 }
 

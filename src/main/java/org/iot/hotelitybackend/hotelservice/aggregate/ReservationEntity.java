@@ -29,29 +29,14 @@ public class ReservationEntity {
     @Column(name = "customer_code_fk")
     private Integer customerCodeFk;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_code_fk", insertable = false, updatable = false)
-    private CustomerEntity customer;
-
     @Column(name = "room_code_fk")
     private String roomCodeFk;
-
-    @ManyToOne
-    @JoinColumn(name = "room_code_fk", insertable = false, updatable = false)
-    private RoomEntity room;
 
     @Column(name = "branch_code_fk")
     private String branchCodeFk;
 
-    @ManyToOne
-    @JoinColumn(name = "branch_code_fk", insertable = false, updatable = false)
-    private BranchEntity branch;
-
     private Integer reservationCancelStatus;
     private Integer reservationPersonnel;
-
-    @OneToOne(mappedBy = "reservation")
-    private StayEntity stay;
 
     @Builder
     public ReservationEntity(
@@ -77,4 +62,19 @@ public class ReservationEntity {
         this.reservationCancelStatus = reservationCancelStatus;
         this.reservationPersonnel = reservationPersonnel;
     }
+
+    @ManyToOne
+    @JoinColumn(name = "customer_code_fk", insertable = false, updatable = false)
+    private CustomerEntity customer;
+
+    @ManyToOne
+    @JoinColumn(name = "room_code_fk", insertable = false, updatable = false)
+    private RoomEntity room;
+
+    @ManyToOne
+    @JoinColumn(name = "branch_code_fk", insertable = false, updatable = false)
+    private BranchEntity branch;
+
+    @OneToOne(mappedBy = "reservation")
+    private StayEntity stay;
 }
