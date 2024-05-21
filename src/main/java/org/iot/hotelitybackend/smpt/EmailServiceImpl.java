@@ -1,5 +1,6 @@
 package org.iot.hotelitybackend.smpt;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.mail.SimpleMailMessage;
@@ -16,14 +17,18 @@ public class EmailServiceImpl implements EmailService {
 	private static final String FROM_ADDRESS = "eodud3196@gs.cwnu.ac.kr";
 
 	@Override
-	public Map<String, Object> mailsend(RequestDTO requestDTO) {
+	public Map<String, Object> mailsend(List<RequestDTO> requestDTOList) {
 		SimpleMailMessage message = new SimpleMailMessage();
-		message.setTo(requestDTO.getAddress());
-		// message.setFrom(EmailServiceImpl.FROM_ADDRESS);
-		message.setSubject(requestDTO.getTitle());
-		message.setText(requestDTO.getMessage());
 
-		mailSender.send(message);
+		for (RequestDTO dto : requestDTOList) {
+			message.setTo(dto.getAddress());
+			// message.setFrom(EmailServiceImpl.FROM_ADDRESS);
+			message.setSubject(dto.getTitle());
+			message.setText(dto.getMessage());
+
+			mailSender.send(message);
+		}
+
 		return null;
 	}
 }

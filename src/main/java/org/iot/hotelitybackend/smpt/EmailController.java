@@ -1,16 +1,15 @@
 package org.iot.hotelitybackend.smpt;
 
-import java.util.Map;
-
+import lombok.RequiredArgsConstructor;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -19,8 +18,8 @@ public class EmailController {
 	private final EmailService emailService;
 
 	@PostMapping("/mail")
-	public ResponseEntity<ResponseVO> execMail(@RequestBody RequestDTO requestDTO){
-		Map<String, Object> execMail = emailService.mailsend(requestDTO);
+	public ResponseEntity<ResponseVO> execMail(@RequestBody List<RequestDTO> requestDTOList){
+		Map<String, Object> execMail = emailService.mailsend(requestDTOList);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(execMail)
