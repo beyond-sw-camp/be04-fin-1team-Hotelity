@@ -52,6 +52,8 @@ public class MembershipIssueEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer membershipIssueCodePk;
+
+	@Column(name = "customer_code_fk")
 	private Integer customerCodeFk;
 	private Date membershipIssueDate;
 	private Integer membershipLevelCodeFk;
@@ -68,4 +70,8 @@ public class MembershipIssueEntity {
 		this.membershipIssueDate = membershipIssueDate;
 		this.membershipLevelCodeFk = membershipLevelCodeFk;
 	}
+
+	@ManyToOne
+	@JoinColumn(name = "customer_code_fk", insertable = false, updatable = false)
+	private CustomerEntity customer;
 }
