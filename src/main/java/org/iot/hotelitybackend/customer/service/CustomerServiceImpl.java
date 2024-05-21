@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.hibernate.query.sqm.tree.SqmNode.*;
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
 import lombok.extern.slf4j.Slf4j;
@@ -70,37 +71,36 @@ public class CustomerServiceImpl implements CustomerService {
 		Specification<CustomerEntity> spec = Specification.where(null);
 
 		// 멤버십 레벨 이름으로 필터링
-		if (!membershipLevelName.isEmpty()) {
-			MembershipEntity membership = membershipRepository.findByMembershipLevelCodePk(Integer.valueOf(membershipLevelName));
+		if (membershipLevelName != null && !membershipLevelName.isEmpty()) {
+			MembershipEntity membership = membershipRepository.findByMembershipLevelName(membershipLevelName);
 			if (membership != null) {
 				spec = spec.and(CustomerSpecification.equalsMembershipLevelName(membershipLevelName));
 			}
 		}
-
 		// 고객 유형으로 필터링
-		if (!customerType.isEmpty()) {
+		if (customerType != null && !customerType.isEmpty()) {
 			spec = spec.and(CustomerSpecification.equalsCustomerType(customerType));
 		}
 
 		// 필터 조건에 따라 고객 정보 조회
 		Page<CustomerEntity> customerPage = customerRepository.findAll(spec, pageable);
 		List<CustomerDTO> customerDTOList = customerPage.stream()
-				.map(customerEntity -> mapper.map(customerEntity, CustomerDTO.class))
-				.peek(customerDTO -> {
-					customerDTO.setNationName(nationRepository.findById(customerDTO.getNationCodeFk())
-							.map(NationEntity::getNationName)
-							.orElse(null));
-					MembershipIssueEntity issue = membershipIssueRepository.findTopByCustomerCodeFkOrderByMembershipIssueDateDesc(
-							customerDTO.getCustomerCodePk());
-					if (issue != null) {
-						customerDTO.setMembershipLevelName(membershipRepository.findById(issue.getMembershipLevelCodeFk())
-								.map(MembershipEntity::getMembershipLevelName)
-								.orElse(null));
-					} else {
-						customerDTO.setMembershipLevelName(null); // 멤버십 정보가 없을 경우 null 설정
-					}
-				})
-				.collect(Collectors.toList());
+			.map(customerEntity -> mapper.map(customerEntity, CustomerDTO.class))
+			.peek(customerDTO -> {
+				customerDTO.setNationName(nationRepository.findById(customerDTO.getNationCodeFk())
+					.map(NationEntity::getNationName)
+					.orElse(null));
+				MembershipIssueEntity issue = membershipIssueRepository.findByCustomerCodeFk(
+					customerDTO.getCustomerCodePk());
+				if (issue != null) {
+					customerDTO.setMembershipLevelName(membershipRepository.findById(issue.getMembershipLevelCodeFk())
+						.map(MembershipEntity::getMembershipLevelName)
+						.orElse(null));
+				} else {
+					customerDTO.setMembershipLevelName(null); // issue가 null인 경우 null로 설정
+				}
+			})
+			.collect(Collectors.toList());
 
 		Map<String, Object> customerPageInfo = new HashMap<>();
 		customerPageInfo.put(KEY_TOTAL_PAGES_COUNT, customerPage.getTotalPages());
@@ -122,7 +122,7 @@ public class CustomerServiceImpl implements CustomerService {
 		List<MembershipDTO> membershipDTOs = membershipIssueEntities.stream()
 				.map(membershipIssue -> {
 					MembershipDTO membershipDTO = new MembershipDTO();
-					membershipDTO.setMembershipLevelName(String.valueOf(membershipIssue.getMembershipLevelCodeFk()));
+					membershipDTO.setMembershipLevelName(membershipIssue.getMembership().getMembershipLevelName());
 					return membershipDTO;
 				}).collect(Collectors.toList());
 
@@ -137,6 +137,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 		for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
 			Row row = worksheet.getRow(i);
+
 			CustomerEntity customerEntity = CustomerEntity.builder()
 				.customerName(row.getCell(0).getStringCellValue())
 				.customerEmail(row.getCell(1).getStringCellValue())

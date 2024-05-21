@@ -111,7 +111,7 @@ public class ReservationServiceImpl implements ReservationService {
 	}
 
 	/* fk 값들의 이름을 가져오는 코드 */
-	private List<ReservationDTO> getFkColumnsName(List<ReservationEntity> reservationEntityList) {
+	public List<ReservationDTO> getFkColumnsName(List<ReservationEntity> reservationEntityList) {
 
 		List<ReservationDTO> list =
 			reservationEntityList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))

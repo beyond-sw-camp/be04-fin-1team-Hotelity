@@ -17,6 +17,12 @@ public class EmployeeDTO {
     private String employeeResignStatus;
     private String employeeProfileImageLink;
 
+    private int permissionCodeFk;
+    private int positionCodeFk;
+    private int rankCodeFk;
+    private int departmentCodeFk;
+    private String branchCodeFk;
+
     private String nameOfPermission;
     private String nameOfPosition;
 	private String nameOfRank;

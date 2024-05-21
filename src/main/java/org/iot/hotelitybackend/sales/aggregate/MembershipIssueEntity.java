@@ -56,6 +56,8 @@ public class MembershipIssueEntity {
 	@Column(name = "customer_code_fk")
 	private Integer customerCodeFk;
 	private Date membershipIssueDate;
+
+	@Column(name = "membership_level_code_fk")
 	private Integer membershipLevelCodeFk;
 
 	@Builder
@@ -74,4 +76,8 @@ public class MembershipIssueEntity {
 	@ManyToOne
 	@JoinColumn(name = "customer_code_fk", insertable = false, updatable = false)
 	private CustomerEntity customer;
+
+	@ManyToOne
+	@JoinColumn(name = "membership_level_code_fk", insertable = false, updatable = false)
+	private MembershipEntity membership;
 }

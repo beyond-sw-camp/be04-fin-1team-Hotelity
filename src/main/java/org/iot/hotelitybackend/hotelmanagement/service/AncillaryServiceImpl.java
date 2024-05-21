@@ -2,12 +2,29 @@ package org.iot.hotelitybackend.hotelmanagement.service;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.AncillaryEntity;
 import org.iot.hotelitybackend.hotelmanagement.dto.AncillaryDTO;
+import org.iot.hotelitybackend.hotelmanagement.dto.RoomDTO;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryCategoryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
@@ -18,8 +35,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class AncillaryServiceImpl implements AncillaryService{
 
@@ -123,5 +144,106 @@ public class AncillaryServiceImpl implements AncillaryService{
 		}
 
 		return deleteFacilityInfo;
+	}
+
+	@Override
+	public List<AncillaryDTO> selectAllFacilitiesForExcel() {
+		return ancillaryRepository.findAll()
+			.stream()
+			.map(ancillaryEntity -> mapper.map(ancillaryEntity, AncillaryDTO.class))
+			.peek(ancillaryDTO -> {
+
+				// 지점 이름 가져와 붙이기
+				ancillaryDTO.setBranchName(
+					branchRepository.findById(
+						ancillaryDTO.getBranchCodeFk()
+					).orElseThrow(IllegalArgumentException::new).getBranchName()
+				);
+
+				// 부대시설 카테고리 이름 가져와 붙이기
+				ancillaryDTO.setAncillaryCategoryName(
+					ancillaryCategoryRepository.findById(
+						ancillaryDTO.getAncillaryCategoryCodeFk()
+					).orElseThrow(IllegalArgumentException::new).getAncillaryCategoryName()
+				);
+			})
+			.toList();
+	}
+
+	@Override
+	public Map<String, Object> createFacilitiesExcelFile(List<AncillaryDTO> ancillaryDTOList) throws
+		IOException,
+		NoSuchFieldException,
+		IllegalAccessException{
+		Workbook workbook = new XSSFWorkbook();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+		Font headerFont = workbook.createFont();
+		headerFont.setBold(true);
+		headerFont.setColor(IndexedColors.BLACK.getIndex());
+
+		CellStyle headerCellStyle = workbook.createCellStyle();
+		headerCellStyle.setFont(headerFont);
+		headerCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+		Sheet sheet = workbook.createSheet("부대시설");
+
+		createDashboardSheet(ancillaryDTOList, sheet, headerCellStyle);
+
+		workbook.write(out);
+		log.info("[ReportService:getExcel] create Excel list done. row count:[{}]", ancillaryDTOList.size());
+
+		Calendar calendar = Calendar.getInstance();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
+		String time = dateFormat.format(calendar.getTime());
+		String fileName = "Ancillary-facilities_"+ time +".xlsx";
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", "application/vnd.ms-excel");
+		headers.add("Content-Disposition", "attachment; filename=" + fileName);
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("result", new ByteArrayInputStream(out.toByteArray()));
+		result.put("fileName", fileName);
+		result.put("headers", headers);
+		return result;
+	}
+
+	// 첫번째 인자인 List<RoomDTO> 만 바꿔서 쓰면 됨
+	private void createDashboardSheet(List<AncillaryDTO> ancillaryDTOList, Sheet sheet, CellStyle headerCellStyle) throws
+		NoSuchFieldException, IllegalAccessException {
+		Row headerRow = sheet.createRow(0);
+		AncillaryDTO ancillaryDTO = new AncillaryDTO();
+		int idx1 = 0;
+		Cell headerCell;
+		List<String> headerStrings = new ArrayList<>();
+		for (Field field : ancillaryDTO.getClass().getDeclaredFields()) {
+			field.setAccessible(true);
+			String fieldName = field.getName();
+			headerStrings.add(fieldName);
+			headerCell = headerRow.createCell(idx1++);
+			headerCell.setCellValue(fieldName);
+			headerCell.setCellStyle(headerCellStyle);
+		}
+
+		Row bodyRow;
+		Cell bodyCell;
+		int idx2 = 1;
+		for (AncillaryDTO ancillaryDTOIter : ancillaryDTOList) {
+			bodyRow = sheet.createRow(idx2++);
+			int idx3 = 0;
+			for (String headerString : headerStrings) {
+				Field field = ancillaryDTOIter.getClass().getDeclaredField(headerString);
+				field.setAccessible(true);
+				bodyCell = bodyRow.createCell(idx3);
+				bodyCell.setCellValue(String.valueOf(field.get(ancillaryDTOIter)));
+				idx3++;
+			}
+		}
+
+		for (int i = 0; i < headerStrings.size(); i++) {
+			sheet.autoSizeColumn(i);
+			sheet.setColumnWidth(i, (sheet.getColumnWidth(i)) + (short)1024);
+		}
 	}
 }
