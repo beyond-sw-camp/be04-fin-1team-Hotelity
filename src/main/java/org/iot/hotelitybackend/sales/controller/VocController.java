@@ -84,6 +84,18 @@ public class VocController {
         return ResponseEntity.status(response.getResultCode()).body(response);
     }
 
+    @DeleteMapping("vocs/{vocCodePk}")
+    public ResponseEntity<ResponseVO> deleteVoc(@PathVariable("vocCodePk") int vocCodePk) {
+        Map<String, Object> deleteVoc = vocService.deleteVoc(vocCodePk);
+        ResponseVO response = ResponseVO.builder()
+            .data(deleteVoc)
+            .resultCode(HttpStatus.NO_CONTENT.value())
+            .message("VOC 삭제 성공")
+            .build();
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
+    }
+
     @GetMapping("/vocs/excel/download")
     public ResponseEntity<InputStreamResource> downloadVocsListExcel() {
         try {
