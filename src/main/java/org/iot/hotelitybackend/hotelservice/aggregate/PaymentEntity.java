@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
+
 @Entity
 @Table(name = "payment_log_tb")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -15,13 +17,27 @@ import java.util.Date;
 public class PaymentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer paymentAmount;
-    private Integer reservationCodeFk;
     private Integer paymentCodePk;
+    private Integer reservationCodeFk;
+    private Integer paymentAmount;
+
+    @Column(name = "payment_type_code_fk")
     private Integer paymentTypeCodeFk;
+
+    @ManyToOne
+    @JoinColumn(name = "payment_type_code_fk", insertable = false, updatable = false)
+    private PaymentTypeEntity paymentType;
+
     private String paymentMethod;
     private Date paymentDate;
+
+    @Column(name = "customer_code_fk")
     private Integer customerCodeFk;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_code_fk", insertable = false, updatable = false)
+    private CustomerEntity customer;
+
     private Integer paymentCancelStatus;
 
     @Builder
