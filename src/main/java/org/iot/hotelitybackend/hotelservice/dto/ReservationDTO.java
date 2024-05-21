@@ -21,4 +21,5 @@ public class ReservationDTO {
     private Integer reservationPersonnel;
     // status가 0이면 체크인x, 1이면 체크인o
     private Integer reservationCheckinStatus;
+    private Integer roomCapacity;
 }
