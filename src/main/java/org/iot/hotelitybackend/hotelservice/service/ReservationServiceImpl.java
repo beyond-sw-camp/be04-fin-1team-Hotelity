@@ -57,7 +57,14 @@ public class ReservationServiceImpl implements ReservationService {
 
 	/* 월별 예약 리스트 전체 조회 */
 	@Override
-	public Map<String, Object> selectReservationListByMonth(int year, int month) {
+	public Map<String, Object> selectReservationListByMonth(
+		int year, int month, Integer reservationCodePk,
+		Integer customerCodeFk, String customerName,
+		String customerEnglishName,	String roomCodeFk,
+		String roomName, String roomLevelName,
+		Integer roomCapacity, String branchCodeFk,
+		LocalDateTime reservationDate, LocalDateTime reservationCheckoutDate,
+		String reservationCancleStatus) {
 
 		// 특정 월의 예약 내역을 조회하기 위해 월의 시작일과 종료일을 지정
 		LocalDateTime startOfMonth =
@@ -68,6 +75,8 @@ public class ReservationServiceImpl implements ReservationService {
 			LocalDateTime.of(year, month, startOfMonth.getMonth().length(startOfMonth.toLocalDate().isLeapYear()),
 				23, 59, 59);
 		System.out.println("해당 월의 마지막 일자: " + endOfMonth);
+
+		Specification<PaymentEntity> spec = (root, query, criteriaBuilder) -> null;
 
 		// 특정 월에 해당하는 예약 내역 리스트 조회
 		List<ReservationEntity> reservationEntityList = reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
@@ -116,7 +125,7 @@ public class ReservationServiceImpl implements ReservationService {
 		List<ReservationDTO> list =
 			reservationEntityList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
 				.peek(reservationDTO -> reservationDTO.setCustomerName(
-					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()))
+					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()).orElse(null), CustomerDTO.class).getCustomerName()))
 				.peek(reservationDTO -> reservationDTO.setRoomName(String.valueOf(roomCategoryRepository.findById(
 					roomRepository.findById(reservationDTO.getRoomCodeFk()).get().getRoomCategoryCodeFk()
 				).get().getRoomName())))
