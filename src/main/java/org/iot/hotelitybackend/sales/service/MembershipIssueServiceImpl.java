@@ -39,13 +39,13 @@ public class MembershipIssueServiceImpl implements MembershipIssueService{
         // 기간 설정: 작년 3월 1일부터 올해 2월 28일까지
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MONTH, Calendar.MARCH);
-        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.DAY_OF_MONTH, 0);
         cal.add(Calendar.YEAR, -1);
         Date startDate = cal.getTime();
 
         cal = Calendar.getInstance();
         cal.set(Calendar.MONTH, Calendar.FEBRUARY);
-        cal.set(Calendar.DAY_OF_MONTH, 28);
+        cal.set(Calendar.DAY_OF_MONTH, 29);
         Date endDate = cal.getTime();
 
         // 모든 고객 조회
