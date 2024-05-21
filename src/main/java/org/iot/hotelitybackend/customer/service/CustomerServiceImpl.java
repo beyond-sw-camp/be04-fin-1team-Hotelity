@@ -71,7 +71,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 		// 멤버십 레벨 이름으로 필터링
 		if (!membershipLevelName.isEmpty()) {
-			MembershipEntity membership = membershipRepository.findByMembershipLevelName(membershipLevelName);
+			MembershipEntity membership = membershipRepository.findByMembershipLevelCodePk(Integer.valueOf(membershipLevelName));
 			if (membership != null) {
 				spec = spec.and(CustomerSpecification.equalsMembershipLevelName(membershipLevelName));
 			}
@@ -85,18 +85,22 @@ public class CustomerServiceImpl implements CustomerService {
 		// 필터 조건에 따라 고객 정보 조회
 		Page<CustomerEntity> customerPage = customerRepository.findAll(spec, pageable);
 		List<CustomerDTO> customerDTOList = customerPage.stream()
-			.map(customerEntity -> mapper.map(customerEntity, CustomerDTO.class))
-			.peek(customerDTO -> {
-				customerDTO.setNationName(nationRepository.findById(customerDTO.getNationCodeFk())
-					.map(NationEntity::getNationName)
-					.orElse(null));
-				MembershipIssueEntity issue = membershipIssueRepository.findByCustomerCodeFk(
-					customerDTO.getCustomerCodePk());
-				customerDTO.setMembershipLevelName(membershipRepository.findById(issue.getMembershipLevelCodeFk())
-					.map(MembershipEntity::getMembershipLevelName)
-					.orElse(null));
-			})
-			.collect(Collectors.toList());
+				.map(customerEntity -> mapper.map(customerEntity, CustomerDTO.class))
+				.peek(customerDTO -> {
+					customerDTO.setNationName(nationRepository.findById(customerDTO.getNationCodeFk())
+							.map(NationEntity::getNationName)
+							.orElse(null));
+					MembershipIssueEntity issue = membershipIssueRepository.findTopByCustomerCodeFkOrderByMembershipIssueDateDesc(
+							customerDTO.getCustomerCodePk());
+					if (issue != null) {
+						customerDTO.setMembershipLevelName(membershipRepository.findById(issue.getMembershipLevelCodeFk())
+								.map(MembershipEntity::getMembershipLevelName)
+								.orElse(null));
+					} else {
+						customerDTO.setMembershipLevelName(null); // 멤버십 정보가 없을 경우 null 설정
+					}
+				})
+				.collect(Collectors.toList());
 
 		Map<String, Object> customerPageInfo = new HashMap<>();
 		customerPageInfo.put(KEY_TOTAL_PAGES_COUNT, customerPage.getTotalPages());
@@ -118,7 +122,7 @@ public class CustomerServiceImpl implements CustomerService {
 		List<MembershipDTO> membershipDTOs = membershipIssueEntities.stream()
 				.map(membershipIssue -> {
 					MembershipDTO membershipDTO = new MembershipDTO();
-					membershipDTO.setMembershipLevelName(membershipIssue.getMembership().getMembershipLevelName());
+					membershipDTO.setMembershipLevelName(String.valueOf(membershipIssue.getMembershipLevelCodeFk()));
 					return membershipDTO;
 				}).collect(Collectors.toList());
 

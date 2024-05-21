@@ -68,6 +68,6 @@ public class CustomerEntity {
 		this.customerGender = customerGender;
 	}
 
-	@OneToMany(mappedBy = "customer")
-	private Set<MembershipIssueEntity> membershipIssues;
+//	@OneToMany(mappedBy = "customer")
+//	private Set<MembershipIssueEntity> membershipIssues;
 }
