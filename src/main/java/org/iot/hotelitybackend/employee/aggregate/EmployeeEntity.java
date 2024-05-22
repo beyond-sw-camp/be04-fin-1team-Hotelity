@@ -64,11 +64,11 @@ public class EmployeeEntity {
             String employeeResignStatus,
             String employeeProfileImageLink,
 
-			PermissionEntity employPermission,
-			PositionEntity employPosition,
-			RankEntity employRank,
-			DepartmentEntity employDepartment,
-			BranchEntity employBranch,
+			PermissionEntity employeePermission,
+			PositionEntity employeePosition,
+			RankEntity employeeRank,
+			DepartmentEntity employeeDepartment,
+			BranchEntity employeeBranch,
 
 			List<StayEntity> stayList
     ) {
@@ -82,11 +82,11 @@ public class EmployeeEntity {
 		this.employeeResignStatus = employeeResignStatus;
 		this.employeeProfileImageLink = employeeProfileImageLink;
 
-		this.permission = employPermission;
-		this.position = employPosition;
-		this.rank = employRank;
-		this.department = employDepartment;
-		this.branch = employBranch;
+		this.permission = employeePermission;
+		this.position = employeePosition;
+		this.rank = employeeRank;
+		this.department = employeeDepartment;
+		this.branch = employeeBranch;
 
         this.stayList = stayList;
     }

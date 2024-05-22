@@ -138,11 +138,11 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .employeeSystemPassword(newEmployee.getEmployeeSystemPassword())
                 .employeeResignStatus("N")
                 .employeeProfileImageLink(newEmployee.getEmployeeProfileImageLink())
-                .employPermission(permission)
-                .employPosition(position)
-                .employRank(rank)
-                .employDepartment(department)
-                .employBranch(branch)
+                .employeePermission(permission)
+                .employeePosition(position)
+                .employeeRank(rank)
+                .employeeDepartment(department)
+                .employeeBranch(branch)
                 .build();
 
         EmployeeEntity createdEmployeeEntity = employeeRepository.save(employeeEntity);
@@ -174,11 +174,11 @@ public class EmployeeServiceImpl implements EmployeeService {
                     .employeeSystemPassword(modifiedEmployInfo.getEmployeeSystemPassword())
                     .employeeResignStatus(modifiedEmployInfo.getEmployeeResignStatus())
                     .employeeProfileImageLink(modifiedEmployInfo.getEmployeeProfileImageLink())
-                    .employPermission(permission)
-                    .employPosition(position)
-                    .employRank(rank)
-                    .employDepartment(department)
-                    .employBranch(branch)
+                    .employeePermission(permission)
+                    .employeePosition(position)
+                    .employeeRank(rank)
+                    .employeeDepartment(department)
+                    .employeeBranch(branch)
                     .stayList(employeeEntity.getStayList())
                     .build();
 
