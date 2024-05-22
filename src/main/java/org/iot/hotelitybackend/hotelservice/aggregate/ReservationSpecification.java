@@ -1,5 +1,6 @@
 package org.iot.hotelitybackend.hotelservice.aggregate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
@@ -11,6 +12,16 @@ import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Join;
 
 public class ReservationSpecification {
+
+	// 특정 월의 예약 건만 찾는 조건
+	public static Specification<ReservationEntity> betweenDate(LocalDateTime startOfMonth, LocalDateTime endOfMonth) {
+
+		LocalDate start = startOfMonth.toLocalDate();
+		LocalDate end = endOfMonth.toLocalDate();
+
+		return (root, query, criteriaBuilder) ->
+			criteriaBuilder.between(root.get("reservationCheckinDate").as(LocalDate.class), start, end);
+	}
 
 	// 예약코드
 	public static Specification<ReservationEntity> equalsReservationCodePk(Integer reservationCodePk) {
@@ -93,21 +104,26 @@ public class ReservationSpecification {
 
 	// 예약일자
 	public static Specification<ReservationEntity> equalsReservationDate(LocalDateTime reservationDate) {
-		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("reservationDate"), reservationDate);
+		LocalDate date = reservationDate.toLocalDate();
+		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("reservationDate").as(LocalDate.class), date);
 	}
 
 	// 체크인일자
 	public static Specification<ReservationEntity> equalsCheckinDate(LocalDateTime reservationCheckinDate) {
-		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("reservationCheckinDate"), reservationCheckinDate);
+		LocalDate date = reservationCheckinDate.toLocalDate();
+
+		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("reservationCheckinDate").as(LocalDate.class), date);
 	}
 
 	// 체크아웃일자
 	public static Specification<ReservationEntity> equalsCheckoutDate(LocalDateTime reservationCheckoutDate) {
-		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("reservationCheckoutDate"), reservationCheckoutDate);
+		LocalDate date = reservationCheckoutDate.toLocalDate();
+
+		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("reservationCheckoutDate").as(LocalDate.class), date);
 	}
 
 	// 예약취소여부
-	public static Specification<ReservationEntity> equalsReservationCancleStatus(Integer reservationCancleStatus) {
-		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("reservationCancleStatus"), reservationCancleStatus);
+	public static Specification<ReservationEntity> equalsReservationCancleStatus(Integer reservationCancelStatus) {
+		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("reservationCancelStatus"), reservationCancelStatus);
 	}
 }

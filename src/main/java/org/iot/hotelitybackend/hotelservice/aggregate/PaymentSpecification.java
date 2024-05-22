@@ -1,5 +1,6 @@
 package org.iot.hotelitybackend.hotelservice.aggregate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
@@ -53,7 +54,8 @@ public class PaymentSpecification {
 
 	// 결제 일자
 	public static Specification<PaymentEntity> equalsPaymentDate(LocalDateTime paymentDate) {
-		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("paymentDate"), paymentDate);
+		LocalDate date = paymentDate.toLocalDate();
+		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("paymentDate").as(LocalDate.class), date);
 	}
 
 	// 결제 취소 여부

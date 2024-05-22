@@ -63,8 +63,10 @@ public class ReservationServiceImpl implements ReservationService {
 		String customerEnglishName,	String roomCodeFk,
 		String roomName, String roomLevelName,
 		Integer roomCapacity, String branchCodeFk,
-		LocalDateTime reservationDate, LocalDateTime reservationCheckoutDate,
-		String reservationCancleStatus) {
+		LocalDateTime reservationDate,
+		LocalDateTime reservationCheckinDate,
+		LocalDateTime reservationCheckoutDate,
+		Integer reservationCancelStatus) {
 
 		// 특정 월의 예약 내역을 조회하기 위해 월의 시작일과 종료일을 지정
 		LocalDateTime startOfMonth =
@@ -76,10 +78,66 @@ public class ReservationServiceImpl implements ReservationService {
 				23, 59, 59);
 		System.out.println("해당 월의 마지막 일자: " + endOfMonth);
 
-		Specification<PaymentEntity> spec = (root, query, criteriaBuilder) -> null;
+		Specification<ReservationEntity> spec =
+			Specification.where(ReservationSpecification.betweenDate(startOfMonth, endOfMonth));
+
+		// 예약코드
+		if (reservationCodePk != null) {
+			spec = spec.and(ReservationSpecification.equalsReservationCodePk(reservationCodePk));
+		}
+		// 고객코드
+		if (customerCodeFk != null) {
+			spec = spec.and(ReservationSpecification.equalsCustomerCodeFk(customerCodeFk));
+		}
+		// 한글이름
+		if (customerName != null) {
+			spec = spec.and(ReservationSpecification.likeCustomerName(customerName));
+		}
+		// 영어이름
+		if (customerEnglishName != null) {
+			spec = spec.and(ReservationSpecification.likeCustomerEnglishName(customerEnglishName));
+		}
+		// 객실 코드
+		if (roomCodeFk != null) {
+			spec = spec.and(ReservationSpecification.equalsRoomCodeFk(roomCodeFk));
+		}
+		// 객실명
+		if (roomName != null) {
+			spec = spec.and(ReservationSpecification.equalsRoomName(roomName));
+		}
+		// 객실등급명
+		if (roomLevelName != null) {
+			spec = spec.and(ReservationSpecification.equalsRoomLevelName(roomLevelName));
+		}
+		// 객실수용인원
+		if (roomCapacity != null) {
+			spec = spec.and(ReservationSpecification.equalsRoomCapacity(roomCapacity));
+		}
+		// 지점코드
+		if (branchCodeFk != null) {
+			spec = spec.and(ReservationSpecification.equalsBranchCodeFk(branchCodeFk));
+		}
+		// 예약일자
+		if (reservationDate != null) {
+			spec = spec.and(ReservationSpecification.equalsReservationDate(reservationDate));
+		}
+		// 체크인일자
+		if (reservationCheckinDate != null) {
+			spec = spec.and(ReservationSpecification.equalsCheckinDate(reservationCheckinDate));
+		}
+		// 체크아웃일자
+		if (reservationCheckoutDate != null) {
+			spec = spec.and(ReservationSpecification.equalsCheckoutDate(reservationCheckoutDate));
+		}
+		// 예약취소여부
+		if (reservationCancelStatus != null) {
+			spec = spec.and(ReservationSpecification.equalsReservationCancleStatus(reservationCancelStatus));
+		}
 
 		// 특정 월에 해당하는 예약 내역 리스트 조회
-		List<ReservationEntity> reservationEntityList = reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
+		List<ReservationEntity> reservationEntityList =
+			reservationRepository.findAll(spec);
+			// reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
 
 		List<ReservationDTO> reservationDTOList = getFkColumnsName(reservationEntityList);
 
