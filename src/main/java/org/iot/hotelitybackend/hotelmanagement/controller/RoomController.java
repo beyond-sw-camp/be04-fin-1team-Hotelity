@@ -1,10 +1,9 @@
 package org.iot.hotelitybackend.hotelmanagement.controller;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
+import static org.iot.hotelitybackend.common.util.ExcelUtil.*;
 
 import java.io.ByteArrayInputStream;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -56,11 +55,11 @@ public class RoomController {
 		@RequestParam(required = false) Integer roomSubRoomsCount
 	) {
 
-		Map<String, Object> roomPageInfo = roomService.selectSearchedRoomsList(
+		Map<String, Object> roomListInfo = roomService.selectSearchedRoomsList(
 			pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount);
 
 		ResponseVO response = ResponseVO.builder()
-			.data(roomPageInfo)
+			.data(roomListInfo)
 			.resultCode(HttpStatus.OK.value())
 			.build();
 
@@ -95,34 +94,31 @@ public class RoomController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
-	@GetMapping("/rooms/excel/download")
-	public ResponseEntity<InputStreamResource> downloadAllRoomsExcel() {
-		try {
-			List<RoomDTO> roomDTOList = roomService.selectRoomsForExcel();
-				Map<String, Object> result = roomService.createRoomsExcelFile(roomDTOList);
-
-			return ResponseEntity
-				.ok()
-				.headers((HttpHeaders)result.get("headers"))
-				.body(new InputStreamResource((ByteArrayInputStream)result.get("result")));
-
-		} catch (Exception e) {
-			log.info(e.getMessage());
-		}
-
-		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-	}
-
-	@GetMapping("rooms/search/excel/download")
+	@GetMapping("rooms/excel/download")
 	public ResponseEntity<InputStreamResource> downloadSearchedRoomsAsExcel(
+		@RequestParam(required = false) Integer pageNum,
+		@RequestParam(required = false) String roomCodePk,
+		@RequestParam(required = false) String branchCodeFk,
+		@RequestParam(required = false) Integer roomNumber,
 		@RequestParam(required = false) String roomName,
 		@RequestParam(required = false) String roomCurrentStatus,
-		@RequestParam(required = false) Integer roomSubRoomsCount,
-		@RequestParam(required = false) String branchCodeFk
+		@RequestParam(required = false) Float roomDiscountRate,
+		@RequestParam(required = false) String roomView,
+		@RequestParam(required = false) Integer roomSubRoomsCount
 	) {
 		try {
-			Map<String, Object> roomInfo = roomService.selectSearchedRoomsForExcel(roomName, roomSubRoomsCount, roomCurrentStatus, branchCodeFk);
-			Map<String, Object> result = roomService.createRoomsExcelFile((List<RoomDTO>)roomInfo.get(KEY_CONTENT));
+			// 파일명을 적어주세요.
+			String title = "객실";
+
+			// 컬럼명은 DTO 의 필드 순서대로 적어주셔야 합니다,,,
+			String[] headerStrings = {"객실코드", "지점코드", "객실호수", "객실카테고리코드", "객실현재상태", "객실할인율", "객실이미지링크", "객실뷰", "객실카테고리명", "지점명", "객실방개수"};
+
+			// 조회해서 DTO 리스트 가져오기
+			Map<String, Object> roomListInfo = roomService.selectSearchedRoomsList(
+				pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount);
+
+			// 엑셀 시트와 파일 만들기
+			Map<String, Object> result = createExcelFile((List<RoomDTO>)roomListInfo.get(KEY_CONTENT), title, headerStrings);
 
 			return ResponseEntity
 				.ok()
@@ -131,6 +127,7 @@ public class RoomController {
 
 		} catch (Exception e) {
 			log.info(e.getMessage());
+			e.printStackTrace();
 		}
 
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

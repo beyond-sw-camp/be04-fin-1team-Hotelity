@@ -26,16 +26,4 @@ public interface RoomService {
 
 	Map<String, Object> deleteRoom(String roomCodePk);
 
-	List<RoomDTO> selectRoomsForExcel();
-
-	Map<String, Object> selectSearchedRoomsForExcel(String roomName, Integer roomSubRoomsCount, String roomCurrentStatus, String branchCodeFk);
-
-	// List<RoomDTO> pageToList(Map<String, Object> roomPageInfo);
-
-	// List<RoomDTO> pageToSearchedList(Map<String, Object> stringObjectMap, String roomName, Integer roomSubRoomsCount, String roomCurrentStatus, String branchCodeFk);
-
-	Map<String, Object> createRoomsExcelFile(List<RoomDTO> roomDTOList) throws
-		IOException,
-		NoSuchFieldException,
-		IllegalAccessException;
 }
