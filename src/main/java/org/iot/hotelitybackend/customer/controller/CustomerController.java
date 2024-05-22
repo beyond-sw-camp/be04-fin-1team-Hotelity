@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -87,6 +88,19 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.OK).body(responseCustomer);
     }
 
+    @DeleteMapping("/{customerCodePk}")
+    public ResponseEntity<ResponseVO> deleteCustomerByCustomerCodePk (@PathVariable("customerCodePk") int customerCodePk){
+
+        Map<String, Object> customerPageInfo = customerService.deleteCustomerByCustomerCodePk(customerCodePk);
+            ResponseVO response = ResponseVO.builder()
+            .data(customerPageInfo)
+            .resultCode(HttpStatus.OK.value())
+            .build();
+        System.out.println(customerPageInfo);
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
+    }
+
     @PostMapping("/excel/read")
     public ResponseEntity<ResponseVO> readExcel(@RequestParam("file") MultipartFile file, Model model) throws IOException {
 
@@ -114,9 +128,28 @@ public class CustomerController {
     }
 
     @GetMapping("/excel/download")
-    public ResponseEntity<InputStreamResource> downloadExcel(){
+    public ResponseEntity<InputStreamResource> downloadExcel(
+        @RequestParam(required = false) Integer customerCodePk,
+        @RequestParam(required = false) String customerName,
+        @RequestParam(required = false) String customerEmail,
+        @RequestParam(required = false) String customerPhoneNumber,
+        @RequestParam(required = false) String customerEnglishName,
+        @RequestParam(required = false) String customerAddress,
+        @RequestParam(required = false) Integer customerInfoAgreement,
+        @RequestParam(required = false) Integer customerStatus,
+        @RequestParam(required = false) Date customerRegisteredDate,
+        @RequestParam(required = false) Integer nationCodeFk,
+        @RequestParam(required = false) String customerGender,
+        @RequestParam(required = false) String nationName,
+        @RequestParam(required = false) String customerType,
+        @RequestParam(required = false) String membershipLevelName
+    ){
         try{
-            ByteArrayInputStream result = customerService.downloadExcel();
+            ByteArrayInputStream result = customerService.downloadExcel(
+                customerCodePk, customerName, customerEmail, customerPhoneNumber, customerEnglishName,
+                customerAddress, customerInfoAgreement, customerStatus, customerRegisteredDate, nationCodeFk,
+                customerGender, nationName, customerType, membershipLevelName
+            );
 
             String fileName = "Customer.xlsx";
             HttpHeaders headers = new HttpHeaders();
