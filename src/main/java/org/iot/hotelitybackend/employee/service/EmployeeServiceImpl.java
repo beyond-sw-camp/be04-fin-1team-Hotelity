@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final RankRepository rankRepository;
     private final DepartmentRepository departmentRepository;
     private final BranchRepository branchRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     public EmployeeServiceImpl(
@@ -41,7 +43,8 @@ public class EmployeeServiceImpl implements EmployeeService {
             PositionRepository positionRepository,
             RankRepository rankRepository,
             DepartmentRepository departmentRepository,
-            BranchRepository branchRepository
+            BranchRepository branchRepository,
+            BCryptPasswordEncoder bCryptPasswordEncoder
     ) {
         this.mapper = mapper;
         this.employeeRepository = employeeRepository;
@@ -50,6 +53,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.rankRepository = rankRepository;
         this.departmentRepository = departmentRepository;
         this.branchRepository = branchRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 
         /* custom mapping */
         this.mapper.typeMap(EmployeeEntity.class, EmployeeDTO.class).addMappings(modelMapper -> {
@@ -121,6 +125,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     @Override
     public EmployeeDTO registEmployee(EmployeeDTO newEmployee) {
+        boolean isExist = employeeRepository.existsByEmployeeNameAndEmployeePhoneNumberAndEmployeeEmail(
+                newEmployee.getEmployeeName(), newEmployee.getEmployeePhoneNumber(), newEmployee.getEmployeeEmail()
+        );
+
+        if (isExist) {
+            return null;
+        }
+
         PermissionEntity permission =
                 permissionRepository.findById(newEmployee.getPermissionCodeFk()).orElse(null);
         DepartmentEntity department =
@@ -129,13 +141,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         BranchEntity branch = branchRepository.findById(newEmployee.getBranchCodeFk()).orElse(null);
         RankEntity rank = rankRepository.findById(newEmployee.getRankCodeFk()).orElse(null);
 
+        String encodedPassword = bCryptPasswordEncoder.encode(newEmployee.getEmployeeSystemPassword());
+
         EmployeeEntity employeeEntity = EmployeeEntity.builder()
                 .employeeName(newEmployee.getEmployeeName())
                 .employeeAddress(newEmployee.getEmployeeAddress())
                 .employeePhoneNumber(newEmployee.getEmployeePhoneNumber())
                 .employeeOfficePhoneNumber(newEmployee.getEmployeeOfficePhoneNumber())
                 .employeeEmail(newEmployee.getEmployeeEmail())
-                .employeeSystemPassword(newEmployee.getEmployeeSystemPassword())
+                .employeeSystemPassword(encodedPassword)
                 .employeeResignStatus("N")
                 .employeeProfileImageLink(newEmployee.getEmployeeProfileImageLink())
                 .employeePermission(permission)
@@ -147,7 +161,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         EmployeeEntity createdEmployeeEntity = employeeRepository.save(employeeEntity);
 
-        return mapper.map(employeeRepository.save(createdEmployeeEntity), EmployeeDTO.class);
+        return mapper.map(createdEmployeeEntity, EmployeeDTO.class);
     }
 
     @Transactional

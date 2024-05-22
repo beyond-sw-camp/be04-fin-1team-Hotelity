@@ -76,10 +76,19 @@ public class EmployeeController {
         EmployeeDTO newEmployeeDTO = mapper.map(newEmployee, EmployeeDTO.class);
         EmployeeDTO employee = employeeService.registEmployee(newEmployeeDTO);
 
-        ResponseVO response = ResponseVO.builder()
-                .data(employee)
-                .resultCode(HttpStatus.CREATED.value())
-                .build();
+        ResponseVO response;
+
+        if (employee == null) {
+            response = ResponseVO.builder()
+                    .resultCode(HttpStatus.BAD_REQUEST.value())
+                    .message("이미 등록된 직원입니다.")
+                    .build();
+        } else {
+            response = ResponseVO.builder()
+                    .data(employee)
+                    .resultCode(HttpStatus.CREATED.value())
+                    .build();
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
