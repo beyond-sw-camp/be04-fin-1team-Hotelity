@@ -1,7 +1,6 @@
 package org.iot.hotelitybackend.hotelservice.controller;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.iot.hotelitybackend.common.vo.ResponseVO;
@@ -69,6 +68,22 @@ public class StayController {
 				.message("조회 실패")
 				.build();
 		}
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	/* 투숙 코드로 특정 투숙 내역 조회 */
+	@GetMapping("stays/{stayCodePk}/selected")
+	public ResponseEntity<ResponseVO> selectStayByStayCodePk(
+		@PathVariable("stayCodePk") Integer stayCodePk) {
+
+		Map<String, Object> stayInfo = stayService.selectStayByStayCodePk(stayCodePk);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(stayInfo)
+			.resultCode(HttpStatus.OK.value())
+			.message(stayCodePk + "번 내역 조회 성공")
+			.build();
+
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 

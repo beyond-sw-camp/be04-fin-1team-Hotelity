@@ -21,6 +21,4 @@ public class ReservationDTO {
     private LocalDateTime reservationCheckoutDate;
     private Integer reservationCancelStatus;
     private Integer reservationPersonnel;
-    // status가 0이면 체크인x, 1이면 체크인o
-    private Integer reservationCheckinStatus;
 }

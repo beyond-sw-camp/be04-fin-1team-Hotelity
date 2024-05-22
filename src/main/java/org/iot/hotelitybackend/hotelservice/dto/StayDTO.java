@@ -22,5 +22,4 @@ public class StayDTO {
     private String PICemployeeName;
     private String branchCodeFk;
     private Integer reservationCodeFk;
-    private Integer stayCheckoutStatus;
 }

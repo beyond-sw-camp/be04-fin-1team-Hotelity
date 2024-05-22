@@ -7,16 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
-import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
-import org.iot.hotelitybackend.hotelmanagement.aggregate.BranchEntity;
-import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomCategoryEntity;
-import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomEntity;
-import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomLevelEntity;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomCategoryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomLevelRepository;
@@ -166,7 +159,7 @@ public class StayServiceImpl implements StayService {
 
 		Page<StayEntity> stayPage = stayRepository.findAll(spec, pageable);
 		List<StayEntity> stayEntityList = stayPage.getContent();
-		List<StayDTO> stayDTOList = getFkColumnName(stayEntityList);
+		List<StayDTO> stayDTOList = setDTOField(stayEntityList);
 
 		Map<String, Object> stayPageInfo = new HashMap<>();
 		stayPageInfo.put(KEY_TOTAL_PAGES_COUNT, stayPage.getTotalPages());
@@ -174,6 +167,20 @@ public class StayServiceImpl implements StayService {
 		stayPageInfo.put(KEY_CONTENT, stayDTOList);
 
 		return stayPageInfo;
+	}
+
+	/* 투숙 코드로 특정 투숙 조회 */
+	@Override
+	public Map<String, Object> selectStayByStayCodePk(Integer stayCodePk) {
+
+		List<StayEntity> stayEntityList = stayRepository.findById(stayCodePk).stream().toList();
+
+		List<StayDTO> stayDTOList = setDTOField(stayEntityList);
+
+		Map<String, Object> stayInfo = new HashMap<>();
+		stayInfo.put(KEY_CONTENT, stayDTOList);
+
+		return stayInfo;
 	}
 
 	/* 예약 체크인 시 투숙 정보 등록 */
@@ -188,6 +195,7 @@ public class StayServiceImpl implements StayService {
 			roomCategoryRepository, roomLevelRepository, branchRepository
 		);
 
+		// 예약 정보 가져오기
 		List<ReservationEntity> reservationInfo =
 			reservationRepository.findById(reservationCodeFk).stream().toList();
 
@@ -199,10 +207,11 @@ public class StayServiceImpl implements StayService {
 
 			if (existingStayEntity.isEmpty()) {
 
-				List<ReservationDTO> reservationDTOList = reservationService.getFkColumnsName(reservationInfo);
-
+				// ReservationDTO Field Mapping
+				List<ReservationDTO> reservationDTOList = reservationService.setDTOField(reservationInfo);
 				ReservationDTO reservationDTO = reservationDTOList.get(0);
 
+				// 예약 정보를 StayEntity에 저장
 				StayEntity stayEntity = StayEntity.builder()
 					.stayCheckinTime(LocalDateTime.now())
 					.stayPeopleCount(stayPeopleCount)
@@ -212,6 +221,7 @@ public class StayServiceImpl implements StayService {
 
 				stayRepository.save(stayEntity);
 
+				// StayDTO Field Mapping
 				StayDTO stayDTO = setStayDTO(stayEntity, reservationDTO, reservationCodeFk, employeeCodeFk);
 
 				registStayInfo.put(KEY_CONTENT, stayDTO);
@@ -229,9 +239,12 @@ public class StayServiceImpl implements StayService {
 		StayDTO stayDTO = new StayDTO();
 
 		stayDTO.setStayCodePk(stayEntity.getStayCodePk());
+		stayDTO.setCustomerCodeFk(reservationDTO.getCustomerCodeFk());
+		stayDTO.setCustomerName(reservationDTO.getCustomerName());
 		stayDTO.setRoomCode(reservationDTO.getRoomCodeFk());
-		stayDTO.setRoomLevelName(reservationDTO.getRoomLevelName());
 		stayDTO.setRoomName(reservationDTO.getRoomName());
+		stayDTO.setRoomLevelName(reservationDTO.getRoomLevelName());
+		stayDTO.setRoomCapacity(reservationDTO.getRoomCapacity());
 		stayDTO.setStayPeopleCount(reservationDTO.getReservationPersonnel());
 		stayDTO.setStayCheckinTime(LocalDateTime.now());
 		stayDTO.setEmployeeCodeFk(employeeCodeFk);
@@ -271,7 +284,7 @@ public class StayServiceImpl implements StayService {
 
 				stayRepository.save(checkoutStayEntity);
 
-				List<StayDTO> stayDTOList = new ArrayList<>(selectStayByStayCodePk(stayCodePk));
+				List<StayDTO> stayDTOList = new ArrayList<>(getStayByStayCodePk(stayCodePk));
 
 				// System.out.println("========= stayDTOList 조회 =========");
 				// for (StayDTO stayDTO1: stayDTOList) {
@@ -304,7 +317,7 @@ public class StayServiceImpl implements StayService {
 
 		stayRepository.save(stayEntity);
 
-		List<StayDTO> stayDTOList = getFkColumnName(stayEntityList);
+		List<StayDTO> stayDTOList = setDTOField(stayEntityList);
 
 		StayDTO stayDTO = new StayDTO();
 
@@ -330,7 +343,7 @@ public class StayServiceImpl implements StayService {
 	}
 
 	/* 투숙 코드로 조회(투숙 체크아웃용 메소드) */
-	public List<StayDTO> selectStayByStayCodePk(Integer stayCodePk) {
+	public List<StayDTO> getStayByStayCodePk(Integer stayCodePk) {
 
 		List<StayEntity> stayEntityList = stayRepository.findById(stayCodePk).stream().toList();
 
@@ -345,7 +358,7 @@ public class StayServiceImpl implements StayService {
 		// 	System.out.println("-----------------------------------");
 		// }
 
-		List<StayDTO> stayDTOList = getFkColumnName(stayEntityList);
+		List<StayDTO> stayDTOList = setDTOField(stayEntityList);
 
 		for (StayDTO stayDTO : stayDTOList) {
 			System.out.println(stayDTO);
@@ -354,7 +367,7 @@ public class StayServiceImpl implements StayService {
 		return stayDTOList;
 	}
 
-	private List<StayDTO> getFkColumnName(List<StayEntity> stayEntityList) {
+	private List<StayDTO> setDTOField(List<StayEntity> stayEntityList) {
 		List<StayDTO> list =
 			stayEntityList.stream().map(stayEntity -> mapper.map(stayEntity, StayDTO.class))
 				.peek(stayDTO -> stayDTO.setCustomerCodeFk(
@@ -395,6 +408,23 @@ public class StayServiceImpl implements StayService {
 				// 지점명
 				.peek(stayDTO -> stayDTO.setBranchCodeFk(
 					reservationRepository.findById(stayDTO.getReservationCodeFk()).get().getBranchCodeFk()))
+				// 고객코드
+				.peek(stayDTO -> stayDTO.setCustomerCodeFk(
+					reservationRepository.findById(stayDTO.getReservationCodeFk()).get().getCustomerCodeFk()))
+				// 고객이름
+				.peek(stayDTO -> stayDTO.setCustomerName(
+					customerRepository.findById(
+						reservationRepository.findById(stayDTO.getReservationCodeFk()
+						).get().getCustomerCodeFk()
+					).get().customerName))
+				// 객실수용인원
+				.peek(stayDTO -> stayDTO.setRoomCapacity(
+					roomCategoryRepository.findById(
+						roomRepository.findById(
+							reservationRepository.findById(stayDTO.getReservationCodeFk()
+							).get().getRoomCodeFk()
+						).get().getRoomCategoryCodeFk()
+					).get().getRoomCapacity()))
 				.toList();
 
 		// System.out.println("========= stayDTOList 조회 =========");
