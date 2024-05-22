@@ -14,7 +14,7 @@ public interface StayService {
 		String branchCodeFk, Integer employeeCodeFk, String employeeName,
 		Integer reservationCodeFk, Integer stayCheckoutStatus);
 
-	Map<String, Object> registStayByReservationCodePk(int reservationCodePk, int employeeCodeFk);
+	Map<String, Object> registStayByReservationCodePk(int reservationCodeFk, int employeeCodeFk, int stayPeopleCount);
 
 	Map<String, Object> modifyStayCheckoutDate(Integer stayCodePk);
 

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.hotelservice.service.StayService;
+import org.iot.hotelitybackend.hotelservice.vo.RequestCheckinInfo;
 import org.iot.hotelitybackend.hotelservice.vo.RequestModifyStay;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,13 +73,16 @@ public class StayController {
 	}
 
 	/* 예약 체크인 선택 시 투숙 정보 생성 */
-	@PostMapping("/stays")
+	@PostMapping("/stays/checkin")
 	public ResponseEntity<ResponseVO> registStayByReservationCodePk(
-		@RequestParam int reservationCodePk,
-		@RequestParam int employeeCodeFk) {
+		@RequestBody RequestCheckinInfo requestCheckinInfo) {
 
-		Map<String, Object> registStayInfo = stayService.registStayByReservationCodePk(reservationCodePk,
-			employeeCodeFk);
+		int reservationCodeFk = requestCheckinInfo.getReservationCodeFk();
+		int employeeCodeFk = requestCheckinInfo.getEmployeeCodeFk();
+		int stayPeopleCount = requestCheckinInfo.getStayPeopleCount();
+
+		Map<String, Object> registStayInfo =
+			stayService.registStayByReservationCodePk(reservationCodeFk, employeeCodeFk, stayPeopleCount);
 
 		ResponseVO response = null;
 
@@ -91,7 +95,7 @@ public class StayController {
 			response = ResponseVO.builder()
 				.data(registStayInfo)
 				.resultCode(HttpStatus.CREATED.value())
-				.message("예약 코드 " + reservationCodePk + "번 투숙 등록 완료")
+				.message("예약 코드 " + reservationCodeFk + "번 투숙 등록 완료")
 				.build();
 		}
 		return ResponseEntity.status(response.getResultCode()).body(response);

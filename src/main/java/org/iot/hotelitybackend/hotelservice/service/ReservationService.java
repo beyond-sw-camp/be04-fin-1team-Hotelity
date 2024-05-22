@@ -22,10 +22,11 @@ public interface ReservationService {
 		Integer reservationCancelStatus
 	);
 
-	Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate);
+	Map<String, Object> selectReseravtionInfoByReservationCodePk(Integer reservationCodePk);
 
-	Map<String, Object> selectReservationByReservationCodePk(int reservationCodePk);
+	Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate);
 
 	List<Integer> selectStaysList(int pageNum, String branchCodeFk, String roomCodeFk,
 		LocalDateTime reservationCheckinDate, LocalDateTime reservationCheckoutDate);
+
 }

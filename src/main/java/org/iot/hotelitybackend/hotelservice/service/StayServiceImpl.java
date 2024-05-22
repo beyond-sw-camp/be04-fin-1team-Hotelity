@@ -179,7 +179,8 @@ public class StayServiceImpl implements StayService {
 	/* 예약 체크인 시 투숙 정보 등록 */
 	@Transactional
 	@Override
-	public Map<String, Object> registStayByReservationCodePk(int reservationCodePk, int employeeCodeFk) {
+	public Map<String, Object> registStayByReservationCodePk(int reservationCodeFk, int employeeCodeFk,
+		int stayPeopleCount) {
 		Map<String, Object> registStayInfo = new HashMap<>();
 
 		ReservationServiceImpl reservationService = new ReservationServiceImpl(
@@ -188,17 +189,15 @@ public class StayServiceImpl implements StayService {
 		);
 
 		List<ReservationEntity> reservationInfo =
-			reservationRepository.findById(reservationCodePk).stream().toList();
+			reservationRepository.findById(reservationCodeFk).stream().toList();
 
-		if(!reservationInfo.isEmpty()) {
+		if (!reservationInfo.isEmpty()) {
 
 			// reservationCodeFk 중복 검사
-			List<StayEntity> existingStayEntity = stayRepository.findByReservationCodeFk(reservationCodePk)
-				.stream()
-				.toList();
-			if (existingStayEntity.isEmpty()) {
+			List<StayEntity> existingStayEntity =
+				stayRepository.findByReservationCodeFk(reservationCodeFk).stream().toList();
 
-				System.out.println("===== 해당 예약코드로 등록된 투숙 정보 없음. =====");
+			if (existingStayEntity.isEmpty()) {
 
 				List<ReservationDTO> reservationDTOList = reservationService.getFkColumnsName(reservationInfo);
 
@@ -206,33 +205,41 @@ public class StayServiceImpl implements StayService {
 
 				StayEntity stayEntity = StayEntity.builder()
 					.stayCheckinTime(LocalDateTime.now())
-					.stayPeopleCount(reservationDTO.getReservationPersonnel())
+					.stayPeopleCount(stayPeopleCount)
 					.employeeCodeFk(employeeCodeFk)
-					.reservationCodeFk(reservationCodePk)
+					.reservationCodeFk(reservationCodeFk)
 					.build();
 
 				stayRepository.save(stayEntity);
 
-				StayDTO stayDTO = new StayDTO();
-
-				stayDTO.setStayCodePk(stayEntity.getStayCodePk());
-				stayDTO.setRoomCode(reservationDTO.getRoomCodeFk());
-				stayDTO.setRoomLevelName(reservationDTO.getRoomLevelName());
-				stayDTO.setRoomName(reservationDTO.getRoomName());
-				stayDTO.setStayPeopleCount(reservationDTO.getReservationPersonnel());
-				stayDTO.setStayCheckinTime(LocalDateTime.now());
-				stayDTO.setEmployeeCodeFk(employeeCodeFk);
-				// stayDTO.setEmployeeName(employeeRepository.findById(employeeCodeFk).get().getEmployeeName());
-				stayDTO.setBranchCodeFk(reservationDTO.getBranchCodeFk());
-				stayDTO.setReservationCodeFk(reservationCodePk);
+				StayDTO stayDTO = setStayDTO(stayEntity, reservationDTO, reservationCodeFk, employeeCodeFk);
 
 				registStayInfo.put(KEY_CONTENT, stayDTO);
 			}
 		} else {
 			System.out.println("===== 해당 예약 코드가 존재하지 않습니다. =====");
-			throw new RuntimeException("Reservation code:" + reservationCodePk + " 해당 예약 코드가 존재하지 않습니다.");
+			throw new RuntimeException("Reservation code:" + reservationCodeFk + " 해당 예약 코드가 존재하지 않습니다.");
 		}
 		return registStayInfo;
+	}
+
+	private StayDTO setStayDTO(
+		StayEntity stayEntity, ReservationDTO reservationDTO, int reservationCodeFk, int employeeCodeFk) {
+
+		StayDTO stayDTO = new StayDTO();
+
+		stayDTO.setStayCodePk(stayEntity.getStayCodePk());
+		stayDTO.setRoomCode(reservationDTO.getRoomCodeFk());
+		stayDTO.setRoomLevelName(reservationDTO.getRoomLevelName());
+		stayDTO.setRoomName(reservationDTO.getRoomName());
+		stayDTO.setStayPeopleCount(reservationDTO.getReservationPersonnel());
+		stayDTO.setStayCheckinTime(LocalDateTime.now());
+		stayDTO.setEmployeeCodeFk(employeeCodeFk);
+		stayDTO.setPICemployeeName(employeeRepository.findById(employeeCodeFk).get().getEmployeeName());
+		stayDTO.setBranchCodeFk(reservationDTO.getBranchCodeFk());
+		stayDTO.setReservationCodeFk(reservationCodeFk);
+
+		return stayDTO;
 	}
 
 	/* 투숙 체크아웃 */
