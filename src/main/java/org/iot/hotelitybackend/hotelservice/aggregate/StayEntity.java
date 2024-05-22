@@ -37,8 +37,7 @@ public class StayEntity {
 		LocalDateTime stayCheckoutTime,
 		Integer stayPeopleCount,
 		Integer employeeCodeFk,
-		Integer reservationCodeFk,
-		ReservationEntity reservation
+		Integer reservationCodeFk
 	) {
 		this.stayCodePk = stayCodePk;
 		this.stayCheckinTime = stayCheckinTime;
@@ -46,7 +45,6 @@ public class StayEntity {
 		this.stayPeopleCount = stayPeopleCount;
 		this.employeeCodeFk = employeeCodeFk;
 		this.reservationCodeFk = reservationCodeFk;
-		this.reservation = reservation;
 	}
 
 	@ManyToOne

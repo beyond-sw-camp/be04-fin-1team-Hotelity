@@ -69,20 +69,47 @@ public class StayServiceImpl implements StayService {
 	}
 
 	/* 투숙 내역 전체 조회(다중 조건 검색) */
-	public Map<String, Object> selectStaysList(int pageNum, String branchCodeFk, String roomLevelName,
-		LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime, String customerName) {
+	@Override
+	public Map<String, Object> selectStaysList(
+		int pageNum, Integer stayCodePk, Integer customerCodeFk,
+		String customerName, String roomCodeFk, String roomName,
+		String roomLevelName, Integer roomCapacity, Integer stayPeopleCount,
+		LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime,
+		String branchCodeFk, Integer employeeCodeFk, String employeeName,
+		Integer reservationCodeFk, Integer stayCheckoutStatus) {
 
 		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("stayCheckinTime").descending());
 		Specification<StayEntity> spec = Specification.where(null);
 
-		// 객실 등급
-		if (roomLevelName != null && !roomLevelName.isEmpty()) {
-			RoomLevelEntity roomLevel = roomLevelRepository.findByRoomLevelName(roomLevelName);
-			if (roomLevel != null) {
-				spec = spec.and(StaySpecification.likeRoomLevelName(roomLevelName));
-			}
+		// 투숙코드
+		if (stayCodePk != null) {
+			spec = spec.and(StaySpecification.equalsStayCodePk(stayCodePk));
 		}
 
+		// 고객코드
+		if (customerCodeFk != null) {
+			spec = spec.and(StaySpecification.equalsCustomerCodeFk(customerCodeFk));
+		}
+
+		// 고객이름
+		if (customerName != null) {
+			spec = spec.and(StaySpecification.likeCustomerName(customerName));
+		}
+
+		// 객실코드
+		if (roomCodeFk != null) {
+			spec = spec.and(StaySpecification.equalsRoomCodeFk(roomCodeFk));
+		}
+
+		// 객실명
+		if (roomName != null) {
+			spec = spec.and(StaySpecification.likeRoomName(roomName));
+		}
+
+		// 객실 등급명
+		if (roomLevelName != null && !roomLevelName.isEmpty()) {
+			spec = spec.and(StaySpecification.likeRoomLevelName(roomLevelName));
+		}
 		// StaySpecification의 Join이 제대로 동작하는지 확인
 		// List<StayEntity> stays = stayRepository.findAll(spec);
 		//
@@ -97,30 +124,44 @@ public class StayServiceImpl implements StayService {
 		// 	System.out.println("====================");
 		// }
 
-		// 지점명
-		if (branchCodeFk != null) {
-			Optional<BranchEntity> branch = branchRepository.findById(branchCodeFk);
-			if (branch.isPresent()) {
-				spec = spec.and(StaySpecification.equalsBranchCodeFk(branchCodeFk));
-			}
+		// 객실 수용 인원
+		if (roomCapacity != null) {
+			spec = spec.and(StaySpecification.equalsRoomCapacity(roomCapacity));
 		}
 
-		// 고객명
-		if (customerName != null) {
-			CustomerEntity customer = customerRepository.findByCustomerName(customerName);
-			if (customer != null) {
-				spec = spec.and(StaySpecification.likeCustomerName(customerName));
-			}
+		// 투숙 인원
+		if (stayPeopleCount != null) {
+			spec = spec.and(StaySpecification.equalsStayPeopleCount(stayPeopleCount));
 		}
 
-		// 체크인
+		// 체크인 날짜
 		if (stayCheckinTime != null) {
 			spec = spec.and(StaySpecification.equalsStayCheckinTime(stayCheckinTime));
 		}
 
-		// 체크아웃
+		// 체크아웃 날짜
 		if (stayCheckoutTime != null) {
 			spec = spec.and(StaySpecification.equalsStayCheckoutTime(stayCheckoutTime));
+		}
+
+		// 지점코드
+		if (branchCodeFk != null) {
+			spec = spec.and(StaySpecification.equalsBranchCodeFk(branchCodeFk));
+		}
+
+		// 직원코드
+		if (employeeCodeFk != null) {
+			spec = spec.and(StaySpecification.equalsEmployeeCodeFk(employeeCodeFk));
+		}
+
+		// 직원이름
+		if (employeeName != null) {
+			spec = spec.and(StaySpecification.likeEmployeeName(employeeName));
+		}
+
+		// 예약코드
+		if (reservationCodeFk != null) {
+			spec = spec.and(StaySpecification.equalsReservationCodeFk(reservationCodeFk));
 		}
 
 		Page<StayEntity> stayPage = stayRepository.findAll(spec, pageable);
@@ -181,7 +222,7 @@ public class StayServiceImpl implements StayService {
 				stayDTO.setStayPeopleCount(reservationDTO.getReservationPersonnel());
 				stayDTO.setStayCheckinTime(LocalDateTime.now());
 				stayDTO.setEmployeeCodeFk(employeeCodeFk);
-				stayDTO.setEmployeeName(employeeRepository.findById(employeeCodeFk).get().getEmployeeName());
+				// stayDTO.setEmployeeName(employeeRepository.findById(employeeCodeFk).get().getEmployeeName());
 				stayDTO.setBranchCodeFk(reservationDTO.getBranchCodeFk());
 				stayDTO.setReservationCodeFk(reservationCodePk);
 
@@ -341,9 +382,9 @@ public class StayServiceImpl implements StayService {
 						).get().getRoomCategoryCodeFk()
 					).get().getRoomName()))
 				// 직원명
-				.peek(stayDTO -> stayDTO.setEmployeeName(
-					mapper.map(employeeRepository.findById(stayDTO.getEmployeeCodeFk()), EmployeeDTO.class)
-						.getEmployeeName()))
+				.peek(stayDTO -> stayDTO.setPICemployeeName(
+					employeeRepository.findById(stayDTO.getEmployeeCodeFk())
+						.get().getEmployeeName()))
 				// 지점명
 				.peek(stayDTO -> stayDTO.setBranchCodeFk(
 					reservationRepository.findById(stayDTO.getReservationCodeFk()).get().getBranchCodeFk()))
