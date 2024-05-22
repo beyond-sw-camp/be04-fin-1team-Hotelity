@@ -3,7 +3,6 @@ package org.iot.hotelitybackend.hotelservice.service;
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -136,7 +135,7 @@ public class ReservationServiceImpl implements ReservationService {
 			reservationRepository.findAll(spec);
 			// reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
 
-		List<ReservationDTO> reservationDTOList = getFkColumnsName(reservationEntityList);
+		List<ReservationDTO> reservationDTOList = setDTOField(reservationEntityList);
 
 		Map<String, Object> reservationListInfo = new HashMap<>();
 
@@ -152,7 +151,7 @@ public class ReservationServiceImpl implements ReservationService {
 		List<ReservationEntity> reservationEntityList =
 			reservationRepository.findById(reservationCodePk).stream().toList();
 
-		List<ReservationDTO> reservationDTOList = getFkColumnsName(reservationEntityList);
+		List<ReservationDTO> reservationDTOList = setDTOField(reservationEntityList);
 
 		Map<String, Object> reservationInfo = new HashMap<>();
 
@@ -171,7 +170,7 @@ public class ReservationServiceImpl implements ReservationService {
 	public Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate) {
 		List<ReservationEntity> dailyReservationEntityList = reservationRepository.findByReservationCheckinDate(reservationCheckDate);
 
-		List<ReservationDTO> dailyReservationDTOList = getFkColumnsName(dailyReservationEntityList);
+		List<ReservationDTO> dailyReservationDTOList = setDTOField(dailyReservationEntityList);
 
 		Map<String, Object> dailyReservationInfo = new HashMap<>();
 
@@ -181,7 +180,7 @@ public class ReservationServiceImpl implements ReservationService {
 	}
 
 	/* fk 값들의 이름을 가져오는 코드 */
-	public List<ReservationDTO> getFkColumnsName(List<ReservationEntity> reservationEntityList) {
+	public List<ReservationDTO> setDTOField(List<ReservationEntity> reservationEntityList) {
 
 		List<ReservationDTO> list =
 			reservationEntityList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
