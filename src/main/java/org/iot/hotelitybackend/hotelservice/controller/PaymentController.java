@@ -30,17 +30,26 @@ public class PaymentController {
 	/* 다중 조건 검색을 적용한 전체 결제 내역 리스트 조회 */
 	@GetMapping("/payments/page")
 	public ResponseEntity<ResponseVO> selectPaymentLogListWithFilter(
-		  @RequestParam int pageNum,
-		  @RequestParam(required = false) Integer customerCodeFk,
-		  @RequestParam(required = false) LocalDateTime paymentDate,
-		  @RequestParam(required = false) Integer paymentCancelStatus) {
+		@RequestParam int pageNum,
+		@RequestParam(required = false) Integer customerCodeFk,
+		@RequestParam(required = false) String customerName,
+		@RequestParam(required = false) LocalDateTime paymentDate,
+		@RequestParam(required = false) Integer paymentCancelStatus,
+		@RequestParam(required = false) String paymentMethod,
+		@RequestParam(required = false) Integer reservationCodeFk,
+		@RequestParam(required = false) Integer paymentTypeCodeFk,
+		@RequestParam(required = false) String paymentTypeName) {
 
 		Map<String, Object> paymentLogInfo =
-			paymentService.selectPaymentLogList(pageNum, customerCodeFk, paymentDate, paymentCancelStatus);
+			paymentService.selectPaymentLogList(
+				pageNum, customerCodeFk, customerName, paymentDate, paymentCancelStatus,
+				paymentMethod, reservationCodeFk, paymentTypeCodeFk, paymentTypeName
+			);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(paymentLogInfo)
 			.resultCode(HttpStatus.OK.value())
+			.message("조회 성공")
 			.build();
 
 		return ResponseEntity.status(response.getResultCode()).body(response);

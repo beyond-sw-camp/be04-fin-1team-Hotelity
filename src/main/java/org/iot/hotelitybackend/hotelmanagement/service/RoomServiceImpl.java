@@ -2,11 +2,30 @@ package org.iot.hotelitybackend.hotelmanagement.service;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomCategoryEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomSpecification;
@@ -23,12 +42,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.Predicate;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class RoomServiceImpl implements RoomService {
 
 	private final RoomRepository roomRepository;
@@ -45,56 +67,69 @@ public class RoomServiceImpl implements RoomService {
 	}
 
 	@Override
-	public Map<String, Object> selectRoomsList(int pageNum) {
-		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
-		Page<RoomEntity> roomEntityPage = roomRepository.findAll(pageable);
-		List<RoomDTO> roomDTOList = roomEntityPage
-			.stream()
-			.map(roomEntity -> mapper.map(roomEntity, RoomDTO.class))
-			.peek(roomDTO -> roomDTO.setRoomName(
-				mapper.map(roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()), RoomCategoryDTO.class).getRoomName()
-			))
-			.peek(roomDTO -> roomDTO.setBranchName(
-				mapper.map(branchRepository.findById(roomDTO.getBranchCodeFk()), BranchDTO.class).getBranchName()
-			))
-			.toList();
+	public Map<String, Object> selectSearchedRoomsList(
+		Integer pageNum,
+		String roomCodePk,
+		String branchCodeFk,
+		Integer roomNumber,
+		String roomName,
+		String roomCurrentStatus,
+		Float roomDiscountRate,
+		String roomView,
+		Integer roomSubRoomsCount
+	) {
 
-		int totalPagesCount = roomEntityPage.getTotalPages();
-		int currentPageIndex = roomEntityPage.getNumber();
-
-		Map<String, Object> roomPageInfo = new HashMap<>();
-
-		roomPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-		roomPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-		roomPageInfo.put(KEY_CONTENT, roomDTOList);
-
-		return roomPageInfo;
-	}
-
-
-	@Override
-	public Map<String, Object> selectSearchedRoomsList(int pageNum, String roomName, Integer roomSubRoomsCount, String roomCurrentStatus, String branchCodeFk) {
-		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
 		Specification<RoomEntity> spec = (root, query, criteriaBuilder) -> null;
 
-		Map<String, Object> roomPageInfo = new HashMap<>();
+		Map<String, Object> roomListInfo = new HashMap<>();
 
-		// 1. 객실 카테고리별 객실 필터링
+		// 1-1. 객실코드(PK) 기준으로 검색 (like)
+		if (roomCodePk != null) {
+			spec = spec.and(RoomSpecification.likeRoomCodePk(roomCodePk));
+		}
+
+		// 1-2. 지점별 객실 기준으로 필터링
+		if (branchCodeFk != null) {
+			spec = spec.and(RoomSpecification.equalsBranchCodeFk(branchCodeFk));
+		}
+
+		// 1-3. 객실호수(번호) 기준으로 검색
+		if (roomNumber != null) {
+			spec = spec.and(RoomSpecification.equalsRoomNumber(roomNumber));
+		}
+
+		// 1-4. 객실 카테고리 기준 객실 필터링
 		Integer roomCategoryCodeFk = null;
-		if (!roomName.isEmpty()) {
+		if (roomName != null) {
 
-			// 1. roomName 에 해당하는 roomCategoryCodeFk 찾기
+			// roomName 에 해당하는 roomCategoryCodeFk 찾기
 			RoomCategoryEntity roomCategoryEntity = roomCategoryRepository.findByRoomName(roomName);
 			if (roomCategoryEntity != null) {
 				roomCategoryCodeFk = roomCategoryEntity.getRoomCategoryCodePk();
 				spec = spec.and(RoomSpecification.equalsRoomCategoryCodeFk(roomCategoryCodeFk));
 			} else {
-				roomPageInfo.put("message", "다시 검색하세요");
-				return roomPageInfo;
+				roomListInfo.put("message", "다시 검색하세요");
+				return roomListInfo;
 			}
 		}
 
-		// 2. 방 개수별 객실 필터링
+		// 1-5. 객실 현재 상태 기준 객실 필터링
+		// roomCurrentStatus가 비어있지 않은 경우 Specification 추가
+		if (roomCurrentStatus != null) {
+			spec = spec.and(RoomSpecification.equalsRoomCurrentStatus(roomCurrentStatus));
+		}
+
+		// 1-6. 객실 할인율 기준 필터링
+		if (roomDiscountRate != null) {
+			spec = spec.and(RoomSpecification.equalsRoomDiscountRate(roomDiscountRate));
+		}
+
+		// 1-7. 객실 뷰 기준 필터링 (like)
+		if (roomView != null) {
+			spec = spec.and(RoomSpecification.likeRoomView(roomView));
+		}
+
+		// 1-8. 방 개수별 객실 필터링
 		// roomSubRoomsCount가 null이 아닌 경우 Specification 추가
 		if (roomSubRoomsCount != null) {
 			List<RoomCategoryEntity> roomCategoryEntityList = roomCategoryRepository.findAllByRoomSubRoomsCount(roomSubRoomsCount);
@@ -104,37 +139,48 @@ public class RoomServiceImpl implements RoomService {
 			spec = spec.and(buildOrPredicate(specs));
 		}
 
-		// 3. 현재 상태별 객실 필터링
-		// roomCurrentStatus가 비어있지 않은 경우 Specification 추가
-		if (!roomCurrentStatus.isEmpty()) {
-			spec = spec.and(RoomSpecification.equalsRoomCurrentStatus(roomCurrentStatus));
+		// 2. 위에서 구성한 Specification 을 적용하여 findAll
+		List<RoomDTO> roomDTOList;
+
+		// 2-1. 페이징처리 할 때
+		if (pageNum != null) {
+			Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
+			Page<RoomEntity> roomEntityList = roomRepository.findAll(spec, pageable);
+
+			roomDTOList = roomEntityList
+				.stream()
+				.map(roomEntity -> mapper.map(roomEntity, RoomDTO.class))
+				.peek(roomDTO -> {
+					RoomCategoryEntity foundRoomCategoryEntity = roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()).orElseThrow(IllegalArgumentException::new);
+					roomDTO.setRoomName(foundRoomCategoryEntity.getRoomName());
+					roomDTO.setRoomSubRoomsCount(foundRoomCategoryEntity.getRoomSubRoomsCount());
+					roomDTO.setBranchName(branchRepository.findById(roomDTO.getBranchCodeFk()).orElseThrow(IllegalArgumentException::new).getBranchName());
+				})
+				.toList();
+
+			int totalPagesCount = roomEntityList.getTotalPages();
+			int currentPageIndex = roomEntityList.getNumber();
+			roomListInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+			roomListInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+
+		// 2-2. 페이징 처리 안할 때
+		} else {
+			List<RoomEntity> roomEntityList = roomRepository.findAll(spec);
+			roomDTOList = roomEntityList
+				.stream()
+				.map(roomEntity -> mapper.map(roomEntity, RoomDTO.class))
+				.peek(roomDTO -> {
+					RoomCategoryEntity foundRoomCategoryEntity = roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()).orElseThrow(IllegalArgumentException::new);
+					roomDTO.setRoomName(foundRoomCategoryEntity.getRoomName());
+					roomDTO.setRoomSubRoomsCount(foundRoomCategoryEntity.getRoomSubRoomsCount());
+					roomDTO.setBranchName(branchRepository.findById(roomDTO.getBranchCodeFk()).orElseThrow(IllegalArgumentException::new).getBranchName());
+				})
+				.toList();
 		}
 
-		// 4. 지점별 객실 필터링
-		if (!branchCodeFk.isEmpty()) {
-			spec = spec.and(RoomSpecification.equalsBranchCodeFk(branchCodeFk));
-		}
+		roomListInfo.put(KEY_CONTENT, roomDTOList);
 
-		Page<RoomEntity> roomEntityPage = roomRepository.findAll(spec, pageable);
-		List<RoomDTO> roomDTOList = roomEntityPage
-			.stream()
-			.map(roomEntity -> mapper.map(roomEntity, RoomDTO.class))
-			.peek(roomDTO -> {
-				RoomCategoryEntity foundRoomCategoryEntity = roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()).orElseThrow(IllegalArgumentException::new);
-				roomDTO.setRoomName(foundRoomCategoryEntity.getRoomName());
-				roomDTO.setRoomSubRoomsCount(foundRoomCategoryEntity.getRoomSubRoomsCount());
-				roomDTO.setBranchName(branchRepository.findById(roomDTO.getBranchCodeFk()).orElseThrow(IllegalArgumentException::new).getBranchName());
-			})
-			.toList();
-
-		int totalPagesCount = roomEntityPage.getTotalPages();
-		int currentPageIndex = roomEntityPage.getNumber();
-
-		roomPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-		roomPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-		roomPageInfo.put(KEY_CONTENT, roomDTOList);
-
-		return roomPageInfo;
+		return roomListInfo;
 	}
 
 	// Helper method to build OR predicate
@@ -179,5 +225,6 @@ public class RoomServiceImpl implements RoomService {
 		}
 		return deleteRoom;
 	}
+
 
 }
