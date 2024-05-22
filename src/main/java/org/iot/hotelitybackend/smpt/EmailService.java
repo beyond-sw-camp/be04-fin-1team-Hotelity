@@ -1,7 +1,8 @@
 package org.iot.hotelitybackend.smpt;
 
+import java.util.List;
 import java.util.Map;
 
 public interface EmailService {
-	Map<String, Object> mailsend(RequestDTO requestDTO);
+	Map<String, Object> mailsend(List<RequestDTO> requestDTO);
 }
