@@ -125,9 +125,9 @@ public class StayServiceImpl implements StayService {
 		// }
 
 		// 객실 수용 인원
-		if (roomCapacity != null) {
-			spec = spec.and(StaySpecification.equalsRoomCapacity(roomCapacity));
-		}
+		// if (roomCapacity != null) {
+		// 	spec = spec.and(StaySpecification.equalsRoomCapacity(roomCapacity));
+		// }
 
 		// 투숙 인원
 		if (stayPeopleCount != null) {
