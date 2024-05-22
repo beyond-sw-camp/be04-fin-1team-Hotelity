@@ -67,6 +67,10 @@ public class CustomerSpecification {
 	}
 
 	public static Specification<CustomerEntity> equalsNationName(String nationName) {
-		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("nationName"), nationName);
+		return (root, query, criteriaBuilder) ->
+		{
+			Join<CustomerEntity, NationEntity> joinNation = root.join("nation");
+			return criteriaBuilder.equal(joinNation.get("nationName"), nationName);
+		};
 	}
 }
