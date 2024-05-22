@@ -161,6 +161,11 @@ public class ReservationServiceImpl implements ReservationService {
 		return reservationInfo;
 	}
 
+	/* 체크인 시 체크인 상태 변경 */
+	// 예약코드로 투숙 내역 조회하여 없으면 체크인 추가(투숙쪽에 작성된 메서드 활용)
+	// 투숙  등록 시 ReservationDTO의 reservationCheckinStatus 를 1로 변경
+	// ReservationDTO 데이터 매핑(reservationCheckinStatus)
+
 	/* 일자별 예약 리스트 조회 */
 	@Override
 	public Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate) {
@@ -173,21 +178,6 @@ public class ReservationServiceImpl implements ReservationService {
 		dailyReservationInfo.put(KEY_CONTENT, dailyReservationDTOList);
 
 		return dailyReservationInfo;
-	}
-
-	/* 예약 코드로 검색 */
-	@Override
-	public Map<String, Object> selectReservationByReservationCodePk(int reservationCodePk) {
-
-		List<ReservationEntity> reservationListByCode = reservationRepository.findById(reservationCodePk).stream().toList();;
-
-		List<ReservationDTO> reservationDTOListByCode = getFkColumnsName(reservationListByCode);
-
-		Map<String, Object> searchReservationInfoByCode = new HashMap<>();
-
-		searchReservationInfoByCode.put(KEY_CONTENT, reservationDTOListByCode);
-
-		return searchReservationInfoByCode;
 	}
 
 	/* fk 값들의 이름을 가져오는 코드 */

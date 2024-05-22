@@ -89,6 +89,15 @@ public class ReservationController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
+	/* 체크인 시 체크인 상태 변경 */
+	// @GetMapping("/reservations/{reservationCodePk}/checkin")
+	// public ResponseEntity<ResponseVO> modifyReservationCheckinStatus(
+	// 	@PathVariable("reservationCheckinPk") Integer reservationCodePk) {
+	//
+	// 	// Map<String, Object> reservationInfo = reservationService.modifyReservationCheckinStatus()
+	// 	return null;
+	// }
+
 	/* 일자별 예약 내역 리스트 조회 */
 	/* 캘린더에서 특정 일자 선택 시 조회되는 리스트 */
 	/* => 프론트에서 월별 리스트의 값을 처리하여 일별로 나누어 list에 append 할 것 */
@@ -105,22 +114,6 @@ public class ReservationController {
 			.data(dailyReservationInfo)
 			.resultCode(HttpStatus.OK.value())
 			.message(year + "/" + month + "/" + day + " 예약 내역 조회")
-			.build();
-
-		return ResponseEntity.status(response.getResultCode()).body(response);
-	}
-
-	/* 예약 코드로 검색 => 다중필터로 처리 */
-	@GetMapping("/reservations")
-	public ResponseEntity<ResponseVO> selectReservationByReservationCodePk(@RequestParam int reservationCodePk) {
-
-		Map<String, Object> searchReservationInfoByCode = reservationService.selectReservationByReservationCodePk(
-			reservationCodePk);
-
-		ResponseVO response = ResponseVO.builder()
-			.data(searchReservationInfoByCode)
-			.resultCode(HttpStatus.OK.value())
-			.message(reservationCodePk + " 번 코드 검색 결과")
 			.build();
 
 		return ResponseEntity.status(response.getResultCode()).body(response);
