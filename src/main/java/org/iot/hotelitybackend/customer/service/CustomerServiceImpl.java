@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.hibernate.query.sqm.tree.SqmNode.*;
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
 import lombok.extern.slf4j.Slf4j;
@@ -64,12 +63,61 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public Map<String, Object> selectCustomersList(String customerType, String membershipLevelName, int page) {
-		int fixedSize = 10;
-		Pageable pageable = PageRequest.of(page, fixedSize, Sort.by("customerRegisteredDate").descending());
+	public Map<String, Object> selectCustomersList(Integer customerCodePk, String customerName, String customerEmail,
+		String customerPhoneNumber, String customerEnglishName, String customerAddress, Integer customerInfoAgreement, Integer customerStatus,
+		Date customerRegisteredDate, Integer nationCodeFk, String customerGender, String nationName, String customerType,
+		String membershipLevelName, String orderBy, Integer sortBy, Integer pageNum) {
+		Pageable pageable;
+
+		if(orderBy == null){
+			pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("customerCodePk"));
+		} else{
+			if (sortBy == 1){
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
+			}
+			else{
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
+			}
+		}
 
 		Specification<CustomerEntity> spec = Specification.where(null);
 
+		if(customerCodePk != null){
+			spec = spec.and(CustomerSpecification.equalsCustomerCodePk(customerCodePk));
+		}
+		if (customerName != null && !customerName.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsCustomerName(customerName));
+		}
+		if (customerEmail != null && !customerEmail.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsCustomerEmail(customerEmail));
+		}
+		if (customerPhoneNumber != null && !customerPhoneNumber.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsCustomerPhoneNumber(customerPhoneNumber));
+		}
+		if (customerEnglishName != null && !customerEnglishName.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsCustomerEnglishName(customerEnglishName));
+		}
+		if (customerAddress != null && !customerAddress.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsCustomerAddress(customerAddress));
+		}
+		if(customerInfoAgreement != null){
+			spec = spec.and(CustomerSpecification.equalsCustomerInfoAgreement(customerInfoAgreement));
+		}
+		if(customerStatus != null){
+			spec = spec.and(CustomerSpecification.equalsCustomerStatus(customerStatus));
+		}
+		if(customerRegisteredDate != null){
+			spec = spec.and(CustomerSpecification.equalsCustomerRegisteredDate(customerRegisteredDate));
+		}
+		if(nationCodeFk != null){
+			spec = spec.and(CustomerSpecification.equalsNationCodeFk(nationCodeFk));
+		}
+		if (customerGender != null && !customerGender.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsCustomerGender(customerGender));
+		}
+		if (nationName != null && !nationName.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsNationName(nationName));
+		}
 		// 멤버십 레벨 이름으로 필터링
 		if (membershipLevelName != null && !membershipLevelName.isEmpty()) {
 			MembershipEntity membership = membershipRepository.findByMembershipLevelName(membershipLevelName);

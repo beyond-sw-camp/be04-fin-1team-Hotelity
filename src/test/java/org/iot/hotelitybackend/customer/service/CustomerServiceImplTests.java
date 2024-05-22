@@ -1,24 +1,15 @@
 package org.iot.hotelitybackend.customer.service;
 
-import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.iot.hotelitybackend.common.constant.Constant.*;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
-import org.iot.hotelitybackend.customer.repository.CustomerRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import org.junit.jupiter.api.extension.ExtendWith;
 
 // @WebMvcTest(CustomerServiceImpl.class)
 // @ExtendWith(SpringExtension.class)
@@ -45,8 +36,10 @@ public class CustomerServiceImplTests {
 		customer.setNationName("영국");
 		customer.setMembershipLevelName("골드");
 
-		Map<String, Object> customers = customerService.selectCustomersList("개인", "골드", 0);
-		List<CustomerDTO> customerDTOList = (List<CustomerDTO>)customers.get("content");
+		Map<String, Object> customers = customerService.selectCustomersList(0, "개인", "골드",
+			null, null, null, 0, 0, null,
+			0, null, null, null, null, null, 1, 0);
+		List<CustomerDTO> customerDTOList = (List<CustomerDTO>)customers.get(KEY_CONTENT);
 
 		// System.out.println(customerDTOList);
 		for (int i = 0; i < customerDTOList.size(); i++) {
