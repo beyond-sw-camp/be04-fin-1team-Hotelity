@@ -71,6 +71,22 @@ public class StayController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
+	/* 투숙 코드로 특정 투숙 내역 조회 */
+	@GetMapping("stays/{stayCodePk}/selected")
+	public ResponseEntity<ResponseVO> selectStayByStayCodePk(
+		@PathVariable("stayCodePk") Integer stayCodePk) {
+
+		Map<String, Object> stayInfo = stayService.selectStayByStayCodePk(stayCodePk);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(stayInfo)
+			.resultCode(HttpStatus.OK.value())
+			.message(stayCodePk + "번 내역 조회 성공")
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
 	/* 예약 체크인 선택 시 투숙 정보 생성 */
 	@PostMapping("/stays/checkin")
 	public ResponseEntity<ResponseVO> registStayByReservationCodePk(

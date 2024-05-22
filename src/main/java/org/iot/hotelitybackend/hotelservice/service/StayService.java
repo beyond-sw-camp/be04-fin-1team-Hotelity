@@ -21,4 +21,6 @@ public interface StayService {
     Map<String, Object> modifyStayInfo(RequestModifyStay requestModifyStay, Integer stayCodePk);
 
 	Map<String, Object> deleteStay(int stayCodePk);
+
+	Map<String, Object> selectStayByStayCodePk(Integer stayCodePk);
 }
