@@ -72,12 +72,29 @@ public class ReservationController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
+	/* 예약 코드로 특정 예약 내역 조회 */
+	@GetMapping("reservations/{reservationCodePk}/selected")
+	public ResponseEntity<ResponseVO> selectReservationInfoByReservationCodePk(
+		@PathVariable("reservationCodePk") Integer reservationCodePk) {
+
+		Map<String, Object> reservationInfo =
+			reservationService.selectReseravtionInfoByReservationCodePk(reservationCodePk);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(reservationInfo)
+			.resultCode(HttpStatus.OK.value())
+			.message("조회 성공")
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
 	/* 일자별 예약 내역 리스트 조회 */
 	/* 캘린더에서 특정 일자 선택 시 조회되는 리스트 */
 	/* => 프론트에서 월별 리스트의 값을 처리하여 일별로 나누어 list에 append 할 것 */
 	@GetMapping("reservations/{reservationCheckinDate}/day")
-	public ResponseEntity<ResponseVO> selectReservationListByDay
-	(@PathVariable("reservationCheckinDate") LocalDateTime reservationCheckDate) {
+	public ResponseEntity<ResponseVO> selectReservationListByDay(
+		@PathVariable("reservationCheckinDate") LocalDateTime reservationCheckDate) {
 		Map<String, Object> dailyReservationInfo = reservationService.selectReservationListByDay(reservationCheckDate);
 
 		int year = reservationCheckDate.getYear();

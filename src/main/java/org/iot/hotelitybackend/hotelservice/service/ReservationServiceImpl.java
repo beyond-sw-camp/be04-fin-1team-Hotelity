@@ -145,6 +145,22 @@ public class ReservationServiceImpl implements ReservationService {
 		return reservationListInfo;
 	}
 
+	/* 예약 코드로 특정 예약 내역 조회 */
+	@Override
+	public Map<String, Object> selectReseravtionInfoByReservationCodePk(Integer reservationCodePk) {
+
+		List<ReservationEntity> reservationEntityList =
+			reservationRepository.findById(reservationCodePk).stream().toList();
+
+		List<ReservationDTO> reservationDTOList = getFkColumnsName(reservationEntityList);
+
+		Map<String, Object> reservationInfo = new HashMap<>();
+
+		reservationInfo.put(KEY_CONTENT, reservationDTOList);
+
+		return reservationInfo;
+	}
+
 	/* 일자별 예약 리스트 조회 */
 	@Override
 	public Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate) {
@@ -179,11 +195,14 @@ public class ReservationServiceImpl implements ReservationService {
 
 		List<ReservationDTO> list =
 			reservationEntityList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
+				// 고객명
 				.peek(reservationDTO -> reservationDTO.setCustomerName(
 					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()).orElse(null), CustomerDTO.class).getCustomerName()))
+				// 객실명
 				.peek(reservationDTO -> reservationDTO.setRoomName(String.valueOf(roomCategoryRepository.findById(
 					roomRepository.findById(reservationDTO.getRoomCodeFk()).get().getRoomCategoryCodeFk()
 				).get().getRoomName())))
+				// 객실등급명
 				.peek(reservationDTO -> reservationDTO.setRoomLevelName(
 						roomLevelRepository.findById(
 							roomCategoryRepository.findById(
