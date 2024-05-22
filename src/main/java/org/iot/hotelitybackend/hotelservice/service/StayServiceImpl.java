@@ -79,7 +79,7 @@ public class StayServiceImpl implements StayService {
 		if (roomLevelName != null && !roomLevelName.isEmpty()) {
 			RoomLevelEntity roomLevel = roomLevelRepository.findByRoomLevelName(roomLevelName);
 			if (roomLevel != null) {
-				spec = spec.and(StaySpecification.equalsRoomLevelName(roomLevelName));
+				spec = spec.and(StaySpecification.likeRoomLevelName(roomLevelName));
 			}
 		}
 
@@ -109,7 +109,7 @@ public class StayServiceImpl implements StayService {
 		if (customerName != null) {
 			CustomerEntity customer = customerRepository.findByCustomerName(customerName);
 			if (customer != null) {
-				spec = spec.and(StaySpecification.equalsCustomerName(customerName));
+				spec = spec.and(StaySpecification.likeCustomerName(customerName));
 			}
 		}
 

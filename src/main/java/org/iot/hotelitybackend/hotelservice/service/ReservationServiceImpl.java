@@ -15,11 +15,8 @@ import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomCategoryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomLevelRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomRepository;
-import org.iot.hotelitybackend.hotelservice.aggregate.PaymentEntity;
-import org.iot.hotelitybackend.hotelservice.aggregate.PaymentSpecification;
 import org.iot.hotelitybackend.hotelservice.aggregate.ReservationEntity;
 import org.iot.hotelitybackend.hotelservice.aggregate.ReservationSpecification;
-import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
 import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
 import org.modelmapper.ModelMapper;
@@ -99,15 +96,15 @@ public class ReservationServiceImpl implements ReservationService {
 		}
 		// 객실 코드
 		if (roomCodeFk != null) {
-			spec = spec.and(ReservationSpecification.equalsRoomCodeFk(roomCodeFk));
+			spec = spec.and(ReservationSpecification.likeRoomCodeFk(roomCodeFk));
 		}
 		// 객실명
 		if (roomName != null) {
-			spec = spec.and(ReservationSpecification.equalsRoomName(roomName));
+			spec = spec.and(ReservationSpecification.likeRoomName(roomName));
 		}
 		// 객실등급명
 		if (roomLevelName != null) {
-			spec = spec.and(ReservationSpecification.equalsRoomLevelName(roomLevelName));
+			spec = spec.and(ReservationSpecification.likeRoomLevelName(roomLevelName));
 		}
 		// 객실수용인원
 		if (roomCapacity != null) {
@@ -216,7 +213,7 @@ public class ReservationServiceImpl implements ReservationService {
 		}
 		// 객실코드
 		if (!roomCodeFk.isEmpty()) {
-			spec = spec.and(ReservationSpecification.equalsRoomCodeFk(roomCodeFk));
+			spec = spec.and(ReservationSpecification.likeRoomCodeFk(roomCodeFk));
 		}
 		// 체크인날짜
 		if (reservationCheckinDate != null) {

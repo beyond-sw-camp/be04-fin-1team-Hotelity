@@ -58,35 +58,40 @@ public class ReservationSpecification {
 	}
 
 	// 객실 코드
-	public static Specification<ReservationEntity> equalsRoomCodeFk(String roomCodeFk) {
-		return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("roomCodeFk"), roomCodeFk);
+	public static Specification<ReservationEntity> likeRoomCodeFk(String roomCodeFk) {
+
+		String pattern = "%" + roomCodeFk + "%";
+
+		return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("roomCodeFk"), pattern);
 	}
 
-	// 동작 확인 필요
 	// 객실명
-	public static Specification<ReservationEntity> equalsRoomName(String roomName) {
+	public static Specification<ReservationEntity> likeRoomName(String roomName) {
+
+		String pattern = "%" + roomName + "%";
 
 		return (root, query, criteriaBuilder) -> {
 			Join<ReservationEntity, RoomEntity> roomJoin = root.join("room");
 			Join<RoomEntity, RoomCategoryEntity> roomCategoryJoin = roomJoin.join("roomCategory");
 
-			return criteriaBuilder.equal(roomCategoryJoin.get("roomName"), roomName);
+			return criteriaBuilder.like(roomCategoryJoin.get("roomName"), pattern);
 		};
 	}
 
-	// 동작 확인 필요
 	// 객실등급명
-	public static Specification<ReservationEntity> equalsRoomLevelName(String roomLevelName) {
+	public static Specification<ReservationEntity> likeRoomLevelName(String roomLevelName) {
+
+		String pattern = "%" + roomLevelName + "%";
+
 		return (root, query, criteriaBuilder) -> {
 			Join<ReservationEntity, RoomEntity> roomJoin = root.join("room");
 			Join<RoomEntity, RoomCategoryEntity> roomCategoryJoin = roomJoin.join("roomCategory");
 			Join<RoomCategoryEntity, RoomLevelEntity> roomLevelJoin = roomCategoryJoin.join("roomLevel");
 
-			return criteriaBuilder.equal(roomLevelJoin.get("roomLevelName"), roomLevelName);
+			return criteriaBuilder.like(roomLevelJoin.get("roomLevelName"), pattern);
 		};
 	}
 
-	// 동작 확인 필요
 	// 객실수용인원
 	public static Specification<ReservationEntity> equalsRoomCapacity(Integer roomCapacity) {
 		return (root, query, criteriaBuilder) -> {
@@ -105,14 +110,16 @@ public class ReservationSpecification {
 	// 예약일자
 	public static Specification<ReservationEntity> equalsReservationDate(LocalDateTime reservationDate) {
 		LocalDate date = reservationDate.toLocalDate();
-		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("reservationDate").as(LocalDate.class), date);
+		return (root, query, criteriaBuilder) ->
+			criteriaBuilder.equal(root.get("reservationDate").as(LocalDate.class), date);
 	}
 
 	// 체크인일자
 	public static Specification<ReservationEntity> equalsCheckinDate(LocalDateTime reservationCheckinDate) {
 		LocalDate date = reservationCheckinDate.toLocalDate();
 
-		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("reservationCheckinDate").as(LocalDate.class), date);
+		return (root, query, criteriaBuilder) ->
+			criteriaBuilder.equal(root.get("reservationCheckinDate").as(LocalDate.class), date);
 	}
 
 	// 체크아웃일자

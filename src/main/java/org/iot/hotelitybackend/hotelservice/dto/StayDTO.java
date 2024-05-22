@@ -12,8 +12,9 @@ public class StayDTO {
     private Integer customerCodeFk;
     private String customerName;
     private String roomCode;
-    private String roomLevelName;
     private String roomName;
+    private String roomLevelName;
+    private Integer roomCapacity;
     private Integer stayPeopleCount;
     private LocalDateTime stayCheckinTime;
     private LocalDateTime stayCheckoutTime;
@@ -21,4 +22,5 @@ public class StayDTO {
     private String employeeName;
     private String branchCodeFk;
     private Integer reservationCodeFk;
+    private Integer stayCheckoutStatus;
 }
