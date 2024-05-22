@@ -17,8 +17,9 @@ public interface ReservationService {
 		Integer roomCapacity,
 		String branchCodeFk,
 		LocalDateTime reservationDate,
+		LocalDateTime reservationCheckinDate,
 		LocalDateTime reservationCheckoutDate,
-		String reservationCancleStatus
+		Integer reservationCancelStatus
 	);
 
 	Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate);

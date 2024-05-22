@@ -45,8 +45,9 @@ public class ReservationController {
 		@RequestParam(required = false) Integer roomCapacity,
 		@RequestParam(required = false) String branchCodeFk,
 		@RequestParam(required = false) LocalDateTime reservationDate,
+		@RequestParam(required = false) LocalDateTime reservationCheckInDate,
 		@RequestParam(required = false) LocalDateTime reservationCheckoutDate,
-		@RequestParam(required = false) String reservationCancleStatus
+		@RequestParam(required = false) Integer reservationCancelStatus
 	) {
 		int year = reservationCheckinDate.getYear();
 		int month = reservationCheckinDate.getMonthValue();
@@ -59,7 +60,8 @@ public class ReservationController {
 				roomCodeFk,roomName,
 				roomLevelName,roomCapacity,
 				branchCodeFk,reservationDate,
-				reservationCheckoutDate,reservationCancleStatus
+				reservationCheckInDate, reservationCheckoutDate,
+				reservationCancelStatus
 				);
 
 		ResponseVO response = ResponseVO.builder()

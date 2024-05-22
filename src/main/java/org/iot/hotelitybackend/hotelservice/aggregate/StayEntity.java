@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 
 
 import java.time.LocalDateTime;
-import java.util.Date;
+
+import org.iot.hotelitybackend.employee.aggregate.EmployeeEntity;
 
 @Entity
 @Table(name = "stay_tb")
@@ -29,6 +30,27 @@ public class StayEntity {
 	@Column(name = "reservation_code_fk")
 	private Integer reservationCodeFk;
 
+	@Builder
+	public StayEntity(
+		Integer stayCodePk,
+		LocalDateTime stayCheckinTime,
+		LocalDateTime stayCheckoutTime,
+		Integer stayPeopleCount,
+		Integer employeeCodeFk,
+		Integer reservationCodeFk
+	) {
+		this.stayCodePk = stayCodePk;
+		this.stayCheckinTime = stayCheckinTime;
+		this.stayCheckoutTime = stayCheckoutTime;
+		this.stayPeopleCount = stayPeopleCount;
+		this.employeeCodeFk = employeeCodeFk;
+		this.reservationCodeFk = reservationCodeFk;
+	}
+
+	@ManyToOne
+	@JoinColumn(name = "employee_code_fk", insertable = false, updatable = false)
+	private EmployeeEntity employee;
+
 	@OneToOne
 	@JoinColumn(name = "reservation_code_fk",	// JoinColum의 name은 root(Stay_tb) 테이블에서 설정한 컬럼명
 		// referencedColumnName은 생략 가능(생략 시 자동으로 참조하는 테이블(reservation_tb)의 pk로 설정)
@@ -37,23 +59,4 @@ public class StayEntity {
 		// reservationCodeFk가 중복되므로 둘 중에 하나의 값만 db에 반영하도록 하는 설정
 		insertable = false, updatable = false)
 	private ReservationEntity reservation;
-
-	@Builder
-	public StayEntity(
-		Integer stayCodePk,
-		LocalDateTime stayCheckinTime,
-		LocalDateTime stayCheckoutTime,
-		Integer stayPeopleCount,
-		Integer employeeCodeFk,
-		Integer reservationCodeFk,
-		ReservationEntity reservation
-	) {
-		this.stayCodePk = stayCodePk;
-		this.stayCheckinTime = stayCheckinTime;
-		this.stayCheckoutTime = stayCheckoutTime;
-		this.stayPeopleCount = stayPeopleCount;
-		this.employeeCodeFk = employeeCodeFk;
-		this.reservationCodeFk = reservationCodeFk;
-		this.reservation = reservation;
-	}
 }
