@@ -2,11 +2,9 @@ package org.iot.hotelitybackend.hotelmanagement.aggregate;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-
 public class RoomSpecification {
 	public static Specification<RoomEntity> likeRoomCodePk(String roomCodePk) {
-		return (root, query, CriteriaBuilder) -> CriteriaBuilder.like(root.get("roomCodePk"), roomCodePk);
+		return (root, query, CriteriaBuilder) -> CriteriaBuilder.like(root.get("roomCodePk"), "%" + roomCodePk + "%");
 	}
 	public static Specification<RoomEntity> equalsRoomNumber(Integer roomNumber) {
 		return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("roomNumber"), roomNumber);
@@ -24,6 +22,6 @@ public class RoomSpecification {
 		return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("branchCodeFk"), branchCodeFk);
 	}
 	public static Specification<RoomEntity> likeRoomView(String roomView) {
-		return (root, query, CriteriaBuilder) -> CriteriaBuilder.like(root.get("roomView"), roomView);
+		return (root, query, CriteriaBuilder) -> CriteriaBuilder.like(root.get("roomView"), "%" + roomView + "%");
 	}
 }

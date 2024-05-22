@@ -1,6 +1,7 @@
 package org.iot.hotelitybackend.hotelmanagement.controller;
 
 import java.io.ByteArrayInputStream;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -33,8 +34,22 @@ public class AncillaryController {
 	}
 
 	@GetMapping("/facilities")
-	public ResponseEntity<ResponseVO> selectAllFacilities(@RequestParam int pageNum) {
-		Map<String, Object> facilityPageInfo = ancillaryService.selectAllFacilities(pageNum);
+	public ResponseEntity<ResponseVO> selectAllFacilities(
+		@RequestParam(required = false) Integer pageNum,
+		@RequestParam(required = false) Integer ancillaryCodePk,
+		@RequestParam(required = false) String ancillaryName,
+		@RequestParam(required = false) String branchCodeFk,
+		@RequestParam(required = false) String ancillaryLocation,
+		@RequestParam(required = false) LocalTime ancillaryOpenTime,
+		@RequestParam(required = false) LocalTime ancillaryCloseTime,
+		@RequestParam(required = false) String ancillaryPhoneNumber,
+		@RequestParam(required = false) Integer ancillaryCategoryCodeFk,
+		@RequestParam(required = false) String branchName,
+		@RequestParam(required = false) String ancillaryCategoryName
+	) {
+		Map<String, Object> facilityPageInfo = ancillaryService.selectAllFacilities(
+			pageNum, ancillaryCodePk, ancillaryName, branchCodeFk, ancillaryLocation, ancillaryOpenTime, ancillaryCloseTime, ancillaryPhoneNumber, ancillaryCategoryCodeFk, branchName, ancillaryCategoryName
+		);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(facilityPageInfo)
