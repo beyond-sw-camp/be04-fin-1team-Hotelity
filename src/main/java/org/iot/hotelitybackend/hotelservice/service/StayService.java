@@ -6,7 +6,13 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 public interface StayService {
-	Map<String, Object> selectStaysList(int pageNum, String branchCodeFk, String roomLevelName, LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime, String customerName);
+	Map<String, Object> selectStaysList(
+		int pageNum, Integer stayCodePk, Integer customerCodeFk,
+		String customerName, String roomCodeFk, String roomName,
+		String roomLevelName, Integer roomCapacity, Integer stayPeopleCount,
+		LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime,
+		String branchCodeFk, Integer employeeCodeFk, String employeeName,
+		Integer reservationCodeFk, Integer stayCheckoutStatus);
 
 	Map<String, Object> registStayByReservationCodePk(int reservationCodePk, int employeeCodeFk);
 

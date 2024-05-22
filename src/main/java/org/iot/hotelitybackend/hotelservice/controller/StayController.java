@@ -30,16 +30,29 @@ public class StayController {
 	@GetMapping("/stays/page")
 	public ResponseEntity<ResponseVO> selectStaysList(
 		@RequestParam int pageNum,
-		@RequestParam(required = false) String branchCodeFk,
+		@RequestParam(required = false) Integer stayCodePk,
+		@RequestParam(required = false) Integer customerCodeFk,
+		@RequestParam(required = false) String customerName,
+		@RequestParam(required = false) String roomCodeFk,
+		@RequestParam(required = false) String roomName,
 		@RequestParam(required = false) String roomLevelName,
+		@RequestParam(required = false) Integer roomCapacity,
+		@RequestParam(required = false) Integer stayPeopleCount,
 		@RequestParam(required = false) LocalDateTime stayCheckinTime,
 		@RequestParam(required = false) LocalDateTime stayCheckoutTime,
-		@RequestParam(required = false) String customerName
-	) {
+		@RequestParam(required = false) String branchCodeFk,
+		@RequestParam(required = false) Integer employeeCodeFk,
+		@RequestParam(required = false) String employeeName,
+		@RequestParam(required = false) Integer reservationCodeFk,
+		@RequestParam(required = false) Integer stayCheckoutStatus
+		) {
 
 		Map<String, Object> stayListInfo =
-			stayService.selectStaysList(pageNum, branchCodeFk, roomLevelName, stayCheckinTime, stayCheckoutTime,
-				customerName);
+			stayService.selectStaysList(
+				pageNum, stayCodePk, customerCodeFk, customerName, roomCodeFk,
+				roomName, roomLevelName, roomCapacity, stayPeopleCount, stayCheckinTime,
+				stayCheckoutTime, branchCodeFk, employeeCodeFk, employeeName, reservationCodeFk, stayCheckoutStatus
+			);
 
 		ResponseVO response = null;
 

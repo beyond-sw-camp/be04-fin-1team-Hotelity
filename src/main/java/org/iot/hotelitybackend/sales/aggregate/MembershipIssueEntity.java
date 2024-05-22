@@ -1,10 +1,7 @@
 package org.iot.hotelitybackend.sales.aggregate;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
@@ -48,8 +45,9 @@ import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
 
 @Entity
 @Table(name = "membership_issue_tb")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Getter
+@Setter
 public class MembershipIssueEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,15 +57,15 @@ public class MembershipIssueEntity {
 	private Integer customerCodeFk;
 	private Date membershipIssueDate;
 
-	@Column(name = "membership_level_code_fk", insertable = false, updatable = false)
+	@Column(name = "membership_level_code_fk")
 	private Integer membershipLevelCodeFk;
 
 	@Builder
 	public MembershipIssueEntity(
-		Integer membershipIssueCodePk,
-		Integer customerCodeFk,
-		Date membershipIssueDate,
-		Integer membershipLevelCodeFk
+			Integer membershipIssueCodePk,
+			Integer customerCodeFk,
+			Date membershipIssueDate,
+			Integer membershipLevelCodeFk
 	) {
 		this.membershipIssueCodePk = membershipIssueCodePk;
 		this.customerCodeFk = customerCodeFk;
@@ -75,11 +73,11 @@ public class MembershipIssueEntity {
 		this.membershipLevelCodeFk = membershipLevelCodeFk;
 	}
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "customer_code_fk", referencedColumnName = "customer_code_pk", insertable = false, updatable = false)
+	@ManyToOne
+	@JoinColumn(name = "customer_code_fk", insertable = false, updatable = false)
 	private CustomerEntity customer;
 
 	@ManyToOne
-	@JoinColumn(name = "membership_level_code_fk", insertable = false, updatable = false)  // 이 필드의 외래 키 이름을 지정합니다.
+	@JoinColumn(name = "membership_level_code_fk", insertable = false, updatable = false)
 	private MembershipEntity membership;
 }
