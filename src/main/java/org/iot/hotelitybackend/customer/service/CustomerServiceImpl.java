@@ -68,6 +68,7 @@ public class CustomerServiceImpl implements CustomerService {
 		String customerPhoneNumber, String customerEnglishName, String customerAddress, Integer customerInfoAgreement, Integer customerStatus,
 		Date customerRegisteredDate, Integer nationCodeFk, String customerGender, String nationName, String customerType,
 		String membershipLevelName, String orderBy, Integer sortBy, Integer pageNum) {
+
 		Pageable pageable;
 
 		if(orderBy == null){
