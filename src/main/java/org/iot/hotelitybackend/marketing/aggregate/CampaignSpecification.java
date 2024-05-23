@@ -18,4 +18,5 @@ public class CampaignSpecification {
     public static Specification<CampaignEntity> equalsCampaignSentDate(Date campaignSentDate) {
         return (root, query, CriteriaBuilder) -> CriteriaBuilder.equal(root.get("campaignSentDate"), campaignSentDate);
     }
+
 }

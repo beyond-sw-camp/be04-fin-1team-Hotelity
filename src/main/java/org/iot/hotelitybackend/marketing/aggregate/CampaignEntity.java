@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "campaign_tb")
@@ -18,10 +18,12 @@ public class CampaignEntity {
     private Integer campaignCodePk;
     private String campaignSendType;
     private String campaignContent;
-    private Date campaignSentDate;
+
+    @Column(name = "campaign_sent_date")
+    private LocalDateTime campaignSentDate;
     private Integer campaignSentStatus;
     private Integer templateCodeFk;
-    private String employeeCodeFk;
+    private Integer employeeCodeFk;
     private String campaignTitle;
 
     @Builder
@@ -29,10 +31,10 @@ public class CampaignEntity {
             Integer campaignCodePk,
             String campaignSendType,
             String campaignContent,
-            Date campaignSentDate,
+            LocalDateTime campaignSentDate,
             Integer campaignSentStatus,
             Integer templateCodeFk,
-            String employeeCodeFk,
+            Integer employeeCodeFk,
             String campaignTitle
     ) {
         this.campaignCodePk = campaignCodePk;

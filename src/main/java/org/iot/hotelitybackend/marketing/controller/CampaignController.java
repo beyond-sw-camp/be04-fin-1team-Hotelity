@@ -37,20 +37,5 @@ public class CampaignController {
         return ResponseEntity.status(response.getResultCode()).body(response);
     }
 
-    @GetMapping("/campaigns/search/page")
-    public ResponseEntity<ResponseVO> selectSearchedCampaignsList(
-            @RequestParam(required = false) String campaignSendType,
-            @RequestParam(required = false) Integer employeeCodeFk,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date campaignSentDate,
-            @RequestParam int pageNum
-            ) {
-        Map<String, Object> campaignPageInfo = campaignService.selectSearchedCampaignsList(pageNum, campaignSendType, employeeCodeFk, campaignSentDate);
 
-        ResponseVO response = ResponseVO.builder()
-                .data(campaignPageInfo)
-                .resultCode(HttpStatus.OK.value())
-                .build();
-
-        return ResponseEntity.status(response.getResultCode()).body(response);
-    }
 }
