@@ -115,19 +115,6 @@ public class StayServiceImpl implements StayService {
 		if (roomLevelName != null && !roomLevelName.isEmpty()) {
 			spec = spec.and(StaySpecification.likeRoomLevelName(roomLevelName));
 		}
-		// StaySpecification의 Join이 제대로 동작하는지 확인
-		// List<StayEntity> stays = stayRepository.findAll(spec);
-		//
-		// for (StayEntity stay : stays) {
-		// 	RoomEntity room = stay.getReservation().getRoom();
-		// 	RoomCategoryEntity roomCategory = room.getRoomCategory();
-		// 	RoomLevelEntity roomLevel = roomCategory.getRoomLevel();
-		// 	System.out.println("Stay ID: " + stay.getStayCodePk());
-		// 	System.out.println("Room ID: " + room.getRoomCodePk());
-		// 	System.out.println("Room Category: " + roomCategory.getRoomCategoryCodePk());
-		// 	System.out.println("Room Level: " + roomLevel.getRoomLevelName());
-		// 	System.out.println("====================");
-		// }
 
 		// 객실 수용 인원
 		// if (roomCapacity != null) {
@@ -213,7 +200,7 @@ public class StayServiceImpl implements StayService {
 
 		if (!reservationInfo.isEmpty()) {
 
-			// reservationCodeFk 중복 검사
+			// 해당 예약코드로 등록된 내역이 있는지 검사
 			List<StayEntity> existingStayEntity =
 				stayRepository.findByReservationCodeFk(reservationCodeFk).stream().toList();
 
