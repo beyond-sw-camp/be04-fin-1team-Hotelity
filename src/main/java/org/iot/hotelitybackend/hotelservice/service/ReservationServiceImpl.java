@@ -62,7 +62,9 @@ public class ReservationServiceImpl implements ReservationService {
 		LocalDateTime reservationDate,
 		LocalDateTime reservationCheckinDate,
 		LocalDateTime reservationCheckoutDate,
-		Integer reservationCancelStatus) {
+		Integer reservationCancelStatus,
+		String orderBy, Integer sortBy) {
+
 
 		// 특정 월의 예약 내역을 조회하기 위해 월의 시작일과 종료일을 지정
 		LocalDateTime startOfMonth =
