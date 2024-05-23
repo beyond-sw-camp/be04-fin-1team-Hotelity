@@ -30,7 +30,7 @@ public class LoginUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return String.valueOf(employeeEntity.getEmployeeCodePk());
+        return employeeEntity.getBranchId() + "_" + employeeEntity.getEmployeeCodePk();
     }
 
     @Override

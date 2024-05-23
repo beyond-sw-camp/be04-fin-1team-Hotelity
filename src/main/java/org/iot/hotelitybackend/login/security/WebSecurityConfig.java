@@ -1,5 +1,6 @@
 package org.iot.hotelitybackend.login.security;
 
+import org.iot.hotelitybackend.login.jwt.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,11 +17,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity(debug = true)
 public class WebSecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final JwtUtil jwtUtil;
 
     @Autowired
     public WebSecurityConfig(
+            JwtUtil jwtUtil,
             AuthenticationConfiguration authenticationConfiguration
     ) {
+        this.jwtUtil = jwtUtil;
         this.authenticationConfiguration = authenticationConfiguration;
     }
 
@@ -48,9 +52,8 @@ public class WebSecurityConfig {
         );
 
         http.addFilterAt(
-                new AuthenticationFilter(authenticationManager(authenticationConfiguration)),
-                UsernamePasswordAuthenticationFilter.class
-        );
+                new AuthenticationFilter(authenticationManager(authenticationConfiguration), jwtUtil),
+                UsernamePasswordAuthenticationFilter.class);
 
         // 세션 설정
         http.sessionManagement(httpSecuritySessionManagementConfigurer ->

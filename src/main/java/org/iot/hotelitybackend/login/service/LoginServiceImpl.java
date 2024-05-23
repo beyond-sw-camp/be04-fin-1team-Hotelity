@@ -20,7 +20,8 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        EmployeeEntity employee = employeeRepository.findById(Integer.valueOf(username)).orElseThrow();
+        Integer employeeCode = Integer.valueOf(username.split("_")[1]);
+        EmployeeEntity employee = employeeRepository.findById(employeeCode).orElseThrow();
 
         return new LoginUserDetails(employee);
     }
