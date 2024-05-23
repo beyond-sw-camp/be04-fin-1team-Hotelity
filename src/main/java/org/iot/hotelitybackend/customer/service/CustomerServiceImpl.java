@@ -12,15 +12,25 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
 import org.iot.hotelitybackend.customer.aggregate.CustomerSpecification;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
+import org.iot.hotelitybackend.customer.dto.SelectCustomerDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
 import org.iot.hotelitybackend.customer.repository.NationRepository;
+import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
+import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
+import org.iot.hotelitybackend.hotelservice.service.PaymentServiceImpl;
+import org.iot.hotelitybackend.hotelservice.service.ReservationServiceImpl;
+import org.iot.hotelitybackend.hotelservice.service.StayServiceImpl;
 import org.iot.hotelitybackend.sales.aggregate.MembershipEntity;
 import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
 import org.iot.hotelitybackend.customer.aggregate.NationEntity;
-import org.iot.hotelitybackend.sales.dto.MembershipDTO;
+import org.iot.hotelitybackend.sales.dto.CouponIssueDTO;
+import org.iot.hotelitybackend.sales.dto.VocDTO;
 import org.iot.hotelitybackend.sales.repository.MembershipIssueRepository;
 import org.iot.hotelitybackend.sales.repository.MembershipRepository;
+import org.iot.hotelitybackend.sales.service.CouponIssueServiceImpl;
+import org.iot.hotelitybackend.sales.service.VocServiceImpl;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,16 +61,26 @@ public class CustomerServiceImpl implements CustomerService {
 	private final NationRepository nationRepository;
 	private final MembershipRepository membershipRepository;
 	private final MembershipIssueRepository membershipIssueRepository;
+	private final PaymentServiceImpl paymentService;
+	private final VocServiceImpl vocService;
+	private final StayServiceImpl stayService;
+	private final CouponIssueServiceImpl couponIssueService;
 
 	@Autowired
 	public CustomerServiceImpl(ModelMapper mapper, CustomerRepository customerRepository,
 		NationRepository nationRepository,
-		MembershipRepository membershipRepository, MembershipIssueRepository membershipIssueRepository) {
+		MembershipRepository membershipRepository, MembershipIssueRepository membershipIssueRepository,
+		PaymentServiceImpl paymentService, VocServiceImpl vocService, StayServiceImpl stayService,
+		CouponIssueServiceImpl couponIssueService) {
 		this.mapper = mapper;
 		this.customerRepository = customerRepository;
 		this.nationRepository = nationRepository;
 		this.membershipRepository = membershipRepository;
 		this.membershipIssueRepository = membershipIssueRepository;
+		this.paymentService = paymentService;
+		this.vocService = vocService;
+		this.stayService = stayService;
+		this.couponIssueService = couponIssueService;
 	}
 
 	@Override
@@ -115,24 +135,52 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public CustomerDTO selectCustomerByCustomerCodePk(int customerCodePk) {
+	public SelectCustomerDTO selectCustomerByCustomerCodePk(Integer customerCodePk) {
 
-		CustomerEntity customerEntity = customerRepository.findById(customerCodePk).get();
+			Map<String, Object> result = selectCustomersList(
+				customerCodePk, null, null, null, null, null,
+				null, null, null, null, null, null, null,
+				null, null, null, 0
+			);
 
-		List<MembershipIssueEntity> membershipIssueEntities = membershipIssueRepository.findMembershipByCustomerCodeFk(customerCodePk);
+			// List<CustomerDTO>로 캐스팅
+			List<CustomerDTO> customerDTOList = (List<CustomerDTO>) result.get(KEY_CONTENT);
 
-		CustomerDTO customerDTO = mapper.map(customerEntity, CustomerDTO.class);
+			// List<CustomerDTO>에서 첫 번째 항목을 SelectCustomerDTO로 변환
+			if (!customerDTOList.isEmpty()) {
+				CustomerDTO customerDTO = customerDTOList.get(0);
+				SelectCustomerDTO selectCustomerDTO = mapper.map(customerDTO, SelectCustomerDTO.class);
+				selectCustomerDTO.setPayment(
+					(List<PaymentDTO>)paymentService.selectPaymentLogList(0,
+						customerCodePk, null,
+						null, null,
+						null, null,
+						null, null,
+						null, null).get(KEY_CONTENT)
+				);
+				selectCustomerDTO.setVoc(
+					(List<VocDTO>)vocService.selectVocsList(0, null, null,
+							null, customerCodePk, null, null, null, null, null, null
+					, null, null, null).get(KEY_CONTENT)
+				);
+				selectCustomerDTO.setStay(
+					(List<StayDTO>)stayService.selectStaysList(
+						0, null, customerCodePk,null, null,
+						null, null, null, null,
+						null, null, null, null,
+						null, null, null, null, null).get(KEY_CONTENT)
+				);
+				selectCustomerDTO.setCouponIssue(
+					(List<CouponIssueDTO>)couponIssueService.selectCouponIssueList(
+						0, null, null, customerCodePk, null
+						, null, null, null, null, null, null
+					).get(KEY_CONTENT)
+				);
 
-		List<MembershipDTO> membershipDTOs = membershipIssueEntities.stream()
-				.map(membershipIssue -> {
-					MembershipDTO membershipDTO = new MembershipDTO();
-					membershipDTO.setMembershipLevelName(membershipIssue.getMembership().getMembershipLevelName());
-					return membershipDTO;
-				}).collect(Collectors.toList());
-
-		customerDTO.setMemberships(membershipDTOs);
-
-		return customerDTO;
+				return selectCustomerDTO;
+			} else{
+				return null;
+			}
 	}
 
 	@Override

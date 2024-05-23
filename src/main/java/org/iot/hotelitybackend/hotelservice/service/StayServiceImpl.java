@@ -256,7 +256,7 @@ public class StayServiceImpl implements StayService {
 		stayDTO.setStayPeopleCount(reservationDTO.getReservationPersonnel());
 		stayDTO.setStayCheckinTime(LocalDateTime.now());
 		stayDTO.setEmployeeCodeFk(employeeCodeFk);
-		stayDTO.setPICemployeeName(employeeRepository.findById(employeeCodeFk).get().getEmployeeName());
+		stayDTO.setPICEmployeeName(employeeRepository.findById(employeeCodeFk).get().getEmployeeName());
 		stayDTO.setBranchCodeFk(reservationDTO.getBranchCodeFk());
 		stayDTO.setReservationCodeFk(reservationCodeFk);
 
@@ -394,7 +394,7 @@ public class StayServiceImpl implements StayService {
 						).get().getRoomCategoryCodeFk()
 					).get().getRoomName()))
 				// 직원명
-				.peek(stayDTO -> stayDTO.setPICemployeeName(
+				.peek(stayDTO -> stayDTO.setPICEmployeeName(
 					employeeRepository.findById(stayDTO.getEmployeeCodeFk())
 						.get().getEmployeeName()))
 				// 지점명

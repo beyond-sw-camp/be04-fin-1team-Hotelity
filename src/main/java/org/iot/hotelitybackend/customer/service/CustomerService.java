@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Workbook;
-import org.iot.hotelitybackend.customer.dto.CustomerDTO;
+import org.iot.hotelitybackend.customer.dto.SelectCustomerDTO;
 
 public interface CustomerService {
     Map<String, Object> selectCustomersList(Integer customerCodePk, String customerName, String customerEmail,
@@ -14,7 +14,7 @@ public interface CustomerService {
 		Date customerRegisteredDate, Integer nationCodeFk, String customerGender, String nationName, String customerType,
 		String membershipLevelName, String orderBy, Integer sortBy, Integer pageNum);
 
-    CustomerDTO selectCustomerByCustomerCodePk(int customerCodePk);
+    SelectCustomerDTO selectCustomerByCustomerCodePk(Integer customerCodePk);
 
 	Map<String, Object> readExcel(Workbook workbook);
 

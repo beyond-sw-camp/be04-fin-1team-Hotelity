@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
+import org.iot.hotelitybackend.customer.dto.SelectCustomerDTO;
 import org.iot.hotelitybackend.customer.service.CustomerService;
 import org.iot.hotelitybackend.customer.vo.ResponseCustomer;
 import org.iot.hotelitybackend.sales.dto.MembershipDTO;
@@ -80,12 +81,12 @@ public class CustomerController {
     }
 
     @GetMapping("/{customerCodePk}/customer")
-    public ResponseEntity<ResponseCustomer> selectCustomerByCustomerCodePk(@PathVariable("customerCodePk") int customerCodePk){
+    public ResponseEntity<SelectCustomerDTO> selectCustomerByCustomerCodePk(@PathVariable("customerCodePk") Integer customerCodePk){
 
-        CustomerDTO customer = customerService.selectCustomerByCustomerCodePk(customerCodePk);
-        ResponseCustomer responseCustomer = mapper.map(customer, ResponseCustomer.class);
+        SelectCustomerDTO customer = customerService.selectCustomerByCustomerCodePk(customerCodePk);
+        // ResponseCustomer responseCustomer = mapper.map(customer, ResponseCustomer.class);
 
-        return ResponseEntity.status(HttpStatus.OK).body(responseCustomer);
+        return ResponseEntity.status(HttpStatus.OK).body(customer);
     }
 
     @DeleteMapping("/{customerCodePk}")
