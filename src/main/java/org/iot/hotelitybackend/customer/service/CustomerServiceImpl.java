@@ -159,9 +159,9 @@ public class CustomerServiceImpl implements CustomerService {
 						null, null).get(KEY_CONTENT)
 				);
 				selectCustomerDTO.setVoc(
-					(List<VocDTO>)vocService.selectSearchedVocsList
-						(0, null, null,
-							null, null, customerCodePk).get(KEY_CONTENT)
+					(List<VocDTO>)vocService.selectVocsList(0, null, null,
+							null, customerCodePk, null, null, null, null, null, null
+					, null, null, null).get(KEY_CONTENT)
 				);
 				selectCustomerDTO.setStay(
 					(List<StayDTO>)stayService.selectStaysList(
