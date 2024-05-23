@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -44,9 +45,22 @@ public class PaymentServiceImpl implements PaymentService {
 		Integer customerCodeFk, String customerName,
 		LocalDateTime paymentDate, Integer paymentCancelStatus,
 		String paymentMethod, Integer reservationCodeFk,
-		Integer paymentTypeCodeFk, String paymentTypeName) {
+		Integer paymentTypeCodeFk, String paymentTypeName,
+		String orderBy, Integer sortBy) {
 
-		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
+		Pageable pageable;
+
+		if (orderBy == null) {
+			pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("paymentCodePk"));
+		} else {
+			if (sortBy == 1) {
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
+			}
+			else{
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
+			}
+		}
+
 		Specification<PaymentEntity> spec = (root, query, criteriaBuilder) -> null;
 
 		// 고객 코드

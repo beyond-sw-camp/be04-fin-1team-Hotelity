@@ -38,12 +38,15 @@ public class PaymentController {
 		@RequestParam(required = false) String paymentMethod,
 		@RequestParam(required = false) Integer reservationCodeFk,
 		@RequestParam(required = false) Integer paymentTypeCodeFk,
-		@RequestParam(required = false) String paymentTypeName) {
+		@RequestParam(required = false) String paymentTypeName,
+		@RequestParam(required = false) String orderBy,
+		@RequestParam(required = false) Integer sortBy) {
 
 		Map<String, Object> paymentLogInfo =
 			paymentService.selectPaymentLogList(
 				pageNum, customerCodeFk, customerName, paymentDate, paymentCancelStatus,
-				paymentMethod, reservationCodeFk, paymentTypeCodeFk, paymentTypeName
+				paymentMethod, reservationCodeFk, paymentTypeCodeFk, paymentTypeName,
+				orderBy, sortBy
 			);
 
 		ResponseVO response = ResponseVO.builder()

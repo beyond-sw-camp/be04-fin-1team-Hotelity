@@ -19,13 +19,15 @@ public interface ReservationService {
 		LocalDateTime reservationDate,
 		LocalDateTime reservationCheckinDate,
 		LocalDateTime reservationCheckoutDate,
-		Integer reservationCancelStatus
+		Integer reservationCancelStatus,
+		String orderBy, Integer sortBy
 	);
+
+	Map<String, Object> selectReseravtionInfoByReservationCodePk(Integer reservationCodePk);
 
 	Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate);
 
-	Map<String, Object> selectReservationByReservationCodePk(int reservationCodePk);
-
 	List<Integer> selectStaysList(int pageNum, String branchCodeFk, String roomCodeFk,
 		LocalDateTime reservationCheckinDate, LocalDateTime reservationCheckoutDate);
+
 }
