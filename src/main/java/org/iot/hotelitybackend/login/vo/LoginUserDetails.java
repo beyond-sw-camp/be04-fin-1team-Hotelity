@@ -2,6 +2,7 @@ package org.iot.hotelitybackend.login.vo;
 
 import org.iot.hotelitybackend.employee.aggregate.EmployeeEntity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class LoginUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add((GrantedAuthority) employeeEntity::getPermissionName);
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + employeeEntity.getPermissionName()));
 
         return authorities;
     }

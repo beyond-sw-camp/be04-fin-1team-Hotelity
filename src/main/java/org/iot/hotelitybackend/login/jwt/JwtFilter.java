@@ -40,6 +40,8 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        accessToken = accessToken.split("Bearer ")[1];
+
         try {
             if (jwtUtil.isExpired(accessToken)) {
                 response.getWriter().print(MESSAGE_TOKEN_EXPIRED);

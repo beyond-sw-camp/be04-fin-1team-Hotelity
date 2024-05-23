@@ -7,6 +7,7 @@ import org.iot.hotelitybackend.login.repository.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -56,7 +57,39 @@ public class WebSecurityConfig {
 
         // 인가(Authorization)
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/**").permitAll()
+                .requestMatchers("/login").permitAll()
+
+                .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
+
+                /* 고객 */
+                .requestMatchers(HttpMethod.POST, "/customers/**").hasAnyRole("ADMIN", "HM")
+                .requestMatchers(HttpMethod.PUT, "/customers/**").hasAnyRole("ADMIN", "HM")
+                .requestMatchers(HttpMethod.DELETE, "/customers/**").hasAnyRole("ADMIN", "HM")
+
+                /* 직원 */
+                .requestMatchers(HttpMethod.POST, "/employees/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/employees/**").hasRole("ADMIN")
+
+                /* 호텔관리 */
+                .requestMatchers(HttpMethod.POST, "/hotel-management/**").hasAnyRole("ADMIN", "HM")
+                .requestMatchers(HttpMethod.PUT, "/hotel-management/**").hasAnyRole("ADMIN", "HM")
+                .requestMatchers(HttpMethod.DELETE, "/hotel-management/**").hasAnyRole("ADMIN", "HM")
+
+                /* 호텔서비스 */
+                .requestMatchers(HttpMethod.POST, "/hotel-service/**").hasAnyRole("ADMIN", "HM")
+                .requestMatchers(HttpMethod.PUT, "/hotel-service/**").hasAnyRole("ADMIN", "HM")
+                .requestMatchers(HttpMethod.DELETE, "/hotel-service/**").hasAnyRole("ADMIN", "HM")
+
+                /* 마케팅 */
+                .requestMatchers(HttpMethod.POST, "/marketing/**").hasAnyRole("ADMIN", "MS")
+                .requestMatchers(HttpMethod.PUT, "/marketing/**").hasAnyRole("ADMIN", "MS")
+                .requestMatchers(HttpMethod.DELETE, "/marketing/**").hasAnyRole("ADMIN", "MS")
+
+                /* 영업관리 */
+                .requestMatchers(HttpMethod.POST, "/sales/**").hasAnyRole("ADMIN", "MS")
+                .requestMatchers(HttpMethod.PUT, "/sales/**").hasAnyRole("ADMIN", "MS")
+                .requestMatchers(HttpMethod.DELETE, "/sales/**").hasAnyRole("ADMIN", "MS")
+
                 .anyRequest().authenticated()
         );
 
