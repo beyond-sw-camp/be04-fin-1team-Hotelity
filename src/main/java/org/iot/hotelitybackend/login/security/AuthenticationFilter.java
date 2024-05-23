@@ -4,9 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.iot.hotelitybackend.login.aggregate.RefreshToken;
 import org.iot.hotelitybackend.login.jwt.JwtUtil;
+import org.iot.hotelitybackend.login.repository.RefreshTokenRepository;
 import org.iot.hotelitybackend.login.vo.RequestLogin;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,18 +24,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
 
-import static org.iot.hotelitybackend.common.constant.Constant.KEY_AUTHORIZATION;
+import static org.iot.hotelitybackend.common.constant.Constant.*;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public AuthenticationFilter(
             AuthenticationManager authenticationManager,
-            JwtUtil jwtUtil
+            JwtUtil jwtUtil,
+            RefreshTokenRepository refreshTokenRepository
     ) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     @Override
@@ -69,6 +75,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             Authentication authResult
     ) throws IOException, ServletException {
 
+        /* Authentication
+        - Principal : 유저에 대한 정보
+        - Credentials : 증명 (비밀번호, 토큰)
+        - Authorities : 유저의 권한(ROLE) 목록
+        * */
+
         /* get employee info */
         String employeeCodeWithBranchCode = authResult.getName();
 
@@ -79,9 +91,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         /* generate token */
         String accessToken = jwtUtil.createAccessToken(employeeCodeWithBranchCode, role);
+        String refreshToken = jwtUtil.createRefreshToken(accessToken);
+
+        /* save refresh token (Redis) */
+        RefreshToken refreshTokenEntity = new RefreshToken(refreshToken, accessToken, employeeCodeWithBranchCode);
+        refreshTokenRepository.save(refreshTokenEntity);
 
         /* set response */
         response.setHeader(KEY_AUTHORIZATION, accessToken);
+        response.addCookie(createCookie(KEY_REFRESH_TOKEN, refreshToken));
         response.setStatus(HttpServletResponse.SC_OK);
     }
 
@@ -92,5 +110,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             AuthenticationException failed
     ) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+
+    private Cookie createCookie(String key, String value) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(REDIS_TIME_TO_LIVE);
+        //cookie.setSecure(true);
+        //cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
     }
 }
