@@ -142,7 +142,7 @@ public class VocServiceImpl implements VocService {
         Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
         Specification<VocEntity> spec = (root, query, criteriaBuilder) -> null;
 
-        if (!branchCodeFk.isEmpty()) {
+        if (branchCodeFk != null) {
             spec = spec.and(VocSpecification.equalsBranchCode(branchCodeFk));
         }
 
@@ -150,7 +150,7 @@ public class VocServiceImpl implements VocService {
             spec = spec.and(VocSpecification.equalsVocProcessStatus(vocProcessStatus));
         }
 
-        if (!vocCategory.isEmpty()) {
+        if (vocCategory != null) {
             spec = spec.and(VocSpecification.equalsVocCategory(vocCategory));
         }
 
