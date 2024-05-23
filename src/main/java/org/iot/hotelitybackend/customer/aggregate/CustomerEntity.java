@@ -10,17 +10,22 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "customer_tb")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+// @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Setter
 public class CustomerEntity {
 
 	@Id
@@ -36,8 +41,14 @@ public class CustomerEntity {
 	public Integer customerStatus;
 	public Date customerRegisteredDate;
 	public String customerType;
+	@Column(name = "nation_code_fk")
 	public Integer nationCodeFk;
+
 	public String customerGender;
+
+	@ManyToOne
+	@JoinColumn(name = "nation_code_fk", insertable = false, updatable = false)
+	private NationEntity nation;
 
 	@Builder
 	public CustomerEntity(
@@ -70,4 +81,10 @@ public class CustomerEntity {
 
 	@OneToMany(mappedBy = "customer")
 	private Set<MembershipIssueEntity> membershipIssues;
+
+
+
+	public CustomerEntity() {
+
+	}
 }
