@@ -12,8 +12,6 @@ import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomLevelEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.Subquery;
 
 public class StaySpecification {
 
