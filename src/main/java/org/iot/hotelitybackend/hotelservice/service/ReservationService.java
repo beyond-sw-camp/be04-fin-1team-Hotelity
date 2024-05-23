@@ -19,7 +19,8 @@ public interface ReservationService {
 		LocalDateTime reservationDate,
 		LocalDateTime reservationCheckinDate,
 		LocalDateTime reservationCheckoutDate,
-		Integer reservationCancelStatus
+		Integer reservationCancelStatus,
+		String orderBy, Integer sortBy
 	);
 
 	Map<String, Object> selectReseravtionInfoByReservationCodePk(Integer reservationCodePk);

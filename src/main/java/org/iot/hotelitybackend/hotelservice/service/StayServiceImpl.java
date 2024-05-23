@@ -69,9 +69,21 @@ public class StayServiceImpl implements StayService {
 		String roomLevelName, Integer roomCapacity, Integer stayPeopleCount,
 		LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime,
 		String branchCodeFk, Integer employeeCodeFk, String employeeName,
-		Integer reservationCodeFk, Integer stayCheckoutStatus) {
+		Integer reservationCodeFk, Integer stayCheckoutStatus,
+		String orderBy, Integer sortBy) {
 
-		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("stayCheckinTime").descending());
+		Pageable pageable;
+
+		if (orderBy == null) {
+			pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("stayCheckinTime").descending());
+		} else {
+			if (sortBy == 1) {
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
+			}
+			else{
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
+			}
+		}
 		Specification<StayEntity> spec = Specification.where(null);
 
 		// 투숙코드

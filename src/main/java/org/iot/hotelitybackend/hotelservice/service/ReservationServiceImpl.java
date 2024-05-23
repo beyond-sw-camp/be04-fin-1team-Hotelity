@@ -3,6 +3,7 @@ package org.iot.hotelitybackend.hotelservice.service;
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,13 +57,14 @@ public class ReservationServiceImpl implements ReservationService {
 	public Map<String, Object> selectReservationListByMonth(
 		int year, int month, Integer reservationCodePk,
 		Integer customerCodeFk, String customerName,
-		String customerEnglishName,	String roomCodeFk,
+		String customerEnglishName, String roomCodeFk,
 		String roomName, String roomLevelName,
 		Integer roomCapacity, String branchCodeFk,
 		LocalDateTime reservationDate,
 		LocalDateTime reservationCheckinDate,
 		LocalDateTime reservationCheckoutDate,
-		Integer reservationCancelStatus) {
+		Integer reservationCancelStatus,
+		String orderBy, Integer sortBy) {
 
 		// 특정 월의 예약 내역을 조회하기 위해 월의 시작일과 종료일을 지정
 		LocalDateTime startOfMonth =
@@ -133,15 +135,79 @@ public class ReservationServiceImpl implements ReservationService {
 		// 특정 월에 해당하는 예약 내역 리스트 조회
 		List<ReservationEntity> reservationEntityList =
 			reservationRepository.findAll(spec);
-			// reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
+		// reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
 
 		List<ReservationDTO> reservationDTOList = setDTOField(reservationEntityList);
+
+		// Pageable 쓰지않는 List 정렬
+		if (orderBy == null) {
+			reservationDTOList.stream().sorted(
+					Comparator.comparing(ReservationDTO::getReservationCheckinDate).reversed())
+				.collect(Collectors.toList());
+		} else {
+			reservationDTOList = sortList(reservationDTOList, orderBy, sortBy);
+		}
 
 		Map<String, Object> reservationListInfo = new HashMap<>();
 
 		reservationListInfo.put(KEY_CONTENT, reservationDTOList);
 
 		return reservationListInfo;
+	}
+
+	private List<ReservationDTO> sortList(List<ReservationDTO> list, String orderBy, Integer sortBy) {
+
+		Comparator<ReservationDTO> comparator;
+
+		switch (orderBy) {
+			case "reservationCodePk":
+				comparator = Comparator.comparing(ReservationDTO::getReservationCodePk);
+				break;
+			case "customerCodeFk":
+				comparator = Comparator.comparing(ReservationDTO::getCustomerCodeFk);
+				break;
+			case "customerName":
+				comparator = Comparator.comparing(ReservationDTO::getCustomerName);
+				break;
+			case "customerEnglishName":
+				comparator = Comparator.comparing(ReservationDTO::getCustomerEnglishName);
+				break;
+			case "roomCodeFk":
+				comparator = Comparator.comparing(ReservationDTO::getRoomCodeFk);
+				break;
+			case "roomLevelName":
+				comparator = Comparator.comparing(ReservationDTO::getRoomLevelName);
+				break;
+			case "roomCapacity":
+				comparator = Comparator.comparing(ReservationDTO::getRoomCapacity);
+				break;
+			case "branchCodeFk":
+				comparator = Comparator.comparing(ReservationDTO::getBranchCodeFk);
+				break;
+			case "reservationDate":
+				comparator = Comparator.comparing(ReservationDTO::getReservationDate);
+				break;
+			case "reservationCheckinDate":
+				comparator = Comparator.comparing(ReservationDTO::getReservationCheckinDate);
+				break;
+			case "reservationCheckoutDate":
+				comparator = Comparator.comparing(ReservationDTO::getReservationCheckoutDate);
+				break;
+			case "reservationCancelStatus":
+				comparator = Comparator.comparing(ReservationDTO::getReservationCancelStatus);
+				break;
+			case "reservationPersonnel":
+				comparator = Comparator.comparing(ReservationDTO::getReservationPersonnel);
+				break;
+			default:
+				throw new IllegalArgumentException(orderBy + "에 해당하는 필드가 존재하지 않습니다.");
+		}
+
+		if (sortBy != 1) {
+			comparator = comparator.reversed();
+		}
+
+		return list.stream().sorted(comparator).collect(Collectors.toList());
 	}
 
 	/* 예약 코드로 특정 예약 내역 조회 */
@@ -168,7 +234,8 @@ public class ReservationServiceImpl implements ReservationService {
 	/* 일자별 예약 리스트 조회 */
 	@Override
 	public Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate) {
-		List<ReservationEntity> dailyReservationEntityList = reservationRepository.findByReservationCheckinDate(reservationCheckDate);
+		List<ReservationEntity> dailyReservationEntityList = reservationRepository.findByReservationCheckinDate(
+			reservationCheckDate);
 
 		List<ReservationDTO> dailyReservationDTOList = setDTOField(dailyReservationEntityList);
 
@@ -186,7 +253,8 @@ public class ReservationServiceImpl implements ReservationService {
 			reservationEntityList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
 				// 고객명
 				.peek(reservationDTO -> reservationDTO.setCustomerName(
-					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()).orElse(null), CustomerDTO.class).getCustomerName()))
+					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()).orElse(null),
+						CustomerDTO.class).getCustomerName()))
 				// 객실명
 				.peek(reservationDTO -> reservationDTO.setRoomName(String.valueOf(roomCategoryRepository.findById(
 					roomRepository.findById(reservationDTO.getRoomCodeFk()).get().getRoomCategoryCodeFk()

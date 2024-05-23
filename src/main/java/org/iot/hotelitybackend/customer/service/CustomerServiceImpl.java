@@ -28,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -38,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.hibernate.query.sqm.tree.SqmNode.*;
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
 import lombok.extern.slf4j.Slf4j;
@@ -64,23 +64,27 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public Map<String, Object> selectCustomersList(String customerType, String membershipLevelName, int page) {
-		int fixedSize = 10;
-		Pageable pageable = PageRequest.of(page, fixedSize, Sort.by("customerRegisteredDate").descending());
+	public Map<String, Object> selectCustomersList(Integer customerCodePk, String customerName, String customerEmail,
+		String customerPhoneNumber, String customerEnglishName, String customerAddress, Integer customerInfoAgreement, Integer customerStatus,
+		Date customerRegisteredDate, Integer nationCodeFk, String customerGender, String nationName, String customerType,
+		String membershipLevelName, String orderBy, Integer sortBy, Integer pageNum) {
 
-		Specification<CustomerEntity> spec = Specification.where(null);
+		Pageable pageable;
 
-		// 멤버십 레벨 이름으로 필터링
-		if (membershipLevelName != null && !membershipLevelName.isEmpty()) {
-			MembershipEntity membership = membershipRepository.findByMembershipLevelName(membershipLevelName);
-			if (membership != null) {
-				spec = spec.and(CustomerSpecification.equalsMembershipLevelName(membershipLevelName));
+		if(orderBy == null){
+			pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("customerCodePk"));
+		} else{
+			if (sortBy == 1){
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
+			}
+			else{
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
 			}
 		}
-		// 고객 유형으로 필터링
-		if (customerType != null && !customerType.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerType(customerType));
-		}
+
+		Specification<CustomerEntity> spec = spec(customerCodePk, customerName, customerEmail, customerPhoneNumber, customerEnglishName,
+			customerAddress, customerInfoAgreement, customerStatus, customerRegisteredDate, nationCodeFk,
+			customerGender, nationName, customerType, membershipLevelName);
 
 		// 필터 조건에 따라 고객 정보 조회
 		Page<CustomerEntity> customerPage = customerRepository.findAll(spec, pageable);
@@ -160,8 +164,62 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public ByteArrayInputStream downloadExcel() throws IOException {
-		List<CustomerEntity> customer = customerRepository.findAll();
+	@Transactional
+	public Map<String, Object> deleteCustomerByCustomerCodePk(int customerCodePk) {
+
+
+		CustomerEntity customerEntity = customerRepository.findById(customerCodePk).get();
+		CustomerEntity customer = CustomerEntity.builder()
+			.customerCodePk(customerCodePk)
+			.customerName(customerEntity.getCustomerName())
+			.customerEmail(customerEntity.getCustomerEmail())
+			.customerPhoneNumber(customerEntity.getCustomerPhoneNumber())
+			.customerEnglishName(customerEntity.getCustomerEnglishName())
+			.customerAddress(customerEntity.customerAddress)
+			.customerInfoAgreement(customerEntity.getCustomerInfoAgreement())
+			.customerStatus(0)
+			.customerRegisteredDate(customerEntity.getCustomerRegisteredDate())
+			.customerType(customerEntity.getCustomerType())
+			.nationCodeFk(customerEntity.getNationCodeFk())
+			.customerGender(customerEntity.getCustomerGender())
+			.build();
+		customerRepository.save(customer);
+
+		Map<String, Object> modifiedCustomerInfo = new HashMap<>();
+		modifiedCustomerInfo.put(KEY_CONTENT, "success");
+		return modifiedCustomerInfo;
+	}
+
+	@Override
+	public ByteArrayInputStream downloadExcel(Integer customerCodePk, String customerName, String customerEmail,
+		String customerPhoneNumber, String customerEnglishName, String customerAddress, Integer customerInfoAgreement,
+		Integer customerStatus, Date customerRegisteredDate, Integer nationCodeFk, String customerGender,
+		String nationName, String customerType, String membershipLevelName) throws IOException {
+
+		Specification<CustomerEntity> spec = spec(customerCodePk, customerName, customerEmail, customerPhoneNumber, customerEnglishName,
+			customerAddress, customerInfoAgreement, customerStatus, customerRegisteredDate, nationCodeFk,
+			customerGender, nationName, customerType, membershipLevelName);
+
+		// 필터 조건에 따라 고객 정보 조회
+		List<CustomerEntity> customerPage = customerRepository.findAll(spec);
+		List<CustomerDTO> customerDTOList = customerPage.stream()
+			.map(customerEntity -> mapper.map(customerEntity, CustomerDTO.class))
+			.peek(customerDTO -> {
+				customerDTO.setNationName(nationRepository.findById(customerDTO.getNationCodeFk())
+					.map(NationEntity::getNationName)
+					.orElse(null));
+				MembershipIssueEntity issue = membershipIssueRepository.findByCustomerCodeFk(
+					customerDTO.getCustomerCodePk());
+				if (issue != null) {
+					customerDTO.setMembershipLevelName(membershipRepository.findById(issue.getMembershipLevelCodeFk())
+						.map(MembershipEntity::getMembershipLevelName)
+						.orElse(null));
+				} else {
+					customerDTO.setMembershipLevelName(null); // issue가 null인 경우 null로 설정
+				}
+			})
+			.collect(Collectors.toList());
+
 
 		Workbook workbook = new XSSFWorkbook();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -177,18 +235,18 @@ public class CustomerServiceImpl implements CustomerService {
 
 		Sheet customerSheet = workbook.createSheet("고객");
 
-		createDashboardSheet(customer, customerSheet, headerCellStyle);
+		createDashboardSheet(customerDTOList, customerSheet, headerCellStyle);
 
 		workbook.write(out);
-		log.info("[ReportService:getCustomerToExcel] create Customer list done. row count:[{}]", customer.size());
+		log.info("[ReportService:getCustomerToExcel] create Customer list done. row count:[{}]", customerDTOList.size());
 
 		return new ByteArrayInputStream(out.toByteArray());
 	}
 
-	private void createDashboardSheet(List<CustomerEntity> customer, Sheet customerSheet, CellStyle headerCellStyle) {
+	private void createDashboardSheet(List<CustomerDTO> customer, Sheet customerSheet, CellStyle headerCellStyle) {
 		Row headerRow = customerSheet.createRow(0);
-		String[] headerStrings = {"고객번호", "고객이름",	"고객이메일",	"고객전화번호"	, "고객영문이름",	"고객주소", "고객개인정보제공동의여부"
-			, "고객상태", "고객가입일자", "고객타입", "국가코드", "고객성별"};
+		String[] headerStrings = {"고객코드", "고객타입",	"국가",	"영문 이름"	, "한글 이름",	"성별", "이메일"
+			, "전화번호", "주소", "멤버십 등급"};
 
 		int idx = 0;
 		Cell headerCell = null;
@@ -201,33 +259,28 @@ public class CustomerServiceImpl implements CustomerService {
 		Row bodyRow = null;
 		Cell bodyCell = null;
 		int index = 1;
-		for(CustomerEntity data: customer){
+		for(CustomerDTO data: customer){
 			bodyRow = customerSheet.createRow(index++);
 			bodyCell = bodyRow.createCell(0);
 			bodyCell.setCellValue(data.getCustomerCodePk());
 			bodyCell = bodyRow.createCell(1);
-			bodyCell.setCellValue(data.getCustomerName());
-			bodyCell = bodyRow.createCell(2);
-			bodyCell.setCellValue(data.getCustomerEmail());
-			bodyCell = bodyRow.createCell(3);
-			bodyCell.setCellValue(data.getCustomerPhoneNumber());
-			bodyCell = bodyRow.createCell(4);
-			bodyCell.setCellValue(data.getCustomerEnglishName());
-			bodyCell = bodyRow.createCell(5);
-			bodyCell.setCellValue(data.getCustomerAddress());
-			bodyCell = bodyRow.createCell(6);
-			bodyCell.setCellValue(data.getCustomerInfoAgreement());
-			bodyCell = bodyRow.createCell(7);
-			bodyCell.setCellValue(data.getCustomerStatus());
-			bodyCell = bodyRow.createCell(8);
-			bodyCell.setCellValue(data.getCustomerRegisteredDate());
-			bodyCell = bodyRow.createCell(9);
 			bodyCell.setCellValue(data.getCustomerType());
-			bodyCell = bodyRow.createCell(10);
-			bodyCell.setCellValue(data.getNationCodeFk());
-			bodyCell = bodyRow.createCell(11);
+			bodyCell = bodyRow.createCell(2);
+			bodyCell.setCellValue(data.getNationName());
+			bodyCell = bodyRow.createCell(3);
+			bodyCell.setCellValue(data.getCustomerEnglishName());
+			bodyCell = bodyRow.createCell(4);
+			bodyCell.setCellValue(data.getCustomerName());
+			bodyCell = bodyRow.createCell(5);
 			bodyCell.setCellValue(data.getCustomerGender());
-
+			bodyCell = bodyRow.createCell(6);
+			bodyCell.setCellValue(data.getCustomerEmail());
+			bodyCell = bodyRow.createCell(7);
+			bodyCell.setCellValue(data.getCustomerPhoneNumber());
+			bodyCell = bodyRow.createCell(8);
+			bodyCell.setCellValue(data.getCustomerAddress());
+			bodyCell = bodyRow.createCell(9);
+			bodyCell.setCellValue(data.getMembershipLevelName());
 		}
 
 		for (int i = 0; i < headerStrings.length; i++) {
@@ -235,5 +288,64 @@ public class CustomerServiceImpl implements CustomerService {
 			customerSheet.setColumnWidth(i, (customerSheet.getColumnWidth(i)) + (short)1024);
 		}
 
+	}
+
+	private Specification<CustomerEntity> spec(Integer customerCodePk, String customerName, String customerEmail,
+		String customerPhoneNumber, String customerEnglishName, String customerAddress, Integer customerInfoAgreement,
+		Integer customerStatus, Date customerRegisteredDate, Integer nationCodeFk, String customerGender,
+		String nationName, String customerType, String membershipLevelName){
+
+
+		Specification<CustomerEntity> spec = Specification.where(null);
+
+		if(customerCodePk != null){
+			spec = spec.and(CustomerSpecification.equalsCustomerCodePk(customerCodePk));
+		}
+		if (customerName != null && !customerName.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsCustomerName(customerName));
+		}
+		if (customerEmail != null && !customerEmail.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsCustomerEmail(customerEmail));
+		}
+		if (customerPhoneNumber != null && !customerPhoneNumber.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsCustomerPhoneNumber(customerPhoneNumber));
+		}
+		if (customerEnglishName != null && !customerEnglishName.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsCustomerEnglishName(customerEnglishName));
+		}
+		if (customerAddress != null && !customerAddress.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsCustomerAddress(customerAddress));
+		}
+		if(customerInfoAgreement != null){
+			spec = spec.and(CustomerSpecification.equalsCustomerInfoAgreement(customerInfoAgreement));
+		}
+		if(customerStatus != null){
+			spec = spec.and(CustomerSpecification.equalsCustomerStatus(customerStatus));
+		}
+		if(customerRegisteredDate != null){
+			spec = spec.and(CustomerSpecification.equalsCustomerRegisteredDate(customerRegisteredDate));
+		}
+		if(nationCodeFk != null){
+			spec = spec.and(CustomerSpecification.equalsNationCodeFk(nationCodeFk));
+		}
+		if (customerGender != null && !customerGender.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsCustomerGender(customerGender));
+		}
+		if (nationName != null && !nationName.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsNationName(nationName));
+		}
+		// 멤버십 레벨 이름으로 필터링
+		if (membershipLevelName != null && !membershipLevelName.isEmpty()) {
+			MembershipEntity membership = membershipRepository.findByMembershipLevelName(membershipLevelName);
+			if (membership != null) {
+				spec = spec.and(CustomerSpecification.equalsMembershipLevelName(membershipLevelName));
+			}
+		}
+		// 고객 유형으로 필터링
+		if (customerType != null && !customerType.isEmpty()) {
+			spec = spec.and(CustomerSpecification.equalsCustomerType(customerType));
+		}
+
+		return spec;
 	}
 }

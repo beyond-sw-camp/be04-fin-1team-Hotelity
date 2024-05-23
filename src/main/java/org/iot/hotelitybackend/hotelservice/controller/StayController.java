@@ -44,14 +44,16 @@ public class StayController {
 		@RequestParam(required = false) Integer employeeCodeFk,
 		@RequestParam(required = false) String employeeName,
 		@RequestParam(required = false) Integer reservationCodeFk,
-		@RequestParam(required = false) Integer stayCheckoutStatus
-		) {
+		@RequestParam(required = false) Integer stayCheckoutStatus,
+		@RequestParam(required = false) String orderBy,
+		@RequestParam(required = false) Integer sortBy) {
 
 		Map<String, Object> stayListInfo =
 			stayService.selectStaysList(
 				pageNum, stayCodePk, customerCodeFk, customerName, roomCodeFk,
 				roomName, roomLevelName, roomCapacity, stayPeopleCount, stayCheckinTime,
-				stayCheckoutTime, branchCodeFk, employeeCodeFk, employeeName, reservationCodeFk, stayCheckoutStatus
+				stayCheckoutTime, branchCodeFk, employeeCodeFk, employeeName, reservationCodeFk,
+				stayCheckoutStatus, orderBy, sortBy
 			);
 
 		ResponseVO response = null;
