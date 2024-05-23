@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -24,13 +25,28 @@ public class NoticeController {
     }
 
     @GetMapping("/notices/page")
-    public ResponseEntity<ResponseVO> selectNoticesList(@RequestParam int pageNum) {
-        Map<String, Object> noticePageInfo = noticeService.selectNoticesList(pageNum);
+    public ResponseEntity<ResponseVO> selectNoticesList(
+        @RequestParam int pageNum,
+        @RequestParam(required = false) Integer noticeCodePk,
+        @RequestParam(required = false) String noticeTitle,
+        @RequestParam(required = false) String noticeContent,
+        @RequestParam(required = false) Integer employeeCodeFk,
+        @RequestParam(required = false) String employeeName,
+        @RequestParam(required = false) String branchCodeFk,
+        @RequestParam(required = false) LocalDateTime noticePostedDate,
+        @RequestParam(required = false) LocalDateTime noticeLastUpdatedDate,
+        @RequestParam(required = false) String orderBy,
+        @RequestParam(required = false) Integer sortBy
+    ) {
+        Map<String, Object> noticePageInfo = noticeService.selectNoticesList(
+            pageNum, noticeCodePk, noticeTitle, noticeContent, employeeCodeFk,
+            employeeName, branchCodeFk, noticePostedDate, noticeLastUpdatedDate,
+            orderBy, sortBy);
 
         ResponseVO response = ResponseVO.builder()
-                .data(noticePageInfo)
-                .resultCode(HttpStatus.OK.value())
-                .build();
+            .data(noticePageInfo)
+            .resultCode(HttpStatus.OK.value())
+            .build();
 
         return ResponseEntity.status(response.getResultCode()).body(response);
     }
@@ -38,21 +54,6 @@ public class NoticeController {
     @GetMapping("/notices/{noticeCodePk}/notice")
     public NoticeDTO selectNoticeByNoticeCodePk(@PathVariable int noticeCodePk) {
         return noticeService.selectNoticeByNoticeCodePk(noticeCodePk);
-    }
-
-    @GetMapping("/notices/search/page")
-    public ResponseEntity<ResponseVO> selectSearchedNoticesList(
-            @RequestParam(required = false) String branchCodeFk,
-            @RequestParam int pageNum
-    ) {
-        Map<String, Object> noticePageInfo = noticeService.selectSearchedNoticesList(pageNum, branchCodeFk);
-
-        ResponseVO response = ResponseVO.builder()
-                .data(noticePageInfo)
-                .resultCode(HttpStatus.OK.value())
-                .build();
-
-        return ResponseEntity.status(response.getResultCode()).body(response);
     }
 
     @PostMapping("/notices")

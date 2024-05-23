@@ -27,7 +27,7 @@ public interface ReservationService {
 
 	Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate);
 
-	List<Integer> selectStaysList(int pageNum, String branchCodeFk, String roomCodeFk,
-		LocalDateTime reservationCheckinDate, LocalDateTime reservationCheckoutDate);
+	// List<Integer> selectStaysList(int pageNum, String branchCodeFk, String roomCodeFk,
+	// 	LocalDateTime reservationCheckinDate, LocalDateTime reservationCheckoutDate);
 
 }
