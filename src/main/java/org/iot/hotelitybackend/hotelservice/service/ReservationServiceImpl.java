@@ -3,7 +3,6 @@ package org.iot.hotelitybackend.hotelservice.service;
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +14,8 @@ import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomCategoryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomLevelRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomRepository;
-import org.iot.hotelitybackend.hotelservice.aggregate.PaymentEntity;
-import org.iot.hotelitybackend.hotelservice.aggregate.PaymentSpecification;
 import org.iot.hotelitybackend.hotelservice.aggregate.ReservationEntity;
 import org.iot.hotelitybackend.hotelservice.aggregate.ReservationSpecification;
-import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
 import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
 import org.modelmapper.ModelMapper;
@@ -57,7 +53,16 @@ public class ReservationServiceImpl implements ReservationService {
 
 	/* 월별 예약 리스트 전체 조회 */
 	@Override
-	public Map<String, Object> selectReservationListByMonth(int year, int month) {
+	public Map<String, Object> selectReservationListByMonth(
+		int year, int month, Integer reservationCodePk,
+		Integer customerCodeFk, String customerName,
+		String customerEnglishName,	String roomCodeFk,
+		String roomName, String roomLevelName,
+		Integer roomCapacity, String branchCodeFk,
+		LocalDateTime reservationDate,
+		LocalDateTime reservationCheckinDate,
+		LocalDateTime reservationCheckoutDate,
+		Integer reservationCancelStatus) {
 
 		// 특정 월의 예약 내역을 조회하기 위해 월의 시작일과 종료일을 지정
 		LocalDateTime startOfMonth =
@@ -69,10 +74,68 @@ public class ReservationServiceImpl implements ReservationService {
 				23, 59, 59);
 		System.out.println("해당 월의 마지막 일자: " + endOfMonth);
 
-		// 특정 월에 해당하는 예약 내역 리스트 조회
-		List<ReservationEntity> reservationEntityList = reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
+		Specification<ReservationEntity> spec =
+			Specification.where(ReservationSpecification.betweenDate(startOfMonth, endOfMonth));
 
-		List<ReservationDTO> reservationDTOList = getFkColumnsName(reservationEntityList);
+		// 예약코드
+		if (reservationCodePk != null) {
+			spec = spec.and(ReservationSpecification.equalsReservationCodePk(reservationCodePk));
+		}
+		// 고객코드
+		if (customerCodeFk != null) {
+			spec = spec.and(ReservationSpecification.equalsCustomerCodeFk(customerCodeFk));
+		}
+		// 한글이름
+		if (customerName != null) {
+			spec = spec.and(ReservationSpecification.likeCustomerName(customerName));
+		}
+		// 영어이름
+		if (customerEnglishName != null) {
+			spec = spec.and(ReservationSpecification.likeCustomerEnglishName(customerEnglishName));
+		}
+		// 객실 코드
+		if (roomCodeFk != null) {
+			spec = spec.and(ReservationSpecification.likeRoomCodeFk(roomCodeFk));
+		}
+		// 객실명
+		if (roomName != null) {
+			spec = spec.and(ReservationSpecification.likeRoomName(roomName));
+		}
+		// 객실등급명
+		if (roomLevelName != null) {
+			spec = spec.and(ReservationSpecification.likeRoomLevelName(roomLevelName));
+		}
+		// 객실수용인원
+		if (roomCapacity != null) {
+			spec = spec.and(ReservationSpecification.equalsRoomCapacity(roomCapacity));
+		}
+		// 지점코드
+		if (branchCodeFk != null) {
+			spec = spec.and(ReservationSpecification.equalsBranchCodeFk(branchCodeFk));
+		}
+		// 예약일자
+		if (reservationDate != null) {
+			spec = spec.and(ReservationSpecification.equalsReservationDate(reservationDate));
+		}
+		// 체크인일자
+		if (reservationCheckinDate != null) {
+			spec = spec.and(ReservationSpecification.equalsCheckinDate(reservationCheckinDate));
+		}
+		// 체크아웃일자
+		if (reservationCheckoutDate != null) {
+			spec = spec.and(ReservationSpecification.equalsCheckoutDate(reservationCheckoutDate));
+		}
+		// 예약취소여부
+		if (reservationCancelStatus != null) {
+			spec = spec.and(ReservationSpecification.equalsReservationCancleStatus(reservationCancelStatus));
+		}
+
+		// 특정 월에 해당하는 예약 내역 리스트 조회
+		List<ReservationEntity> reservationEntityList =
+			reservationRepository.findAll(spec);
+			// reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
+
+		List<ReservationDTO> reservationDTOList = setDTOField(reservationEntityList);
 
 		Map<String, Object> reservationListInfo = new HashMap<>();
 
@@ -81,12 +144,33 @@ public class ReservationServiceImpl implements ReservationService {
 		return reservationListInfo;
 	}
 
+	/* 예약 코드로 특정 예약 내역 조회 */
+	@Override
+	public Map<String, Object> selectReseravtionInfoByReservationCodePk(Integer reservationCodePk) {
+
+		List<ReservationEntity> reservationEntityList =
+			reservationRepository.findById(reservationCodePk).stream().toList();
+
+		List<ReservationDTO> reservationDTOList = setDTOField(reservationEntityList);
+
+		Map<String, Object> reservationInfo = new HashMap<>();
+
+		reservationInfo.put(KEY_CONTENT, reservationDTOList);
+
+		return reservationInfo;
+	}
+
+	/* 체크인 시 체크인 상태 변경 */
+	// 예약코드로 투숙 내역 조회하여 없으면 체크인 추가(투숙쪽에 작성된 메서드 활용)
+	// 투숙  등록 시 ReservationDTO의 reservationCheckinStatus 를 1로 변경
+	// ReservationDTO 데이터 매핑(reservationCheckinStatus)
+
 	/* 일자별 예약 리스트 조회 */
 	@Override
 	public Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate) {
 		List<ReservationEntity> dailyReservationEntityList = reservationRepository.findByReservationCheckinDate(reservationCheckDate);
 
-		List<ReservationDTO> dailyReservationDTOList = getFkColumnsName(dailyReservationEntityList);
+		List<ReservationDTO> dailyReservationDTOList = setDTOField(dailyReservationEntityList);
 
 		Map<String, Object> dailyReservationInfo = new HashMap<>();
 
@@ -95,31 +179,19 @@ public class ReservationServiceImpl implements ReservationService {
 		return dailyReservationInfo;
 	}
 
-	/* 예약 코드로 검색 */
-	@Override
-	public Map<String, Object> selectReservationByReservationCodePk(int reservationCodePk) {
-
-		List<ReservationEntity> reservationListByCode = reservationRepository.findById(reservationCodePk).stream().toList();;
-
-		List<ReservationDTO> reservationDTOListByCode = getFkColumnsName(reservationListByCode);
-
-		Map<String, Object> searchReservationInfoByCode = new HashMap<>();
-
-		searchReservationInfoByCode.put(KEY_CONTENT, reservationDTOListByCode);
-
-		return searchReservationInfoByCode;
-	}
-
 	/* fk 값들의 이름을 가져오는 코드 */
-	private List<ReservationDTO> getFkColumnsName(List<ReservationEntity> reservationEntityList) {
+	public List<ReservationDTO> setDTOField(List<ReservationEntity> reservationEntityList) {
 
 		List<ReservationDTO> list =
 			reservationEntityList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
+				// 고객명
 				.peek(reservationDTO -> reservationDTO.setCustomerName(
-					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()))
+					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()).orElse(null), CustomerDTO.class).getCustomerName()))
+				// 객실명
 				.peek(reservationDTO -> reservationDTO.setRoomName(String.valueOf(roomCategoryRepository.findById(
 					roomRepository.findById(reservationDTO.getRoomCodeFk()).get().getRoomCategoryCodeFk()
 				).get().getRoomName())))
+				// 객실등급명
 				.peek(reservationDTO -> reservationDTO.setRoomLevelName(
 						roomLevelRepository.findById(
 							roomCategoryRepository.findById(
@@ -149,7 +221,7 @@ public class ReservationServiceImpl implements ReservationService {
 		}
 		// 객실코드
 		if (!roomCodeFk.isEmpty()) {
-			spec = spec.and(ReservationSpecification.equalsRoomCodeFk(roomCodeFk));
+			spec = spec.and(ReservationSpecification.likeRoomCodeFk(roomCodeFk));
 		}
 		// 체크인날짜
 		if (reservationCheckinDate != null) {

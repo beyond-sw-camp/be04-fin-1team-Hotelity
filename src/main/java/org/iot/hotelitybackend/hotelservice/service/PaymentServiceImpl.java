@@ -40,25 +40,53 @@ public class PaymentServiceImpl implements PaymentService {
 	/* 다중 조건 검색을 적용한 결제 내역 전체 조회 */
 	@Override
 	public Map<String, Object> selectPaymentLogList(
-								int pageNum,
-								Integer customerCodeFk,
-								LocalDateTime paymentDate,
-								Integer paymentCancelStatus) {
+		int pageNum,
+		Integer customerCodeFk, String customerName,
+		LocalDateTime paymentDate, Integer paymentCancelStatus,
+		String paymentMethod, Integer reservationCodeFk,
+		Integer paymentTypeCodeFk, String paymentTypeName) {
 
 		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
 		Specification<PaymentEntity> spec = (root, query, criteriaBuilder) -> null;
 
-		// 고객 이름별 조건
+		// 고객 코드
 		if (customerCodeFk != null) {
 			spec = spec.and(PaymentSpecification.equalsCustomerCodeFk(customerCodeFk));
 		}
+
+		// 고객 이름별 조건
+		if (customerName != null) {
+			spec = spec.and(PaymentSpecification.equalsCustomerName(customerName));
+		}
+
 		// 결제 일자별 조건
 		if (paymentDate != null) {
 			spec = spec.and(PaymentSpecification.equalsPaymentDate(paymentDate));
 		}
+
 		// 결제 취소 여부 별 조건
-		if(paymentCancelStatus != null) {
+		if (paymentCancelStatus != null) {
 			spec = spec.and(PaymentSpecification.equalsPaymentCancelStatus(paymentCancelStatus));
+		}
+
+		// 결제 수단
+		if (paymentMethod != null) {
+			spec = spec.and(PaymentSpecification.equalsPaymentMethod(paymentMethod));
+		}
+
+		// 예약 코드
+		if (reservationCodeFk != null) {
+			spec = spec.and(PaymentSpecification.equalsReservationCodeFk(reservationCodeFk));
+		}
+
+		// 결제 종류 코드
+		if (paymentTypeCodeFk != null) {
+			spec = spec.and(PaymentSpecification.equalsPaymentTypeCodeFk(paymentTypeCodeFk));
+		}
+
+		// 결제 종류 이름
+		if (paymentTypeName != null) {
+			spec = spec.and(PaymentSpecification.equalsPaymentTypeName(paymentTypeName));
 		}
 
 		Page<PaymentEntity> paymentEntityPage = paymentRepository.findAll(spec, pageable);

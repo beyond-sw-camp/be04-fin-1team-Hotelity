@@ -14,8 +14,8 @@ public class PaymentDTO {
     private Integer paymentTypeCodeFk;
     private String paymentMethod;
     private Date paymentDate;
-    private Integer customerCodeFk;
     private Integer paymentCancelStatus;
     private String paymentTypeName;
+    private Integer customerCodeFk;
     private String customerName;
 }

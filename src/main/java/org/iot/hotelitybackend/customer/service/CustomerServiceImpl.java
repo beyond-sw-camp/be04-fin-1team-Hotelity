@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.hibernate.query.sqm.tree.SqmNode.*;
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
 import lombok.extern.slf4j.Slf4j;
@@ -69,15 +70,14 @@ public class CustomerServiceImpl implements CustomerService {
 		Specification<CustomerEntity> spec = Specification.where(null);
 
 		// 멤버십 레벨 이름으로 필터링
-		if (!membershipLevelName.isEmpty()) {
+		if (membershipLevelName != null && !membershipLevelName.isEmpty()) {
 			MembershipEntity membership = membershipRepository.findByMembershipLevelName(membershipLevelName);
 			if (membership != null) {
 				spec = spec.and(CustomerSpecification.equalsMembershipLevelName(membershipLevelName));
 			}
 		}
-
 		// 고객 유형으로 필터링
-		if (!customerType.isEmpty()) {
+		if (customerType != null && !customerType.isEmpty()) {
 			spec = spec.and(CustomerSpecification.equalsCustomerType(customerType));
 		}
 
@@ -91,9 +91,13 @@ public class CustomerServiceImpl implements CustomerService {
 					.orElse(null));
 				MembershipIssueEntity issue = membershipIssueRepository.findByCustomerCodeFk(
 					customerDTO.getCustomerCodePk());
-				customerDTO.setMembershipLevelName(membershipRepository.findById(issue.getMembershipLevelCodeFk())
-					.map(MembershipEntity::getMembershipLevelName)
-					.orElse(null));
+				if (issue != null) {
+					customerDTO.setMembershipLevelName(membershipRepository.findById(issue.getMembershipLevelCodeFk())
+						.map(MembershipEntity::getMembershipLevelName)
+						.orElse(null));
+				} else {
+					customerDTO.setMembershipLevelName(null); // issue가 null인 경우 null로 설정
+				}
 			})
 			.collect(Collectors.toList());
 
@@ -132,6 +136,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 		for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
 			Row row = worksheet.getRow(i);
+
 			CustomerEntity customerEntity = CustomerEntity.builder()
 				.customerName(row.getCell(0).getStringCellValue())
 				.customerEmail(row.getCell(1).getStringCellValue())

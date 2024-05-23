@@ -7,19 +7,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
-import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
-import org.iot.hotelitybackend.hotelmanagement.dto.BranchDTO;
-import org.iot.hotelitybackend.hotelmanagement.dto.RoomDTO;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomCategoryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomLevelRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomRepository;
+import org.iot.hotelitybackend.hotelservice.aggregate.ReservationEntity;
 import org.iot.hotelitybackend.hotelservice.aggregate.StayEntity;
+import org.iot.hotelitybackend.hotelservice.aggregate.StaySpecification;
 import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
@@ -27,6 +24,11 @@ import org.iot.hotelitybackend.hotelservice.repository.StayRepository;
 import org.iot.hotelitybackend.hotelservice.vo.RequestModifyStay;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,13 +43,13 @@ public class StayServiceImpl implements StayService {
 	private final RoomRepository roomRepository;
 	private final RoomCategoryRepository roomCategoryRepository;
 	private final RoomLevelRepository roomLevelRepository;
-	private BranchRepository branchRepository;
+	private final BranchRepository branchRepository;
 
 	@Autowired
 	public StayServiceImpl(StayRepository stayRepository, ModelMapper mapper, EmployeeRepository employeeRepository,
 		ReservationRepository reservationRepository, CustomerRepository customerRepository,
-		RoomRepository roomRepository,
-		RoomCategoryRepository roomCategoryRepository, RoomLevelRepository roomLevelRepository) {
+		RoomRepository roomRepository, RoomCategoryRepository roomCategoryRepository,
+		RoomLevelRepository roomLevelRepository, BranchRepository branchRepository) {
 		this.stayRepository = stayRepository;
 		this.mapper = mapper;
 		this.employeeRepository = employeeRepository;
@@ -56,86 +58,201 @@ public class StayServiceImpl implements StayService {
 		this.roomRepository = roomRepository;
 		this.roomCategoryRepository = roomCategoryRepository;
 		this.roomLevelRepository = roomLevelRepository;
+		this.branchRepository = branchRepository;
 	}
 
 	/* 투숙 내역 전체 조회(다중 조건 검색) */
 	@Override
-	public Map<String, Object> selectStaysList(int pageNum, String branchCodeFk, String roomCodeFk,
-		LocalDateTime reservationCheckinDate, LocalDateTime reservationCheckoutDate) {
+	public Map<String, Object> selectStaysList(
+		int pageNum, Integer stayCodePk, Integer customerCodeFk,
+		String customerName, String roomCodeFk, String roomName,
+		String roomLevelName, Integer roomCapacity, Integer stayPeopleCount,
+		LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime,
+		String branchCodeFk, Integer employeeCodeFk, String employeeName,
+		Integer reservationCodeFk, Integer stayCheckoutStatus) {
 
-		// 예약쪽에서 다중 조건 검색하여 결과값을 출력하고, 해당 예약 코드들을 전달
-		ReservationServiceImpl reservationService = new ReservationServiceImpl(
-			reservationRepository, mapper, customerRepository, roomRepository,
-			roomCategoryRepository, roomLevelRepository, branchRepository
-		);
+		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("stayCheckinTime").descending());
+		Specification<StayEntity> spec = Specification.where(null);
 
-		List<Integer> reservationCodes =
-			reservationService.selectStaysList(
-				pageNum, branchCodeFk, roomCodeFk, reservationCheckinDate, reservationCheckoutDate
-			);
+		// 투숙코드
+		if (stayCodePk != null) {
+			spec = spec.and(StaySpecification.equalsStayCodePk(stayCodePk));
+		}
 
-		// forEach문 돌려서 List<StayDTO>에 값 추가하기
+		// 고객코드
+		if (customerCodeFk != null) {
+			spec = spec.and(StaySpecification.equalsCustomerCodeFk(customerCodeFk));
+		}
 
-		return null;
+		// 고객이름
+		if (customerName != null) {
+			spec = spec.and(StaySpecification.likeCustomerName(customerName));
+		}
+
+		// 객실코드
+		if (roomCodeFk != null) {
+			spec = spec.and(StaySpecification.equalsRoomCodeFk(roomCodeFk));
+		}
+
+		// 객실명
+		if (roomName != null) {
+			spec = spec.and(StaySpecification.likeRoomName(roomName));
+		}
+
+		// 객실 등급명
+		if (roomLevelName != null && !roomLevelName.isEmpty()) {
+			spec = spec.and(StaySpecification.likeRoomLevelName(roomLevelName));
+		}
+		// StaySpecification의 Join이 제대로 동작하는지 확인
+		// List<StayEntity> stays = stayRepository.findAll(spec);
+		//
+		// for (StayEntity stay : stays) {
+		// 	RoomEntity room = stay.getReservation().getRoom();
+		// 	RoomCategoryEntity roomCategory = room.getRoomCategory();
+		// 	RoomLevelEntity roomLevel = roomCategory.getRoomLevel();
+		// 	System.out.println("Stay ID: " + stay.getStayCodePk());
+		// 	System.out.println("Room ID: " + room.getRoomCodePk());
+		// 	System.out.println("Room Category: " + roomCategory.getRoomCategoryCodePk());
+		// 	System.out.println("Room Level: " + roomLevel.getRoomLevelName());
+		// 	System.out.println("====================");
+		// }
+
+		// 객실 수용 인원
+		// if (roomCapacity != null) {
+		// 	spec = spec.and(StaySpecification.equalsRoomCapacity(roomCapacity));
+		// }
+
+		// 투숙 인원
+		if (stayPeopleCount != null) {
+			spec = spec.and(StaySpecification.equalsStayPeopleCount(stayPeopleCount));
+		}
+
+		// 체크인 날짜
+		if (stayCheckinTime != null) {
+			spec = spec.and(StaySpecification.equalsStayCheckinTime(stayCheckinTime));
+		}
+
+		// 체크아웃 날짜
+		if (stayCheckoutTime != null) {
+			spec = spec.and(StaySpecification.equalsStayCheckoutTime(stayCheckoutTime));
+		}
+
+		// 지점코드
+		if (branchCodeFk != null) {
+			spec = spec.and(StaySpecification.equalsBranchCodeFk(branchCodeFk));
+		}
+
+		// 직원코드
+		if (employeeCodeFk != null) {
+			spec = spec.and(StaySpecification.equalsEmployeeCodeFk(employeeCodeFk));
+		}
+
+		// 직원이름
+		if (employeeName != null) {
+			spec = spec.and(StaySpecification.likeEmployeeName(employeeName));
+		}
+
+		// 예약코드
+		if (reservationCodeFk != null) {
+			spec = spec.and(StaySpecification.equalsReservationCodeFk(reservationCodeFk));
+		}
+
+		Page<StayEntity> stayPage = stayRepository.findAll(spec, pageable);
+		List<StayEntity> stayEntityList = stayPage.getContent();
+		List<StayDTO> stayDTOList = setDTOField(stayEntityList);
+
+		Map<String, Object> stayPageInfo = new HashMap<>();
+		stayPageInfo.put(KEY_TOTAL_PAGES_COUNT, stayPage.getTotalPages());
+		stayPageInfo.put(KEY_CURRENT_PAGE_INDEX, stayPage.getNumber());
+		stayPageInfo.put(KEY_CONTENT, stayDTOList);
+
+		return stayPageInfo;
 	}
 
-	/* 고객이름별 투숙 내역 조회 */
+	/* 투숙 코드로 특정 투숙 조회 */
 	@Override
-	public Map<String, Object> selectStaysListByCustomerName(String customerName) {
+	public Map<String, Object> selectStayByStayCodePk(Integer stayCodePk) {
 
-		return null;
+		List<StayEntity> stayEntityList = stayRepository.findById(stayCodePk).stream().toList();
+
+		List<StayDTO> stayDTOList = setDTOField(stayEntityList);
+
+		Map<String, Object> stayInfo = new HashMap<>();
+		stayInfo.put(KEY_CONTENT, stayDTOList);
+
+		return stayInfo;
 	}
 
 	/* 예약 체크인 시 투숙 정보 등록 */
 	@Transactional
 	@Override
-	public Map<String, Object> registStayByReservationCodePk(int reservationCodePk, int employeeCodeFk) {
+	public Map<String, Object> registStayByReservationCodePk(int reservationCodeFk, int employeeCodeFk,
+		int stayPeopleCount) {
 		Map<String, Object> registStayInfo = new HashMap<>();
 
-		// reservationCodeFk 중복 검사
-		Optional<StayEntity> existingStayEntityOptional = stayRepository.findByReservationCodeFk(reservationCodePk);
-		if (!existingStayEntityOptional.isPresent()) {
-			ReservationServiceImpl reservationService = new ReservationServiceImpl(
-				reservationRepository, mapper, customerRepository, roomRepository,
-				roomCategoryRepository, roomLevelRepository, branchRepository
-			);
+		ReservationServiceImpl reservationService = new ReservationServiceImpl(
+			reservationRepository, mapper, customerRepository, roomRepository,
+			roomCategoryRepository, roomLevelRepository, branchRepository
+		);
 
-			Map<String, Object> reservationInfo = reservationService.selectReservationByReservationCodePk(
-				reservationCodePk);
+		// 예약 정보 가져오기
+		List<ReservationEntity> reservationInfo =
+			reservationRepository.findById(reservationCodeFk).stream().toList();
 
-			if (reservationInfo != null && !reservationInfo.isEmpty()) {
-				// reservationInfo의 Value만 List에 담음
-				List<ReservationDTO> reservationList = (List<ReservationDTO>)reservationInfo.get("content");
+		if (!reservationInfo.isEmpty()) {
 
+			// reservationCodeFk 중복 검사
+			List<StayEntity> existingStayEntity =
+				stayRepository.findByReservationCodeFk(reservationCodeFk).stream().toList();
+
+			if (existingStayEntity.isEmpty()) {
+
+				// ReservationDTO Field Mapping
+				List<ReservationDTO> reservationDTOList = reservationService.setDTOField(reservationInfo);
+				ReservationDTO reservationDTO = reservationDTOList.get(0);
+
+				// 예약 정보를 StayEntity에 저장
 				StayEntity stayEntity = StayEntity.builder()
 					.stayCheckinTime(LocalDateTime.now())
-					.stayPeopleCount(reservationList.get(0).getReservationPersonnel())
-					.employeeCode(employeeCodeFk)
-					.reservationCodeFk(reservationCodePk)
+					.stayPeopleCount(stayPeopleCount)
+					.employeeCodeFk(employeeCodeFk)
+					.reservationCodeFk(reservationCodeFk)
 					.build();
 
-				// stayDTO에 reservationList에 담긴 정보들을 담아 registStayInfo에 저장
-				List<StayDTO> stayDTOList = new ArrayList<>();
+				stayRepository.save(stayEntity);
 
-				StayDTO stayDTO = new StayDTO();
-				ReservationDTO reservationDTO = reservationList.get(0);
+				// StayDTO Field Mapping
+				StayDTO stayDTO = setStayDTO(stayEntity, reservationDTO, reservationCodeFk, employeeCodeFk);
 
-				stayDTO.setRoomCode(reservationDTO.getRoomCodeFk());
-				stayDTO.setRoomLevelName(reservationDTO.getRoomLevelName());
-				stayDTO.setRoomName(reservationDTO.getRoomName());
-				stayDTO.setStayPeopleCount(reservationDTO.getReservationPersonnel());
-				stayDTO.setStayCheckinTime(reservationDTO.getReservationCheckinDate());
-				stayDTO.setEmployeeCodeFk(employeeCodeFk);
-				stayDTO.setEmployeeName(employeeRepository.findById(employeeCodeFk).get().getEmployeeName());
-				stayDTO.setBranchName(reservationDTO.getBranchCodeFk());
-				stayDTO.setReservationCodeFk(reservationCodePk);
-
-				stayDTOList.add(stayDTO);
-
-				registStayInfo.put(KEY_CONTENT, mapper.map(stayRepository.save(stayEntity), StayDTO.class));
+				registStayInfo.put(KEY_CONTENT, stayDTO);
 			}
+		} else {
+			System.out.println("===== 해당 예약 코드가 존재하지 않습니다. =====");
+			throw new RuntimeException("Reservation code:" + reservationCodeFk + " 해당 예약 코드가 존재하지 않습니다.");
 		}
 		return registStayInfo;
+	}
+
+	private StayDTO setStayDTO(
+		StayEntity stayEntity, ReservationDTO reservationDTO, int reservationCodeFk, int employeeCodeFk) {
+
+		StayDTO stayDTO = new StayDTO();
+
+		stayDTO.setStayCodePk(stayEntity.getStayCodePk());
+		stayDTO.setCustomerCodeFk(reservationDTO.getCustomerCodeFk());
+		stayDTO.setCustomerName(reservationDTO.getCustomerName());
+		stayDTO.setRoomCode(reservationDTO.getRoomCodeFk());
+		stayDTO.setRoomName(reservationDTO.getRoomName());
+		stayDTO.setRoomLevelName(reservationDTO.getRoomLevelName());
+		stayDTO.setRoomCapacity(reservationDTO.getRoomCapacity());
+		stayDTO.setStayPeopleCount(reservationDTO.getReservationPersonnel());
+		stayDTO.setStayCheckinTime(LocalDateTime.now());
+		stayDTO.setEmployeeCodeFk(employeeCodeFk);
+		stayDTO.setPICemployeeName(employeeRepository.findById(employeeCodeFk).get().getEmployeeName());
+		stayDTO.setBranchCodeFk(reservationDTO.getBranchCodeFk());
+		stayDTO.setReservationCodeFk(reservationCodeFk);
+
+		return stayDTO;
 	}
 
 	/* 투숙 체크아웃 */
@@ -161,13 +278,13 @@ public class StayServiceImpl implements StayService {
 					.stayCheckinTime(beforeStayEntity.getStayCheckinTime())
 					.stayCheckoutTime(currentCheckoutDate)
 					.stayPeopleCount(beforeStayEntity.getStayPeopleCount())
-					.employeeCode(beforeStayEntity.getEmployeeCode())
+					.employeeCodeFk(beforeStayEntity.getEmployeeCodeFk())
 					.reservationCodeFk(beforeStayEntity.getReservationCodeFk())
 					.build();
 
 				stayRepository.save(checkoutStayEntity);
 
-				List<StayDTO> stayDTOList = new ArrayList<>(selectStayByStayCodePk(stayCodePk));
+				List<StayDTO> stayDTOList = new ArrayList<>(getStayByStayCodePk(stayCodePk));
 
 				// System.out.println("========= stayDTOList 조회 =========");
 				// for (StayDTO stayDTO1: stayDTOList) {
@@ -181,24 +298,37 @@ public class StayServiceImpl implements StayService {
 		return checkoutStayInfo;
 	}
 
+	/* 투숙 정보 수정 */
 	@Override
 	public Map<String, Object> modifyStayInfo(RequestModifyStay requestModifyStay, Integer stayCodePk) {
+
+		Integer reservationCodeFk = requestModifyStay.getReservationCodeFk();
+		List<StayEntity> stayEntityList =
+			stayRepository.findByReservationCodeFk(reservationCodeFk).stream().toList();
+
 		StayEntity stayEntity = StayEntity.builder()
-				.stayCodePk(stayCodePk)
-				.stayCheckinTime(requestModifyStay.getStayCheckinTime())
-				.stayCheckoutTime(requestModifyStay.getStayCheckoutTime())
-				.stayPeopleCount(requestModifyStay.getStayPeopleCount())
-				.employeeCode(requestModifyStay.getEmployeeCodeFk())
-				.reservationCodeFk(requestModifyStay.getReservationCodeFk())
-				.build();
+			.stayCodePk(stayCodePk)
+			.stayCheckinTime(requestModifyStay.getStayCheckinTime())
+			.stayCheckoutTime(requestModifyStay.getStayCheckoutTime())
+			.stayPeopleCount(requestModifyStay.getStayPeopleCount())
+			.employeeCodeFk(requestModifyStay.getEmployeeCodeFk())
+			.reservationCodeFk(requestModifyStay.getReservationCodeFk())
+			.build();
+
+		stayRepository.save(stayEntity);
+
+		List<StayDTO> stayDTOList = setDTOField(stayEntityList);
+
+		StayDTO stayDTO = new StayDTO();
 
 		Map<String, Object> modifyStay = new HashMap<>();
 
-		modifyStay.put(KEY_CONTENT, mapper.map(stayRepository.save(stayEntity), StayDTO.class));
+		modifyStay.put(KEY_CONTENT, stayDTOList);
 
 		return modifyStay;
 	}
 
+	/* 투숙 정보 삭제 */
 	@Override
 	public Map<String, Object> deleteStay(int stayCodePk) {
 		Map<String, Object> deleteStay = new HashMap<>();
@@ -213,7 +343,7 @@ public class StayServiceImpl implements StayService {
 	}
 
 	/* 투숙 코드로 조회(투숙 체크아웃용 메소드) */
-	public List<StayDTO> selectStayByStayCodePk(Integer stayCodePk) {
+	public List<StayDTO> getStayByStayCodePk(Integer stayCodePk) {
 
 		List<StayEntity> stayEntityList = stayRepository.findById(stayCodePk).stream().toList();
 
@@ -228,8 +358,26 @@ public class StayServiceImpl implements StayService {
 		// 	System.out.println("-----------------------------------");
 		// }
 
-		List<StayDTO> stayDTOList =
+		List<StayDTO> stayDTOList = setDTOField(stayEntityList);
+
+		for (StayDTO stayDTO : stayDTOList) {
+			System.out.println(stayDTO);
+		}
+
+		return stayDTOList;
+	}
+
+	private List<StayDTO> setDTOField(List<StayEntity> stayEntityList) {
+		List<StayDTO> list =
 			stayEntityList.stream().map(stayEntity -> mapper.map(stayEntity, StayDTO.class))
+				.peek(stayDTO -> stayDTO.setCustomerCodeFk(
+					mapper.map(reservationRepository.findById(stayDTO.getReservationCodeFk()), ReservationDTO.class)
+						.getCustomerCodeFk()))
+				.peek(stayDTO -> stayDTO.setCustomerName(
+					customerRepository.findById(
+						reservationRepository.findById(stayDTO.getReservationCodeFk())
+							.get().getCustomerCodeFk()
+					).get().customerName))
 				// 객실 코드
 				.peek(stayDTO -> stayDTO.setRoomCode(
 					mapper.map(reservationRepository.findById(stayDTO.getReservationCodeFk()), ReservationDTO.class)
@@ -254,18 +402,36 @@ public class StayServiceImpl implements StayService {
 						).get().getRoomCategoryCodeFk()
 					).get().getRoomName()))
 				// 직원명
-				.peek(stayDTO -> stayDTO.setEmployeeName(
-					mapper.map(employeeRepository.findById(stayDTO.getEmployeeCodeFk()), EmployeeDTO.class)
-						.getEmployeeName()))
+				.peek(stayDTO -> stayDTO.setPICemployeeName(
+					employeeRepository.findById(stayDTO.getEmployeeCodeFk())
+						.get().getEmployeeName()))
 				// 지점명
-				.peek(stayDTO -> stayDTO.setBranchName(
+				.peek(stayDTO -> stayDTO.setBranchCodeFk(
 					reservationRepository.findById(stayDTO.getReservationCodeFk()).get().getBranchCodeFk()))
+				// 고객코드
+				.peek(stayDTO -> stayDTO.setCustomerCodeFk(
+					reservationRepository.findById(stayDTO.getReservationCodeFk()).get().getCustomerCodeFk()))
+				// 고객이름
+				.peek(stayDTO -> stayDTO.setCustomerName(
+					customerRepository.findById(
+						reservationRepository.findById(stayDTO.getReservationCodeFk()
+						).get().getCustomerCodeFk()
+					).get().customerName))
+				// 객실수용인원
+				.peek(stayDTO -> stayDTO.setRoomCapacity(
+					roomCategoryRepository.findById(
+						roomRepository.findById(
+							reservationRepository.findById(stayDTO.getReservationCodeFk()
+							).get().getRoomCodeFk()
+						).get().getRoomCategoryCodeFk()
+					).get().getRoomCapacity()))
 				.toList();
 
-		for (StayDTO stayDTO : stayDTOList) {
-			System.out.println(stayDTO);
-		}
+		// System.out.println("========= stayDTOList 조회 =========");
+		// for (StayDTO stayDTO1 : list) {
+		// 	System.out.println(stayDTO1);
+		// }
 
-		return stayDTOList;
+		return list;
 	}
 }

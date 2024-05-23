@@ -65,9 +65,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
             modelMapper.map(EmployeeEntity::getPermissionId, EmployeeDTO::setDepartmentCodeFk);
             modelMapper.map(EmployeeEntity::getPositionId, EmployeeDTO::setPositionCodeFk);
+            modelMapper.map(EmployeeEntity::getRankId, EmployeeDTO::setRankCodeFk);
             modelMapper.map(EmployeeEntity::getBranchId, EmployeeDTO::setBranchCodeFk);
             modelMapper.map(EmployeeEntity::getDepartmentId, EmployeeDTO::setDepartmentCodeFk);
-            modelMapper.map(EmployeeEntity::getPositionId, EmployeeDTO::setPositionCodeFk);
         });
     }
 
