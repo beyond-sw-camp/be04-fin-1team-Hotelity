@@ -2,9 +2,7 @@ package org.iot.hotelitybackend.hotelservice.dto;
 
 import lombok.Data;
 
-import java.sql.Time;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 public class StayDTO {

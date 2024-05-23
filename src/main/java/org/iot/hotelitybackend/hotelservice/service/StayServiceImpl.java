@@ -208,7 +208,16 @@ public class StayServiceImpl implements StayService {
 
 				// ReservationDTO Field Mapping
 				List<ReservationDTO> reservationDTOList = reservationService.setDTOField(reservationInfo);
+
 				ReservationDTO reservationDTO = reservationDTOList.get(0);
+
+				Integer roomCapacityCheck = reservationDTO.getRoomCapacity();
+
+				if (roomCapacityCheck < stayPeopleCount) {
+					throw new IllegalArgumentException(
+						"수용 가능 인원 초과! [" +
+						reservationDTO.getRoomCodeFk() + "] 객실 수용 인원: " + roomCapacityCheck + "인");
+				}
 
 				// 예약 정보를 StayEntity에 저장
 				StayEntity stayEntity = StayEntity.builder()
@@ -285,11 +294,6 @@ public class StayServiceImpl implements StayService {
 
 				List<StayDTO> stayDTOList = new ArrayList<>(getStayByStayCodePk(stayCodePk));
 
-				// System.out.println("========= stayDTOList 조회 =========");
-				// for (StayDTO stayDTO1: stayDTOList) {
-				// 	System.out.println(stayDTO1);
-				// }
-
 				checkoutStayInfo.put(KEY_CONTENT, stayDTOList);
 			}
 		}
@@ -345,17 +349,6 @@ public class StayServiceImpl implements StayService {
 	public List<StayDTO> getStayByStayCodePk(Integer stayCodePk) {
 
 		List<StayEntity> stayEntityList = stayRepository.findById(stayCodePk).stream().toList();
-
-		// List<StayEntity> stayEntityList 조회
-		// for (StayEntity stayEntity : stayEntityList) {
-		// 	System.out.println("Stay Code: " + stayEntity.getStayCodePk());
-		// 	System.out.println("Check-in Time: " + stayEntity.getStayCheckinTime());
-		// 	System.out.println("Check-out Time: " + stayEntity.getStayCheckoutTime());
-		// 	System.out.println("People Count: " + stayEntity.getStayPeopleCount());
-		// 	System.out.println("Employee Code: " + stayEntity.getEmployeeCodeFk());
-		// 	System.out.println("Reservation Code: " + stayEntity.getReservationCodeFk());
-		// 	System.out.println("-----------------------------------");
-		// }
 
 		List<StayDTO> stayDTOList = setDTOField(stayEntityList);
 
@@ -425,11 +418,6 @@ public class StayServiceImpl implements StayService {
 						).get().getRoomCategoryCodeFk()
 					).get().getRoomCapacity()))
 				.toList();
-
-		// System.out.println("========= stayDTOList 조회 =========");
-		// for (StayDTO stayDTO1 : list) {
-		// 	System.out.println(stayDTO1);
-		// }
 
 		return list;
 	}
