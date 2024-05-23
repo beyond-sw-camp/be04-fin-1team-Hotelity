@@ -6,32 +6,38 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
+
+import org.iot.hotelitybackend.employee.aggregate.EmployeeEntity;
 
 @Entity
 @Table(name = "notice_tb")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class NoticeEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer noticeCodePk;
-    private String noticeTitle;
-    private String noticeContent;
-    private Date noticePostedDate;
-    private Integer employeeCodeFk;
-	private Date noticeLastUpdatedDate;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer noticeCodePk;
+	private String noticeTitle;
+	private String noticeContent;
+
+	@Column(name = "employee_code_fk")
+	private Integer employeeCodeFk;
+
 	private String branchCodeFk;
+	private LocalDateTime noticePostedDate;
+	private LocalDateTime noticeLastUpdatedDate;
 
 	@Builder
 	public NoticeEntity(
-			Integer noticeCodePk,
-			String noticeTitle,
-			String noticeContent,
-			Date noticePostedDate,
-			Integer employeeCodeFk,
-			Date noticeLastUpdatedDate,
-			String branchCodeFk
+		Integer noticeCodePk,
+		String noticeTitle,
+		String noticeContent,
+		Integer employeeCodeFk,
+		String branchCodeFk,
+		LocalDateTime noticePostedDate,
+		LocalDateTime noticeLastUpdatedDate
 	) {
 		this.noticeCodePk = noticeCodePk;
 		this.noticeTitle = noticeTitle;
@@ -41,4 +47,8 @@ public class NoticeEntity {
 		this.noticeLastUpdatedDate = noticeLastUpdatedDate;
 		this.branchCodeFk = branchCodeFk;
 	}
+
+	@ManyToOne
+	@JoinColumn(name = "employee_code_fk", insertable = false, updatable = false)
+	private EmployeeEntity employee;
 }
