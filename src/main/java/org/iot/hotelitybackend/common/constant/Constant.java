@@ -18,4 +18,7 @@ public class Constant {
     public static final String KEY_AUTHORIZATION = "Authorization";
 
     public static final String MESSAGE_TOKEN_EXPIRED = "token expired..";
+
+    public static final String CORS_EXPOSED_HEADER_SET_COOKIE = "Set-Cookie";
+    public static final String CORS_EXPOSED_HEADER_COOKIE = "Cookie";
 }

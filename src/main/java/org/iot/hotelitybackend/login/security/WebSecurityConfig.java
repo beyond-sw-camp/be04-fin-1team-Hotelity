@@ -13,9 +13,16 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.iot.hotelitybackend.common.constant.Constant.*;
 
 @Configuration
 @EnableWebSecurity(debug = true)
@@ -45,6 +52,24 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain configureSecurityFilterChain(HttpSecurity http) throws Exception {
+
+        // configure CORS
+        http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(request -> {
+
+            List<String> allowStringList = Collections.singletonList("*");
+            List<String> exposedHeaders =
+                    List.of(KEY_AUTHORIZATION, CORS_EXPOSED_HEADER_SET_COOKIE, CORS_EXPOSED_HEADER_COOKIE);
+            CorsConfiguration configuration = new CorsConfiguration();
+
+            configuration.setAllowedOriginPatterns(allowStringList);
+            configuration.setAllowedMethods(allowStringList);
+            configuration.setAllowedHeaders(allowStringList);
+            configuration.setAllowCredentials(true);
+            configuration.setMaxAge(3600L);
+            configuration.setExposedHeaders(exposedHeaders);
+
+            return configuration;
+        }));
 
         // csrf disable
         http.csrf(AbstractHttpConfigurer::disable);
