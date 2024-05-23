@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -73,9 +74,20 @@ public class CampaignCustomerServiceImpl implements CampaignCustomerService{
     @Override
     public Map<String, Object> selectSearchedCampaignsList(int pageNum, Integer campaignCodeFk, String campaignSendType,
         LocalDateTime campaignSentDate, String customerName, String campaignTitle, Integer campaignSentStatus
-        , Integer templateCodeFk, String templateName) {
+        , Integer templateCodeFk, String templateName, String orderBy, Integer sortBy) {
 
-        Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
+        Pageable pageable;
+        if(orderBy == null){
+            pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("campaignCodeFk"));
+        } else{
+            if (sortBy==1){
+                pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
+            }
+            else{
+                pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
+            }
+        }
+
         Specification<CampaignCustomerEntity> spec = (root, query, criteriaBuilder) -> null;
 
         if(campaignCodeFk != null){

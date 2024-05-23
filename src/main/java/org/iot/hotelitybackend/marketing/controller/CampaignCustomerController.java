@@ -39,12 +39,14 @@ public class CampaignCustomerController {
         @RequestParam(required = false) Integer campaignSentStatus,
         @RequestParam(required = false) Integer templateCodeFk,
         @RequestParam(required = false) String templateName,
+        @RequestParam(required = false) String orderBy,
+        @RequestParam(required = false) Integer sortBy,
         @RequestParam int pageNum
     ) {
         Map<String, Object> campaignPageInfo = campaignCustomerService.selectSearchedCampaignsList(
             pageNum, campaignCodeFk, campaignSendType, campaignSentDate
             , customerName, campaignTitle, campaignSentStatus,
-            templateCodeFk, templateName
+            templateCodeFk, templateName, orderBy, sortBy
         );
 
         ResponseVO response = ResponseVO.builder()
