@@ -1,5 +1,7 @@
 package org.iot.hotelitybackend.login.security;
 
+import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
+import org.iot.hotelitybackend.login.jwt.JwtFilter;
 import org.iot.hotelitybackend.login.jwt.JwtUtil;
 import org.iot.hotelitybackend.login.repository.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,16 +22,19 @@ public class WebSecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Autowired
     public WebSecurityConfig(
             JwtUtil jwtUtil,
             RefreshTokenRepository refreshTokenRepository,
-            AuthenticationConfiguration authenticationConfiguration
+            AuthenticationConfiguration authenticationConfiguration,
+            EmployeeRepository employeeRepository
     ) {
         this.jwtUtil = jwtUtil;
         this.refreshTokenRepository = refreshTokenRepository;
         this.authenticationConfiguration = authenticationConfiguration;
+        this.employeeRepository = employeeRepository;
     }
 
     @Bean
@@ -54,6 +59,8 @@ public class WebSecurityConfig {
                 .requestMatchers("/**").permitAll()
                 .anyRequest().authenticated()
         );
+
+        http.addFilterBefore(new JwtFilter(jwtUtil, employeeRepository), AuthenticationFilter.class);
 
         AuthenticationFilter loginFilter = new AuthenticationFilter(
                 authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository);
