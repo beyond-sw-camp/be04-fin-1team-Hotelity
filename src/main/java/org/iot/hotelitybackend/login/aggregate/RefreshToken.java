@@ -17,12 +17,11 @@ import static org.iot.hotelitybackend.common.constant.Constant.REDIS_TIME_TO_LIV
 public class RefreshToken {
 
     @Id
-    private String refreshToken;
-
-    @Indexed
-    private String accessToken;
-
     private String loginCode;       // branchCode + employeeCode
                                     // ex) HQ_1
+    @Indexed
+    private String refreshToken;
+    @Indexed
+    private String accessToken;
 }
 

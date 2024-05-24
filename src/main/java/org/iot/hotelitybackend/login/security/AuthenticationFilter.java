@@ -53,7 +53,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             ServletInputStream inputStream = request.getInputStream();
             String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
             loginVO = objectMapper.readValue(messageBody, RequestLogin.class);
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -92,6 +91,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         /* generate token */
         String accessToken = jwtUtil.createAccessToken(employeeCodeWithBranchCode, role);
         String refreshToken = jwtUtil.createRefreshToken(accessToken);
+
+        if (refreshTokenRepository.existsById(employeeCodeWithBranchCode)) {
+            refreshTokenRepository.deleteById(employeeCodeWithBranchCode);
+        }
 
         /* save refresh token (Redis) */
         RefreshToken refreshTokenEntity = new RefreshToken(refreshToken, accessToken, employeeCodeWithBranchCode);
