@@ -47,8 +47,8 @@ public class ConsoleScheduler {
 		this.emailService = emailService;
 	}
 
-	@Scheduled(initialDelay = 5000, fixedDelay = Long.MAX_VALUE) // 애플리케이션 시작 후 5초 뒤에 한 번 실행
-	// @Scheduled(cron = "0 0 9 1 3 ?") // 매년 3월 1일 09:00:00에 실행
+	// @Scheduled(initialDelay = 5000, fixedDelay = Long.MAX_VALUE) // 애플리케이션 시작 후 5초 뒤에 한 번 실행
+	@Scheduled(cron = "0 0 9 1 3 ?") // 매년 3월 1일 09:00:00에 실행
 	public void couponIssue() {
 		if (hasRun.compareAndSet(false, true)) { // 이미 실행된 적이 있는지 체크
 			System.out.println("Coupon issue started..."); // 로그 추가
