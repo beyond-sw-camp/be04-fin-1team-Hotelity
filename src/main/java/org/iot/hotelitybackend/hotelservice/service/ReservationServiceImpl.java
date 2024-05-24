@@ -226,11 +226,6 @@ public class ReservationServiceImpl implements ReservationService {
 		return reservationInfo;
 	}
 
-	/* 체크인 시 체크인 상태 변경 */
-	// 예약코드로 투숙 내역 조회하여 없으면 체크인 추가(투숙쪽에 작성된 메서드 활용)
-	// 투숙  등록 시 ReservationDTO의 reservationCheckinStatus 를 1로 변경
-	// ReservationDTO 데이터 매핑(reservationCheckinStatus)
-
 	/* 일자별 예약 리스트 조회 */
 	@Override
 	public Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate) {
@@ -273,49 +268,4 @@ public class ReservationServiceImpl implements ReservationService {
 
 		return list;
 	}
-
-	/* 투숙 다중 조건 검색을 위한 메소드 */
-	// 지점, 객실코드, 체크인, 체크아웃
-	// @Override
-	// public List<Integer> selectStaysList(int pageNum, String branchCodeFk, String roomCodeFk,
-	// 	LocalDateTime reservationCheckinDate, LocalDateTime reservationCheckoutDate) {
-	//
-	// 	Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
-	// 	Specification<ReservationEntity> spec = (root, query, CriteriaBuilder) -> null;
-	//
-	// 	// 지점 코드
-	// 	if (!branchCodeFk.isEmpty()) {
-	// 		spec = spec.and(ReservationSpecification.equalsBranchCodeFk(branchCodeFk));
-	// 	}
-	// 	// 객실코드
-	// 	if (!roomCodeFk.isEmpty()) {
-	// 		spec = spec.and(ReservationSpecification.likeRoomCodeFk(roomCodeFk));
-	// 	}
-	// 	// 체크인날짜
-	// 	if (reservationCheckinDate != null) {
-	// 		spec = spec.and(ReservationSpecification.equalsCheckinDate(reservationCheckinDate));
-	// 	}
-	// 	// 체크아웃날짜
-	// 	if (reservationCheckoutDate != null) {
-	// 		spec = spec.and(ReservationSpecification.equalsCheckoutDate(reservationCheckoutDate));
-	// 	}
-	//
-	// 	Page<ReservationEntity> reservationEntityPage = reservationRepository.findAll(spec, pageable);
-	// 	// List<ReservationDTO> reservationDTOList = reservationEntityPage
-	// 	// 	.stream()
-	// 	// 	.map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
-	// 	// 	.toList();
-	//
-	// 	// Map<String, Object> roomPageInfo = new HashMap<>();
-	//
-	// 	// roomPageInfo.put(KEY_CONTENT, reservationDTOList);
-	//
-	// 	// 조회 결과에서 예약 코드만 리스트에 담아서 넘기기
-	// 	List<Integer> reservationCodes = reservationEntityPage
-	// 		.stream()
-	// 		.map(ReservationEntity::getReservationCodePk)
-	// 		.collect(Collectors.toList());
-	//
-	// 	return reservationCodes;
-	// }
 }
