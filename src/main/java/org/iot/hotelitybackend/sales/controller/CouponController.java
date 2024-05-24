@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.Map;
 
 @RestController
@@ -24,29 +25,20 @@ public class CouponController {
     }
 
     @GetMapping("/coupons/page")
-    public ResponseEntity<ResponseVO> selectAllCouponsType(@RequestParam int pageNum) {
-        Map<String, Object> couponPageInfo = couponService.selectAllCouponsType(pageNum);
-
-        ResponseVO response = ResponseVO.builder()
-                .data(couponPageInfo)
-                .resultCode(HttpStatus.OK.value())
-                .build();
-
-        return ResponseEntity.status(response.getResultCode()).body(response);
-    }
-
-    @GetMapping("/coupons/{couponCodePk}/coupon")
-    public CouponDTO selectCouponByCouponCodePk(@PathVariable int couponCodePk) {
-        return couponService.selectCouponByCouponCodePk(couponCodePk);
-    }
-
-    @GetMapping("/coupons/search/page")
-    public ResponseEntity<ResponseVO> selectSearchedCouponsList(
-            @RequestParam(required = false) Float couponDiscountRate,
-            @RequestParam(required = false) String couponType,
-            @RequestParam int pageNum
+    public ResponseEntity<ResponseVO> selectAllCouponsType(
+        @RequestParam Integer pageNum,
+        @RequestParam(required = false) Integer couponCodePk,
+        @RequestParam(required = false) String couponName,
+        @RequestParam(required = false) String couponType,
+        @RequestParam(required = false) Double couponDiscountRate,
+        @RequestParam(required = false) Date couponLaunchingDate,
+        @RequestParam(required = false) String couponInfo,
+        @RequestParam(required = false) Integer membershipLevelCodeFk,
+        @RequestParam(required = false) String orderBy,
+        @RequestParam(required = false) Integer sortBy
     ) {
-        Map<String, Object> couponPageInfo = couponService.selectSearchedCouponsList(pageNum, couponDiscountRate, couponType);
+        Map<String, Object> couponPageInfo = couponService.selectAllCouponsType(pageNum, couponCodePk
+        , couponName, couponType, couponDiscountRate, couponLaunchingDate, couponInfo, membershipLevelCodeFk, orderBy, sortBy);
 
         ResponseVO response = ResponseVO.builder()
                 .data(couponPageInfo)

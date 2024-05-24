@@ -12,7 +12,8 @@ public interface StayService {
 		String roomLevelName, Integer roomCapacity, Integer stayPeopleCount,
 		LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime,
 		String branchCodeFk, Integer employeeCodeFk, String employeeName,
-		Integer reservationCodeFk, Integer stayCheckoutStatus);
+		Integer reservationCodeFk, Integer stayCheckoutStatus,
+		String orderBy, Integer sortBy);
 
 	Map<String, Object> registStayByReservationCodePk(int reservationCodeFk, int employeeCodeFk, int stayPeopleCount);
 

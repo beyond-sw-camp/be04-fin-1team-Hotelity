@@ -44,14 +44,16 @@ public class StayController {
 		@RequestParam(required = false) Integer employeeCodeFk,
 		@RequestParam(required = false) String employeeName,
 		@RequestParam(required = false) Integer reservationCodeFk,
-		@RequestParam(required = false) Integer stayCheckoutStatus
-		) {
+		@RequestParam(required = false) Integer stayCheckoutStatus,
+		@RequestParam(required = false) String orderBy,
+		@RequestParam(required = false) Integer sortBy) {
 
 		Map<String, Object> stayListInfo =
 			stayService.selectStaysList(
 				pageNum, stayCodePk, customerCodeFk, customerName, roomCodeFk,
 				roomName, roomLevelName, roomCapacity, stayPeopleCount, stayCheckinTime,
-				stayCheckoutTime, branchCodeFk, employeeCodeFk, employeeName, reservationCodeFk, stayCheckoutStatus
+				stayCheckoutTime, branchCodeFk, employeeCodeFk, employeeName, reservationCodeFk,
+				stayCheckoutStatus, orderBy, sortBy
 			);
 
 		ResponseVO response = null;
@@ -96,23 +98,31 @@ public class StayController {
 		int employeeCodeFk = requestCheckinInfo.getEmployeeCodeFk();
 		int stayPeopleCount = requestCheckinInfo.getStayPeopleCount();
 
-		Map<String, Object> registStayInfo =
-			stayService.registStayByReservationCodePk(reservationCodeFk, employeeCodeFk, stayPeopleCount);
-
 		ResponseVO response = null;
 
-		if (registStayInfo.isEmpty()) {
+		try {
+			Map<String, Object> registStayInfo =
+				stayService.registStayByReservationCodePk(reservationCodeFk, employeeCodeFk, stayPeopleCount);
+
+			if (registStayInfo.isEmpty()) {
+				response = ResponseVO.builder()
+					.resultCode(HttpStatus.CONFLICT.value())
+					.message("이미 투숙 등록 된 예약입니다.")
+					.build();
+			} else {
+				response = ResponseVO.builder()
+					.data(registStayInfo)
+					.resultCode(HttpStatus.CREATED.value())
+					.message("예약 코드 " + reservationCodeFk + "번 투숙 등록 완료")
+					.build();
+			}
+		} catch (Exception e) {
 			response = ResponseVO.builder()
-				.resultCode(HttpStatus.CONFLICT.value())
-				.message("이미 투숙 등록 된 예약입니다.")
-				.build();
-		} else {
-			response = ResponseVO.builder()
-				.data(registStayInfo)
-				.resultCode(HttpStatus.CREATED.value())
-				.message("예약 코드 " + reservationCodeFk + "번 투숙 등록 완료")
+				.resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(e.getMessage())
 				.build();
 		}
+
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 

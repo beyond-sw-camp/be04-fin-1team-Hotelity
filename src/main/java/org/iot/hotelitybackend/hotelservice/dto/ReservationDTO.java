@@ -3,7 +3,6 @@ package org.iot.hotelitybackend.hotelservice.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 public class ReservationDTO {

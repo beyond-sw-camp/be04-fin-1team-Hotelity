@@ -1,7 +1,6 @@
 package org.iot.hotelitybackend.hotelservice.controller;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Map;
 
 import org.iot.hotelitybackend.common.vo.ResponseVO;
@@ -47,8 +46,9 @@ public class ReservationController {
 		@RequestParam(required = false) LocalDateTime reservationDate,
 		@RequestParam(required = false) LocalDateTime reservationCheckInDate,
 		@RequestParam(required = false) LocalDateTime reservationCheckoutDate,
-		@RequestParam(required = false) Integer reservationCancelStatus
-	) {
+		@RequestParam(required = false) Integer reservationCancelStatus,
+		@RequestParam(required = false) String orderBy,
+		@RequestParam(required = false) Integer sortBy) {
 		int year = reservationCheckinDate.getYear();
 		int month = reservationCheckinDate.getMonthValue();
 
@@ -61,7 +61,7 @@ public class ReservationController {
 				roomLevelName,roomCapacity,
 				branchCodeFk,reservationDate,
 				reservationCheckInDate, reservationCheckoutDate,
-				reservationCancelStatus
+				reservationCancelStatus, orderBy, sortBy
 				);
 
 		ResponseVO response = ResponseVO.builder()
@@ -89,15 +89,6 @@ public class ReservationController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
-	/* 체크인 시 체크인 상태 변경 */
-	// @GetMapping("/reservations/{reservationCodePk}/checkin")
-	// public ResponseEntity<ResponseVO> modifyReservationCheckinStatus(
-	// 	@PathVariable("reservationCheckinPk") Integer reservationCodePk) {
-	//
-	// 	// Map<String, Object> reservationInfo = reservationService.modifyReservationCheckinStatus()
-	// 	return null;
-	// }
-
 	/* 일자별 예약 내역 리스트 조회 */
 	/* 캘린더에서 특정 일자 선택 시 조회되는 리스트 */
 	/* => 프론트에서 월별 리스트의 값을 처리하여 일별로 나누어 list에 append 할 것 */
@@ -118,9 +109,4 @@ public class ReservationController {
 
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
-
-	/* 예약 체크인 취소
-	 *  reservation
-	 *  */
-
 }

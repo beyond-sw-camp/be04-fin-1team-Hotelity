@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
-import org.iot.hotelitybackend.hotelmanagement.aggregate.BranchEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 import jakarta.persistence.criteria.Join;
