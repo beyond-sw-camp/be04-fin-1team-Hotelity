@@ -14,7 +14,4 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface CampaignRepository extends JpaRepository<CampaignEntity, Integer>, JpaSpecificationExecutor<CampaignEntity> {
     Page<CampaignEntity> findAll(Specification<CampaignEntity> spec, Pageable pageable);
 
-	List<CampaignEntity> findAllByCampaignSendType(String campaignSendType);
-
-	List<CampaignEntity> findAllByCampaignSentDate(LocalDateTime campaignSentDate);
 }
