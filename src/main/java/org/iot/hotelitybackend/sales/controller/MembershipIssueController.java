@@ -25,7 +25,7 @@ public class MembershipIssueController {
     }
 
     // @GetMapping("/assign")
-    @Scheduled(cron = "0 0 9 1 3 ?") // 매년 3월 1일 09:00:00에 실행
+    // @Scheduled(cron = "0 0 9 1 3 ?") // 매년 3월 1일 09:00:00에 실행
     public String assignMembershipBasedOnPayments() {
         membershipIssueService.assignMembershipBasedOnPayments();
         return null;
