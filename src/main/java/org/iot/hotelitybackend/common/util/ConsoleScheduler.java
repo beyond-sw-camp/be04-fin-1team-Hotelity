@@ -13,6 +13,7 @@ import org.iot.hotelitybackend.sales.repository.CouponRepository;
 import org.iot.hotelitybackend.sales.repository.MembershipIssueRepository;
 import org.iot.hotelitybackend.sales.repository.MembershipRepository;
 import org.iot.hotelitybackend.sales.service.CouponIssueServiceImpl;
+import org.iot.hotelitybackend.sales.service.MembershipIssueServiceImpl;
 import org.iot.hotelitybackend.sales.vo.RequestCouponIssue;
 import org.iot.hotelitybackend.smpt.EmailServiceImpl;
 import org.iot.hotelitybackend.smpt.RequestDTO;
@@ -30,13 +31,15 @@ public class ConsoleScheduler {
 	private final TemplateRepository templateRepository;
 	private final MembershipRepository membershipRepository;
 	private final EmailServiceImpl emailService;
+	private final MembershipIssueServiceImpl membershipIssueService;
 
 	private final AtomicBoolean hasRun = new AtomicBoolean(false);
 
 	public ConsoleScheduler(CouponIssueServiceImpl couponIssueService, MembershipIssueRepository membershipIssueRepository,
 		CouponRepository couponRepository, CouponIssueRepository couponIssueRepository,
 		CustomerRepository customerRepository,
-		TemplateRepository templateRepository, MembershipRepository membershipRepository, EmailServiceImpl emailService) {
+		TemplateRepository templateRepository, MembershipRepository membershipRepository, EmailServiceImpl emailService,
+		MembershipIssueServiceImpl membershipIssueService) {
 		this.couponIssueService = couponIssueService;
 		this.membershipIssueRepository = membershipIssueRepository;
 		this.couponRepository = couponRepository;
@@ -45,10 +48,16 @@ public class ConsoleScheduler {
 		this.templateRepository = templateRepository;
 		this.membershipRepository = membershipRepository;
 		this.emailService = emailService;
+		this.membershipIssueService = membershipIssueService;
 	}
 
-	@Scheduled(initialDelay = 5000, fixedDelay = Long.MAX_VALUE) // 애플리케이션 시작 후 5초 뒤에 한 번 실행
-	// @Scheduled(cron = "0 0 9 1 3 ?") // 매년 3월 1일 09:00:00에 실행
+	// @Scheduled(initialDelay = 5000, fixedDelay = Long.MAX_VALUE) // 애플리케이션 시작 후 5초 뒤에 한 번 실행
+	@Scheduled(cron = "0 0 9 1 3 ?") // 매년 3월 1일 09:00:00에 실행
+	public void assignMembershipBasedOnPayments() {
+		membershipIssueService.assignMembershipBasedOnPayments();
+		couponIssue();
+	}
+
 	public void couponIssue() {
 		if (hasRun.compareAndSet(false, true)) { // 이미 실행된 적이 있는지 체크
 			System.out.println("Coupon issue started..."); // 로그 추가
