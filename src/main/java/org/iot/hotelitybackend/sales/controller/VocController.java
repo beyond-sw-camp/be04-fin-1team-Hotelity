@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -25,90 +26,88 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/sales")
 public class VocController {
 
-    private final VocService vocService;
+	private final VocService vocService;
 
-    @Autowired
-    public VocController(VocService vocService) {
-        this.vocService = vocService;
-    }
+	@Autowired
+	public VocController(VocService vocService) {
+		this.vocService = vocService;
+	}
 
-    @GetMapping("/vocs/page")
-    public ResponseEntity<ResponseVO> selectVocsList(@RequestParam int pageNum) {
-        Map<String, Object> vocPageInfo = vocService.selectVocsList(pageNum);
+	@GetMapping("/vocs/page")
+	public ResponseEntity<ResponseVO> selectVocsList(
+		@RequestParam int pageNum,
+		@RequestParam(required = false) Integer vocCodePk,
+		@RequestParam(required = false) String vocTitle,
+		@RequestParam(required = false) String vocCategory,
+		@RequestParam(required = false) Integer customerCodeFk,
+		@RequestParam(required = false) String customerName,
+		@RequestParam(required = false) LocalDateTime vocCreatedDate,
+		@RequestParam(required = false) LocalDateTime vocLastUpdatedDate,
+		@RequestParam(required = false) String branchCodeFk,
+		@RequestParam(required = false) Integer employeeCodeFk,
+		@RequestParam(required = false) String employeeName,
+		@RequestParam(required = false) Integer vocProcessStatus,
+		@RequestParam(required = false) String orderBy,
+		@RequestParam(required = false) Integer sortBy)
+	{
 
-        ResponseVO response = ResponseVO.builder()
-                .data(vocPageInfo)
-                .resultCode(HttpStatus.OK.value())
-                .build();
+		Map<String, Object> vocPageInfo = vocService.selectVocsList(
+			pageNum, vocCodePk, vocTitle, vocCategory, customerCodeFk, customerName, vocCreatedDate,
+			vocLastUpdatedDate, branchCodeFk, employeeCodeFk, employeeName, vocProcessStatus, orderBy, sortBy);
 
-        return ResponseEntity.status(response.getResultCode()).body(response);
-    }
+		ResponseVO response = ResponseVO.builder()
+			.data(vocPageInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
 
-    @GetMapping("/vocs/search/page")
-    public ResponseEntity<ResponseVO> selectSearchedVocsList(
-            @RequestParam(required = false) String branchCodeFk,
-            @RequestParam(required = false) Integer vocProcessStatus,
-            @RequestParam(required = false) String vocCategory,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date vocCreatedDate,
-            @RequestParam(required = false) Integer customerCodeFk,
-            @RequestParam int pageNum
-            ) {
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
 
-        Map<String, Object> vocPageInfo = vocService.selectSearchedVocsList(pageNum, branchCodeFk, vocProcessStatus, vocCategory, vocCreatedDate, customerCodeFk);
+	@GetMapping("/vocs/{vocCodePk}/voc")
+	public VocDTO selectVocByVocCodePk(@PathVariable int vocCodePk) {
+		return vocService.selectVocByVocCodePk(vocCodePk);
+	}
 
-        ResponseVO response = ResponseVO.builder()
-                .data(vocPageInfo)
-                .resultCode(HttpStatus.OK.value())
-                .build();
+	@PutMapping("/vocs/{vocCodePk}")
+	public ResponseEntity<ResponseVO> replyVoc(
+		@RequestBody RequestReplyVoc requestReplyVoc,
+		@PathVariable("vocCodePk") int vocCodePk
+	) {
+		Map<String, Object> vocReply = vocService.replyVoc(requestReplyVoc, vocCodePk);
 
-        return ResponseEntity.status(response.getResultCode()).body(response);
-    }
+		ResponseVO response = ResponseVO.builder()
+			.data(vocReply)
+			.resultCode(HttpStatus.CREATED.value())
+			.build();
 
-    @GetMapping("/vocs/{vocCodePk}/voc")
-    public VocDTO selectVocByVocCodePk(@PathVariable int vocCodePk) {
-        return vocService.selectVocByVocCodePk(vocCodePk);
-    }
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
 
-    @PutMapping("/vocs/{vocCodePk}")
-    public ResponseEntity<ResponseVO> replyVoc(
-            @RequestBody RequestReplyVoc requestReplyVoc,
-            @PathVariable ("vocCodePk") int vocCodePk
-    ) {
-        Map<String, Object> vocReply = vocService.replyVoc(requestReplyVoc, vocCodePk);
+	@DeleteMapping("vocs/{vocCodePk}")
+	public ResponseEntity<ResponseVO> deleteVoc(@PathVariable("vocCodePk") int vocCodePk) {
+		Map<String, Object> deleteVoc = vocService.deleteVoc(vocCodePk);
+		ResponseVO response = ResponseVO.builder()
+			.data(deleteVoc)
+			.resultCode(HttpStatus.NO_CONTENT.value())
+			.message("VOC 삭제 성공")
+			.build();
 
-        ResponseVO response = ResponseVO.builder()
-                .data(vocReply)
-                .resultCode(HttpStatus.CREATED.value())
-                .build();
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
 
-        return ResponseEntity.status(response.getResultCode()).body(response);
-    }
+	@GetMapping("/vocs/excel/download")
+	public ResponseEntity<InputStreamResource> downloadVocsListExcel() {
+		try {
+			List<VocDTO> vocDTOList = vocService.selectVocsListForExcel();
+			Map<String, Object> result = vocService.createVocsExcelFile(vocDTOList);
 
-    @DeleteMapping("vocs/{vocCodePk}")
-    public ResponseEntity<ResponseVO> deleteVoc(@PathVariable("vocCodePk") int vocCodePk) {
-        Map<String, Object> deleteVoc = vocService.deleteVoc(vocCodePk);
-        ResponseVO response = ResponseVO.builder()
-            .data(deleteVoc)
-            .resultCode(HttpStatus.NO_CONTENT.value())
-            .message("VOC 삭제 성공")
-            .build();
-
-        return ResponseEntity.status(response.getResultCode()).body(response);
-    }
-
-    @GetMapping("/vocs/excel/download")
-    public ResponseEntity<InputStreamResource> downloadVocsListExcel() {
-        try {
-            List<VocDTO> vocDTOList = vocService.selectVocsListForExcel();
-            Map<String, Object> result = vocService.createVocsExcelFile(vocDTOList);
-
-            return ResponseEntity
-                .ok()
-                .headers((HttpHeaders)result.get("headers"))
-                .body(new InputStreamResource((ByteArrayInputStream)result.get("result")));
-        } catch (Exception e) {
-            log.info(e.getMessage());
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
+			return ResponseEntity
+				.ok()
+				.headers((HttpHeaders)result.get("headers"))
+				.body(new InputStreamResource((ByteArrayInputStream)result.get("result")));
+		} catch (Exception e) {
+			log.info(e.getMessage());
+		}
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+	}
 }

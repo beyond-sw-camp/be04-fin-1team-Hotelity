@@ -2,9 +2,7 @@ package org.iot.hotelitybackend.hotelservice.dto;
 
 import lombok.Data;
 
-import java.sql.Time;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 public class StayDTO {
@@ -19,8 +17,7 @@ public class StayDTO {
     private LocalDateTime stayCheckinTime;
     private LocalDateTime stayCheckoutTime;
     private Integer employeeCodeFk;
-    private String PICemployeeName;
+    private String PICEmployeeName;
     private String branchCodeFk;
     private Integer reservationCodeFk;
-    private Integer stayCheckoutStatus;
 }

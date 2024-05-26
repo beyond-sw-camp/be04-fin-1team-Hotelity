@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.iot.hotelitybackend.hotelservice.aggregate.ReservationEntity;
-import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

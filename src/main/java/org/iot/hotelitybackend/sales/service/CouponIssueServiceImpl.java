@@ -8,17 +8,18 @@ import org.iot.hotelitybackend.sales.dto.CouponDTO;
 import org.iot.hotelitybackend.sales.dto.CouponIssueDTO;
 import org.iot.hotelitybackend.sales.repository.CouponIssueRepository;
 import org.iot.hotelitybackend.sales.repository.CouponRepository;
-import org.iot.hotelitybackend.sales.repository.MembershipRepository;
 import org.iot.hotelitybackend.sales.vo.RequestCouponIssue;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -41,17 +42,61 @@ public class CouponIssueServiceImpl implements CouponIssueService{
     }
 
     @Override
-    public Map<String, Object> selectCouponIssueList(int pageNum) {
-        Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
-        Page<CouponIssueEntity> couponIssuePage = couponIssueRepository.findAll(pageable);
-        List<CouponIssueDTO> couponIssueDTOList = couponIssuePage.stream().map(couponIssueEntity -> mapper.map(couponIssueEntity, CouponIssueDTO.class))
-                .peek(couponIssueDTO -> couponIssueDTO.setCustomerName(
-                        mapper.map(customerRepository.findById(couponIssueDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()
-                ))
-                .peek(couponIssueDTO -> couponIssueDTO.setMembershipLevelName(
-                        mapper.map(couponRepository.findById(couponIssueDTO.getCouponCodeFk()), CouponDTO.class).getCouponName()
-                ))
-                .toList();
+    public Map<String, Object> selectCouponIssueList(Integer pageNum, Integer couponIssueCodePk, String couponName,
+        Integer customerCodePk, String customerName, Double couponDiscountRate, LocalDateTime couponIssueDate, LocalDateTime couponExpireDate,
+        LocalDateTime couponUseDate, String orderBy, Integer sortBy) {
+        Pageable pageable;
+        if(orderBy == null){
+            pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("couponIssueCodePk"));
+        } else{
+            if(sortBy == 1){
+                pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
+            } else {
+                pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
+            }
+        }
+
+        Specification<CouponIssueEntity> specification = (root, query, criteriaBuilder) -> null;
+
+        if(couponIssueCodePk != null){
+            specification = specification.and(CouponIssueSpecification.equalsCouponIssueCodePk(couponIssueCodePk));
+        }
+        if(couponName != null){
+            specification = specification.and(CouponIssueSpecification.likeCouponName(couponName));
+        }
+        if(customerName != null){
+            specification = specification.and(CouponIssueSpecification.likeCustomerName(customerName));
+        }
+        if(couponDiscountRate != null){
+            specification = specification.and(CouponIssueSpecification.equalsCouponDiscountRate(couponDiscountRate));
+        }
+        if(couponIssueDate != null){
+            specification = specification.and(CouponIssueSpecification.equalsCouponIssueDate(couponIssueDate));
+        }
+        if(couponExpireDate != null){
+            specification = specification.and(CouponIssueSpecification.equalsCouponExpireDate(couponExpireDate));
+        }
+        if(couponUseDate != null){
+            specification = specification.and(CouponIssueSpecification.equalsCouponUseDate(couponUseDate));
+        }
+        if(customerCodePk != null){
+            specification = specification.and(CouponIssueSpecification.equalsCustomerCodePk(customerCodePk));
+        }
+
+        Page<CouponIssueEntity> couponIssuePage = couponIssueRepository.findAll(specification, pageable);
+        List<CouponIssueDTO> couponIssueDTOList = couponIssuePage
+            .stream()
+            .map(couponIssueEntity -> mapper.map(couponIssueEntity, CouponIssueDTO.class))
+            .peek(couponIssueDTO -> {
+                    couponIssueDTO.setCustomerName(
+                        mapper.map(customerRepository.findById(couponIssueDTO.getCustomerCodeFk()), CustomerDTO.class)
+                            .getCustomerName());
+                    couponIssueDTO.setCouponName(couponRepository.findById(couponIssueDTO.getCouponCodeFk()).get().getCouponName());
+                    couponIssueDTO.setCouponDiscountRate(couponRepository.findById(couponIssueDTO.getCouponCodeFk()).get()
+                        .getCouponDiscountRate());
+                }
+            )
+            .toList();
 
         int totalPagesCount = couponIssuePage.getTotalPages();
         int currentPageIndex = couponIssuePage.getNumber();
@@ -87,38 +132,6 @@ public class CouponIssueServiceImpl implements CouponIssueService{
         registCouponIssueInfo.put(KEY_CONTENT, mapper.map(couponIssueRepository.save(couponIssueEntity), CouponIssueDTO.class));
 
         return registCouponIssueInfo;
-    }
-
-    @Override
-    public Map<String, Object> selectCouponIssueListByCustomerCodeFk(int pageNum, Integer customerCodeFk) {
-        Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
-        Specification<CouponIssueEntity> spec = (root, query, criteriaBuild) -> null;
-
-        if (customerCodeFk != null) {
-            spec = spec.and(CouponIssueSpecification.equalsCustomerCode(customerCodeFk));
-        }
-
-        Page<CouponIssueEntity> couponIssueEntityPage = couponIssueRepository.findAll(spec, pageable);
-
-        List<CouponIssueDTO> couponIssueDTOList = couponIssueEntityPage.stream().map(couponIssueEntity -> mapper.map(couponIssueEntity, CouponIssueDTO.class))
-                .peek(couponIssueDTO -> couponIssueDTO.setCustomerName(
-                        mapper.map(customerRepository.findById(couponIssueDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()
-                ))
-                .peek(couponIssueDTO -> couponIssueDTO.setMembershipLevelName(
-                        mapper.map(couponRepository.findById(couponIssueDTO.getCouponCodeFk()), CouponDTO.class).getCouponName()
-                ))
-                .toList();
-
-        int totalPagesCount = couponIssueEntityPage.getTotalPages();
-        int currentPageIndex = couponIssueEntityPage.getNumber();
-
-        Map<String, Object> couponIssueEntityPageInfo = new HashMap<>();
-
-        couponIssueEntityPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-        couponIssueEntityPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-        couponIssueEntityPageInfo.put(KEY_CONTENT, couponIssueDTOList);
-
-        return couponIssueEntityPageInfo;
     }
 
     public String generateBarcode() {

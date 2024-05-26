@@ -26,7 +26,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.AncillaryEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.AncillarySpecification;
 import org.iot.hotelitybackend.hotelmanagement.dto.AncillaryDTO;
-import org.iot.hotelitybackend.hotelmanagement.dto.RoomDTO;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryCategoryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
@@ -231,7 +230,8 @@ public class AncillaryServiceImpl implements AncillaryService{
 				.ancillaryCategoryCodeFk(requestRegistFacility.getAncillaryCategoryCodeFk())
 				.build();
 
-		Map<String, Object> registFacilityInfo = new HashMap<>();
+		HashMap<String, Object> registFacilityInfo;
+		registFacilityInfo = new HashMap<>();
 
 		registFacilityInfo.put(KEY_CONTENT, mapper.map(ancillaryRepository.save(ancillaryEntity), AncillaryDTO.class));
 

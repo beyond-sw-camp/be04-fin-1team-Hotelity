@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -50,243 +52,269 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class VocServiceImpl implements VocService {
 
-    private final ModelMapper mapper;
+	private final ModelMapper mapper;
 
-    private final VocRepository vocRepository;
+	private final VocRepository vocRepository;
 
-    private final CustomerRepository customerRepository;
-    private final EmployeeRepository employeeRepository;
+	private final CustomerRepository customerRepository;
+	private final EmployeeRepository employeeRepository;
 
-    @Autowired
-    public VocServiceImpl(ModelMapper mapper, VocRepository vocRepository, CustomerRepository customerRepository, EmployeeRepository employeeRepository) {
-        this.mapper = mapper;
-        this.vocRepository = vocRepository;
-        this.customerRepository = customerRepository;
-        this.employeeRepository = employeeRepository;
-    }
+	@Autowired
+	public VocServiceImpl(ModelMapper mapper, VocRepository vocRepository, CustomerRepository customerRepository,
+		EmployeeRepository employeeRepository) {
+		this.mapper = mapper;
+		this.vocRepository = vocRepository;
+		this.customerRepository = customerRepository;
+		this.employeeRepository = employeeRepository;
+	}
 
-    @Override
-    public Map<String, Object> selectVocsList(int pageNum) {
-        Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
-        Page<VocEntity> vocPage = vocRepository.findAll(pageable);
-        List<VocDTO> vocDTOList = vocPage.stream().map(vocEntity -> mapper.map(vocEntity, VocDTO.class))
-                .peek(vocDTO -> vocDTO.setCustomerName(
-                        mapper.map(customerRepository.findById(vocDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()
-                ))
-                .peek(vocDTO -> vocDTO.setEmployeeName(
-                        mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
-                ))
-                .toList();
+	@Override
+	public Map<String, Object> selectVocsList(
+		int pageNum, Integer vocCodePk, String vocTitle, String vocCategory,
+		Integer customerCodeFk, String customerName, LocalDateTime vocCreatedDate, LocalDateTime vocLastUpdatedDate,
+		String branchCodeFk,
+		Integer employeeCodeFk, String PICEmployeeName, Integer vocProcessStatus, String orderBy, Integer sortBy) {
 
-        int totalPagesCount = vocPage.getTotalPages();
-        int currentPageIndex = vocPage.getNumber();
+		Pageable pageable;
 
-        Map<String, Object> vocPageInfo = new HashMap<>();
+		if (orderBy == null) {
+			pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("vocCodePk"));
+		} else {
+			if (sortBy == 1) {
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
+			} else {
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
+			}
+		}
 
-        vocPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-        vocPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-        vocPageInfo.put(KEY_CONTENT, vocDTOList);
+		Specification<VocEntity> spec = (root, query, criteriaBuilder) -> null;
 
-        return vocPageInfo;
-    }
+		// voc코드
+		if (vocCodePk != null) {
+			spec = spec.and(VocSpecification.equalsVocCodePk(vocCodePk));
+		}
 
-    @Override
-    public VocDTO selectVocByVocCodePk(int vocCodePk) {
-        VocEntity vocEntity = vocRepository.findById(vocCodePk)
-                .orElseThrow(IllegalArgumentException::new);
+		// voc 제목
+		if (vocTitle != null) {
+			spec = spec.and(VocSpecification.likeVocTitle(vocTitle));
+		}
 
-        String customerName = customerRepository
-                .findById(vocEntity.getCustomerCodeFk())
-                .get()
-                .getCustomerName();
+		// voc 카테고리
+		if (vocCategory != null) {
+			spec = spec.and(VocSpecification.likeVocCategory(vocCategory));
+		}
 
-        String employeeName = employeeRepository
-                .findById(vocEntity.getEmployeeCodeFk())
-                .get()
-                .getEmployeeName();
+		// 고객코드
+		if (customerCodeFk != null) {
+			spec = spec.and(VocSpecification.equalsCustomerCode(customerCodeFk));
+		}
 
-        VocDTO vocDTO = mapper.map(vocEntity, VocDTO.class);
+		// 고객명
+		if (customerName != null) {
+			spec = spec.and(VocSpecification.likeCustomerName(customerName));
+		}
 
-        vocDTO.setCustomerName(customerName);
-        vocDTO.setEmployeeName(employeeName);
+		// voc 작성일자
+		if (vocCreatedDate != null) {
+			spec = spec.and(VocSpecification.equalsVocCreatedDate(vocCreatedDate));
+		}
 
-        return vocDTO;
-    }
+		// voc 업데이트 일자
+		if (vocLastUpdatedDate != null) {
+			spec = spec.and(VocSpecification.equalsVocLastUpdatedDate(vocLastUpdatedDate));
+		}
 
-    @Override
-    public Map<String, Object> replyVoc(RequestReplyVoc requestReplyVoc, int vocCodePk) {
-        VocEntity vocEntity = VocEntity.builder()
-                .vocCodePk(vocCodePk)
-                .vocTitle(vocRepository.findById(vocCodePk).get().getVocTitle())
-                .vocContent(vocRepository.findById(vocCodePk).get().getVocContent())
-                .vocCreatedDate(vocRepository.findById(vocCodePk).get().getVocCreatedDate())
-                .vocLastUpdatedDate(new Date())
-                .customerCodeFk(vocRepository.findById(vocCodePk).get().getCustomerCodeFk())
-                .vocCategory(vocRepository.findById(vocCodePk).get().getVocCategory())
-                .employeeCodeFk(vocRepository.findById(vocCodePk).get().getEmployeeCodeFk())
-                .branchCodeFk(vocRepository.findById(vocCodePk).get().getBranchCodeFk())
-                .vocImageLink(requestReplyVoc.getVocImageLink())
-                .vocResponse(requestReplyVoc.getVocResponse())
-                .vocProcessStatus(1)
-                .build();
+		// 지점코드
+		if (branchCodeFk != null) {
+			spec = spec.and(VocSpecification.equalsBranchCode(branchCodeFk));
+		}
 
-        Map<String, Object> vocReply = new HashMap<>();
+		// 직원코드
+		if (employeeCodeFk != null) {
+			spec = spec.and(VocSpecification.equalsEmployeeCodeFk(employeeCodeFk));
+		}
 
-        vocReply.put(KEY_CONTENT, mapper.map(vocRepository.save(vocEntity), VocDTO.class));
+		// 직원명
+		if (PICEmployeeName != null) {
+			spec = spec.and(VocSpecification.likeEmployeeName(PICEmployeeName));
+		}
 
-        return vocReply;
-    }
+		// voc 처리상태
+		if (vocProcessStatus != null) {
+			spec = spec.and(VocSpecification.equalsVocProcessStatus(vocProcessStatus));
+		}
 
-    @Override
-    public Map<String, Object> selectSearchedVocsList(int pageNum, String branchCodeFk, Integer vocProcessStatus, String vocCategory, Date vocCreatedDate, Integer customerCodeFk) {
-        Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
-        Specification<VocEntity> spec = (root, query, criteriaBuilder) -> null;
+		Page<VocEntity> vocEntityPage = vocRepository.findAll(spec, pageable);
+		List<VocDTO> vocDTOList = vocEntityPage.stream()
+			.map(vocEntity -> mapper.map(vocEntity, VocDTO.class))
+			.peek(vocDTO -> vocDTO.setCustomerName(
+				mapper.map(customerRepository.findById(vocDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()
+			))
+			.peek(vocDTO -> vocDTO.setPICEmployeeName(
+				mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
+			))
+			.toList();
 
-        if (!branchCodeFk.isEmpty()) {
-            spec = spec.and(VocSpecification.equalsBranchCode(branchCodeFk));
-        }
+		int totalPagesCount = vocEntityPage.getTotalPages();
+		int currentPageIndex = vocEntityPage.getNumber();
 
-        if (vocProcessStatus != null) {
-            spec = spec.and(VocSpecification.equalsVocProcessStatus(vocProcessStatus));
-        }
+		Map<String, Object> vocPageInfo = new HashMap<>();
 
-        if (!vocCategory.isEmpty()) {
-            spec = spec.and(VocSpecification.equalsVocCategory(vocCategory));
-        }
+		vocPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+		vocPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+		vocPageInfo.put(KEY_CONTENT, vocDTOList);
 
-        if (vocCreatedDate != null) {
-            spec = spec.and(VocSpecification.equalsVocCreatedDate(vocCreatedDate));
-        }
+		return vocPageInfo;
+	}
 
-        if (customerCodeFk != null) {
-            spec = spec.and(VocSpecification.equalsCustomerCode(customerCodeFk));
-        }
+	@Override
+	public VocDTO selectVocByVocCodePk(int vocCodePk) {
+		VocEntity vocEntity = vocRepository.findById(vocCodePk)
+			.orElseThrow(IllegalArgumentException::new);
 
-        Page<VocEntity> vocEntityPage = vocRepository.findAll(spec, pageable);
-        List<VocDTO> vocDTOList = vocEntityPage
-                .stream()
-                .map(vocEntity -> mapper.map(vocEntity, VocDTO.class))
-                .peek(vocDTO -> vocDTO.setCustomerName(
-                        mapper.map(customerRepository.findById(vocDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()
-                ))
-                .peek(vocDTO -> vocDTO.setEmployeeName(
-                        mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
-                ))
-                .toList();
+		String customerName = customerRepository
+			.findById(vocEntity.getCustomerCodeFk())
+			.get()
+			.getCustomerName();
 
-        int totalPagesCount = vocEntityPage.getTotalPages();
-        int currentPageIndex = vocEntityPage.getNumber();
+		String employeeName = employeeRepository
+			.findById(vocEntity.getEmployeeCodeFk())
+			.get()
+			.getEmployeeName();
 
-        Map<String, Object> vocPageInfo = new HashMap<>();
+		VocDTO vocDTO = mapper.map(vocEntity, VocDTO.class);
 
-        vocPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-        vocPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-        vocPageInfo.put(KEY_CONTENT, vocDTOList);
+		vocDTO.setCustomerName(customerName);
+		vocDTO.setPICEmployeeName(employeeName);
 
-        return vocPageInfo;
-    }
+		return vocDTO;
+	}
 
-    @Override
-    public List<VocDTO> selectVocsListForExcel() {
-        return vocRepository.findAll()
-            .stream()
-            .map(vocEntity -> mapper.map(vocEntity, VocDTO.class))
-            .peek(vocDTO -> vocDTO.setCustomerName(
-                mapper.map(customerRepository.findById(vocDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()
-            ))
-            .peek(vocDTO -> vocDTO.setEmployeeName(
-                mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
-            ))
-            .toList();
-    }
+	@Override
+	public Map<String, Object> replyVoc(RequestReplyVoc requestReplyVoc, int vocCodePk) {
+		VocEntity vocEntity = VocEntity.builder()
+			.vocCodePk(vocCodePk)
+			.vocTitle(vocRepository.findById(vocCodePk).get().getVocTitle())
+			.vocContent(vocRepository.findById(vocCodePk).get().getVocContent())
+			.vocCreatedDate(vocRepository.findById(vocCodePk).get().getVocCreatedDate())
+			.vocLastUpdatedDate(LocalDateTime.now())
+			.customerCodeFk(vocRepository.findById(vocCodePk).get().getCustomerCodeFk())
+			.vocCategory(vocRepository.findById(vocCodePk).get().getVocCategory())
+			.employeeCodeFk(vocRepository.findById(vocCodePk).get().getEmployeeCodeFk())
+			.branchCodeFk(vocRepository.findById(vocCodePk).get().getBranchCodeFk())
+			.vocImageLink(requestReplyVoc.getVocImageLink())
+			.vocResponse(requestReplyVoc.getVocResponse())
+			.vocProcessStatus(1)
+			.build();
 
-    @Override
-    public Map<String, Object> deleteVoc(int vocCodePk) {
-        Map<String, Object> deleteVoc = new HashMap<>();
-        try {
-            vocRepository.deleteById(vocCodePk);
-            deleteVoc.put(KEY_CONTENT, "Content deleted successfully.");
-        } catch (Exception e) {
-            deleteVoc.put(KEY_CONTENT, "Failed to delete content.");
-        }
-        return deleteVoc;
-    }
+		Map<String, Object> vocReply = new HashMap<>();
 
-    @Override
-    public Map<String, Object> createVocsExcelFile(List<VocDTO> vocDTOList) throws
-        IOException,
-        NoSuchFieldException,
-        IllegalAccessException {
+		vocReply.put(KEY_CONTENT, mapper.map(vocRepository.save(vocEntity), VocDTO.class));
 
-        Workbook workbook = new XSSFWorkbook();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+		return vocReply;
+	}
 
-        Font headerFont = workbook.createFont();
-        headerFont.setBold(true);
-        headerFont.setColor(IndexedColors.BLACK.getIndex());
+	@Override
+	public List<VocDTO> selectVocsListForExcel() {
+		return vocRepository.findAll()
+			.stream()
+			.map(vocEntity -> mapper.map(vocEntity, VocDTO.class))
+			.peek(vocDTO -> vocDTO.setCustomerName(
+				mapper.map(customerRepository.findById(vocDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()
+			))
+			.peek(vocDTO -> vocDTO.setPICEmployeeName(
+				mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
+			))
+			.toList();
+	}
 
-        CellStyle headerCellStyle = workbook.createCellStyle();
-        headerCellStyle.setFont(headerFont);
-        headerCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	@Override
+	public Map<String, Object> deleteVoc(int vocCodePk) {
+		Map<String, Object> deleteVoc = new HashMap<>();
+		try {
+			vocRepository.deleteById(vocCodePk);
+			deleteVoc.put(KEY_CONTENT, "Content deleted successfully.");
+		} catch (Exception e) {
+			deleteVoc.put(KEY_CONTENT, "Failed to delete content.");
+		}
+		return deleteVoc;
+	}
 
-        Sheet sheet = workbook.createSheet("VOC");
+	@Override
+	public Map<String, Object> createVocsExcelFile(List<VocDTO> vocDTOList) throws
+		IOException,
+		NoSuchFieldException,
+		IllegalAccessException {
 
-        createDashboardSheet(vocDTOList, sheet, headerCellStyle);
+		Workbook workbook = new XSSFWorkbook();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        workbook.write(out);
-        log.info("[ReportService:getExcel] create Excel list done. row count:[{}]", vocDTOList.size());
+		Font headerFont = workbook.createFont();
+		headerFont.setBold(true);
+		headerFont.setColor(IndexedColors.BLACK.getIndex());
 
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
-        String time = dateFormat.format(calendar.getTime());
-        String fileName = "VOCs_"+ time +".xlsx";
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/vnd.ms-excel");
-        headers.add("Content-Disposition", "attachment; filename=" + fileName);
+		CellStyle headerCellStyle = workbook.createCellStyle();
+		headerCellStyle.setFont(headerFont);
+		headerCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("result", new ByteArrayInputStream(out.toByteArray()));
-        result.put("fileName", fileName);
-        result.put("headers", headers);
-        return result;
-    }
+		Sheet sheet = workbook.createSheet("VOC");
 
-    // 첫번째 인자인 List<RoomDTO> 만 바꿔서 쓰면 됨
-    private void createDashboardSheet(List<VocDTO> vocDTOList, Sheet sheet, CellStyle headerCellStyle) throws
-        NoSuchFieldException, IllegalAccessException {
-        Row headerRow = sheet.createRow(0);
-        VocDTO vocDTO = new VocDTO();
-        int idx1 = 0;
-        Cell headerCell;
-        List<String> headerStrings = new ArrayList<>();
-        for (Field field : vocDTO.getClass().getDeclaredFields()) {
-            field.setAccessible(true);
-            String fieldName = field.getName();
-            headerStrings.add(fieldName);
-            headerCell = headerRow.createCell(idx1++);
-            headerCell.setCellValue(fieldName);
-            headerCell.setCellStyle(headerCellStyle);
-        }
+		createDashboardSheet(vocDTOList, sheet, headerCellStyle);
 
-        Row bodyRow;
-        Cell bodyCell;
-        int idx2 = 1;
-        for (VocDTO vocDTOIter : vocDTOList) {
-            bodyRow = sheet.createRow(idx2++);
-            int idx3 = 0;
-            for (String headerString : headerStrings) {
-                Field field = vocDTOIter.getClass().getDeclaredField(headerString);
-                field.setAccessible(true);
-                bodyCell = bodyRow.createCell(idx3);
-                bodyCell.setCellValue(String.valueOf(field.get(vocDTOIter)));
-                idx3++;
-            }
-        }
+		workbook.write(out);
+		log.info("[ReportService:getExcel] create Excel list done. row count:[{}]", vocDTOList.size());
 
-        for (int i = 0; i < headerStrings.size(); i++) {
-            sheet.autoSizeColumn(i);
-            sheet.setColumnWidth(i, (sheet.getColumnWidth(i)) + (short)1024);
-        }
-    }
+		Calendar calendar = Calendar.getInstance();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
+		String time = dateFormat.format(calendar.getTime());
+		String fileName = "VOCs_" + time + ".xlsx";
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", "application/vnd.ms-excel");
+		headers.add("Content-Disposition", "attachment; filename=" + fileName);
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("result", new ByteArrayInputStream(out.toByteArray()));
+		result.put("fileName", fileName);
+		result.put("headers", headers);
+		return result;
+	}
+
+	// 첫번째 인자인 List<RoomDTO> 만 바꿔서 쓰면 됨
+	private void createDashboardSheet(List<VocDTO> vocDTOList, Sheet sheet, CellStyle headerCellStyle) throws
+		NoSuchFieldException, IllegalAccessException {
+		Row headerRow = sheet.createRow(0);
+		VocDTO vocDTO = new VocDTO();
+		int idx1 = 0;
+		Cell headerCell;
+		List<String> headerStrings = new ArrayList<>();
+		for (Field field : vocDTO.getClass().getDeclaredFields()) {
+			field.setAccessible(true);
+			String fieldName = field.getName();
+			headerStrings.add(fieldName);
+			headerCell = headerRow.createCell(idx1++);
+			headerCell.setCellValue(fieldName);
+			headerCell.setCellStyle(headerCellStyle);
+		}
+
+		Row bodyRow;
+		Cell bodyCell;
+		int idx2 = 1;
+		for (VocDTO vocDTOIter : vocDTOList) {
+			bodyRow = sheet.createRow(idx2++);
+			int idx3 = 0;
+			for (String headerString : headerStrings) {
+				Field field = vocDTOIter.getClass().getDeclaredField(headerString);
+				field.setAccessible(true);
+				bodyCell = bodyRow.createCell(idx3);
+				bodyCell.setCellValue(String.valueOf(field.get(vocDTOIter)));
+				idx3++;
+			}
+		}
+
+		for (int i = 0; i < headerStrings.size(); i++) {
+			sheet.autoSizeColumn(i);
+			sheet.setColumnWidth(i, (sheet.getColumnWidth(i)) + (short)1024);
+		}
+	}
 }

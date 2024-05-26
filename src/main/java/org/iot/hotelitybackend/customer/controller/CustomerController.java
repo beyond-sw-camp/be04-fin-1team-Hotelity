@@ -6,8 +6,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
+import org.iot.hotelitybackend.customer.dto.SelectCustomerDTO;
 import org.iot.hotelitybackend.customer.service.CustomerService;
 import org.iot.hotelitybackend.customer.vo.ResponseCustomer;
+import org.iot.hotelitybackend.sales.dto.MembershipDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -46,10 +50,27 @@ public class CustomerController {
 
     @GetMapping("/page")
     public ResponseEntity<ResponseVO> selectCustomersList(
+        @RequestParam(required = false) Integer customerCodePk,
+        @RequestParam(required = false) String customerName,
+        @RequestParam(required = false) String customerEmail,
+        @RequestParam(required = false) String customerPhoneNumber,
+        @RequestParam(required = false) String customerEnglishName,
+        @RequestParam(required = false) String customerAddress,
+        @RequestParam(required = false) Integer customerInfoAgreement,
+        @RequestParam(required = false) Integer customerStatus,
+        @RequestParam(required = false) Date customerRegisteredDate,
+        @RequestParam(required = false) Integer nationCodeFk,
+        @RequestParam(required = false) String customerGender,
+        @RequestParam(required = false) String nationName,
         @RequestParam(required = false) String customerType,
         @RequestParam(required = false) String membershipLevelName,
-        @RequestParam int pageNum) {
-        Map<String, Object> customerPageInfo = customerService.selectCustomersList(customerType, membershipLevelName, pageNum);
+        @RequestParam(required = false) String orderBy,
+        @RequestParam(required = false) Integer sortBy,
+        @RequestParam Integer pageNum) {
+        Map<String, Object> customerPageInfo = customerService.selectCustomersList(
+            customerCodePk, customerName, customerEmail, customerPhoneNumber, customerEnglishName,
+            customerAddress, customerInfoAgreement, customerStatus, customerRegisteredDate, nationCodeFk,
+            customerGender, nationName, customerType, membershipLevelName, orderBy, sortBy, pageNum);
 
         ResponseVO response = ResponseVO.builder()
                 .data(customerPageInfo)
@@ -60,12 +81,25 @@ public class CustomerController {
     }
 
     @GetMapping("/{customerCodePk}/customer")
-    public ResponseEntity<ResponseCustomer> selectCustomerByCustomerCodePk(@PathVariable("customerCodePk") int customerCodePk){
+    public ResponseEntity<SelectCustomerDTO> selectCustomerByCustomerCodePk(@PathVariable("customerCodePk") Integer customerCodePk){
 
-        CustomerDTO customer = customerService.selectCustomerByCustomerCodePk(customerCodePk);
-        ResponseCustomer responseCustomer = mapper.map(customer, ResponseCustomer.class);
+        SelectCustomerDTO customer = customerService.selectCustomerByCustomerCodePk(customerCodePk);
+        // ResponseCustomer responseCustomer = mapper.map(customer, ResponseCustomer.class);
 
-        return ResponseEntity.status(HttpStatus.OK).body(responseCustomer);
+        return ResponseEntity.status(HttpStatus.OK).body(customer);
+    }
+
+    @DeleteMapping("/{customerCodePk}")
+    public ResponseEntity<ResponseVO> deleteCustomerByCustomerCodePk (@PathVariable("customerCodePk") int customerCodePk){
+
+        Map<String, Object> customerPageInfo = customerService.deleteCustomerByCustomerCodePk(customerCodePk);
+            ResponseVO response = ResponseVO.builder()
+            .data(customerPageInfo)
+            .resultCode(HttpStatus.OK.value())
+            .build();
+        System.out.println(customerPageInfo);
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
     }
 
     @PostMapping("/excel/read")
@@ -95,9 +129,28 @@ public class CustomerController {
     }
 
     @GetMapping("/excel/download")
-    public ResponseEntity<InputStreamResource> downloadExcel(){
+    public ResponseEntity<InputStreamResource> downloadExcel(
+        @RequestParam(required = false) Integer customerCodePk,
+        @RequestParam(required = false) String customerName,
+        @RequestParam(required = false) String customerEmail,
+        @RequestParam(required = false) String customerPhoneNumber,
+        @RequestParam(required = false) String customerEnglishName,
+        @RequestParam(required = false) String customerAddress,
+        @RequestParam(required = false) Integer customerInfoAgreement,
+        @RequestParam(required = false) Integer customerStatus,
+        @RequestParam(required = false) Date customerRegisteredDate,
+        @RequestParam(required = false) Integer nationCodeFk,
+        @RequestParam(required = false) String customerGender,
+        @RequestParam(required = false) String nationName,
+        @RequestParam(required = false) String customerType,
+        @RequestParam(required = false) String membershipLevelName
+    ){
         try{
-            ByteArrayInputStream result = customerService.downloadExcel();
+            ByteArrayInputStream result = customerService.downloadExcel(
+                customerCodePk, customerName, customerEmail, customerPhoneNumber, customerEnglishName,
+                customerAddress, customerInfoAgreement, customerStatus, customerRegisteredDate, nationCodeFk,
+                customerGender, nationName, customerType, membershipLevelName
+            );
 
             String fileName = "Customer.xlsx";
             HttpHeaders headers = new HttpHeaders();

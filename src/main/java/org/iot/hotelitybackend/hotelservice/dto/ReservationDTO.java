@@ -3,7 +3,6 @@ package org.iot.hotelitybackend.hotelservice.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 public class ReservationDTO {
@@ -21,6 +20,4 @@ public class ReservationDTO {
     private LocalDateTime reservationCheckoutDate;
     private Integer reservationCancelStatus;
     private Integer reservationPersonnel;
-    // status가 0이면 체크인x, 1이면 체크인o
-    private Integer reservationCheckinStatus;
 }
