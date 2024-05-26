@@ -63,7 +63,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             modelMapper.map(EmployeeEntity::getBranchName, EmployeeDTO::setNameOfBranch);
             modelMapper.map(EmployeeEntity::getDepartmentName, EmployeeDTO::setNameOfDepartment);
 
-            modelMapper.map(EmployeeEntity::getPermissionId, EmployeeDTO::setDepartmentCodeFk);
+            modelMapper.map(EmployeeEntity::getPermissionId, EmployeeDTO::setPermissionCodeFk);
             modelMapper.map(EmployeeEntity::getPositionId, EmployeeDTO::setPositionCodeFk);
             modelMapper.map(EmployeeEntity::getRankId, EmployeeDTO::setRankCodeFk);
             modelMapper.map(EmployeeEntity::getBranchId, EmployeeDTO::setBranchCodeFk);
@@ -193,7 +193,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                     .employeeRank(rank)
                     .employeeDepartment(department)
                     .employeeBranch(branch)
-                    .stayList(employeeEntity.getStayList())
                     .build();
 
             return mapper.map(employeeRepository.save(modifiedEmployee), EmployeeDTO.class);
