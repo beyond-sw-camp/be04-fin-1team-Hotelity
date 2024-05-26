@@ -84,7 +84,7 @@ public class WebSecurityConfig {
 
         // 인가(Authorization)
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login").permitAll()
+                .requestMatchers("/login", "/reissue").permitAll()
 
                 .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
 
