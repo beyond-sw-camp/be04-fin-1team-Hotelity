@@ -17,12 +17,14 @@ import org.springframework.security.config.annotation.web.configurers.LogoutConf
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.iot.hotelitybackend.common.constant.Constant.*;
+import static org.iot.hotelitybackend.common.constant.Constant.CORS_EXPOSED_HEADER_SET_COOKIE;
+import static org.iot.hotelitybackend.common.constant.Constant.KEY_AUTHORIZATION;
 
 @Configuration
 @EnableWebSecurity(debug = true)
@@ -58,7 +60,7 @@ public class WebSecurityConfig {
 
             List<String> allowStringList = Collections.singletonList("*");
             List<String> exposedHeaders =
-                    List.of(KEY_AUTHORIZATION, CORS_EXPOSED_HEADER_SET_COOKIE, CORS_EXPOSED_HEADER_COOKIE);
+                    List.of(KEY_AUTHORIZATION, CORS_EXPOSED_HEADER_SET_COOKIE);
             CorsConfiguration configuration = new CorsConfiguration();
 
             configuration.setAllowedOriginPatterns(allowStringList);
@@ -124,6 +126,11 @@ public class WebSecurityConfig {
                 authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository);
 
         http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http.addFilterBefore(new UserLogoutFilter(jwtUtil, refreshTokenRepository), LogoutFilter.class);
+
+        // logout
+        http.logout(LogoutConfigurer::permitAll);
 
         // 세션 설정
         http.sessionManagement(httpSecuritySessionManagementConfigurer ->

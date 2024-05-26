@@ -97,7 +97,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         }
 
         /* save refresh token (Redis) */
-        RefreshToken refreshTokenEntity = new RefreshToken(refreshToken, accessToken, employeeCodeWithBranchCode);
+        RefreshToken refreshTokenEntity = new RefreshToken(employeeCodeWithBranchCode, refreshToken, accessToken);
         refreshTokenRepository.save(refreshTokenEntity);
 
         /* set response */
