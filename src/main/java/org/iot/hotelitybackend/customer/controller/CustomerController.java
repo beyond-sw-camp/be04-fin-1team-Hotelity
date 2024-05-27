@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -87,6 +88,18 @@ public class CustomerController {
         // ResponseCustomer responseCustomer = mapper.map(customer, ResponseCustomer.class);
 
         return ResponseEntity.status(HttpStatus.OK).body(customer);
+    }
+
+    @PostMapping()
+    public ResponseEntity<ResponseVO> insertCustomer(@RequestBody CustomerDTO customerDTO){
+        Map<String, Object> customerPageInfo = customerService.insertCustomer(customerDTO);
+
+        ResponseVO response = ResponseVO.builder()
+            .data(customerPageInfo)
+            .resultCode(HttpStatus.OK.value())
+            .build();
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
     }
 
     @DeleteMapping("/{customerCodePk}")
