@@ -27,27 +27,20 @@ public class CouponServiceImpl implements CouponService{
 
     private final ModelMapper mapper;
     private final CouponRepository couponRepository;
+    private final MembershipRepository membershipRepository;
 
     @Autowired
-    public CouponServiceImpl(ModelMapper mapper, CouponRepository couponRepository) {
+    public CouponServiceImpl(ModelMapper mapper, CouponRepository couponRepository,
+		MembershipRepository membershipRepository) {
         this.mapper = mapper;
         this.couponRepository = couponRepository;
-    }
+		this.membershipRepository = membershipRepository;
+	}
 
     @Override
     public Map<String, Object> selectAllCouponsType(Integer pageNum, Integer couponCodePk, String couponName,
         String couponType, Double couponDiscountRate, Date couponLaunchingDate, String couponInfo,
         Integer membershipLevelCodeFk, String orderBy, Integer sortBy) {
-        Pageable pageable;
-        if(orderBy == null){
-            pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("couponCodePk"));
-        } else{
-            if(sortBy == 1){
-                pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
-            } else {
-                pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
-            }
-        }
 
         Specification<CouponEntity> specification = (root, query, criteriaBuilder) -> null;
 
@@ -70,17 +63,62 @@ public class CouponServiceImpl implements CouponService{
             specification = specification.and(CouponSpecification.likesCouponInfo(couponInfo));
         }
 
-        Page<CouponEntity> couponPage = couponRepository.findAll(specification, pageable);
-        List<CouponDTO> couponDTOList = couponPage.stream().map(couponEntity -> mapper.map(couponEntity, CouponDTO.class)).toList();
-
-        int totalPagesCount = couponPage.getTotalPages();
-        int currentPageIndex = couponPage.getNumber();
-
         Map<String, Object> couponPageInfo = new HashMap<>();
 
-        couponPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-        couponPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-        couponPageInfo.put(KEY_CONTENT, couponDTOList);
+        // 1. 페이징 처리 할 때
+        if (pageNum != null) {
+            Pageable pageable;
+            if (orderBy == null) {
+                pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("couponCodePk"));
+            } else {
+                if (sortBy == 1) {
+                    pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
+                } else {
+                    pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
+                }
+            }
+            Page<CouponEntity> couponPage = couponRepository.findAll(specification, pageable);
+            List<CouponDTO> couponDTOList = couponPage
+                .stream()
+                .map(couponEntity -> mapper.map(couponEntity, CouponDTO.class))
+                .peek(
+                    couponDTO -> couponDTO.setMembershipLevelName(
+                        membershipRepository.findById(
+                            couponDTO
+                                .getMembershipLevelCodeFk()
+                        )
+                            .get()
+                            .getMembershipLevelName()
+                    )
+                )
+                .toList();
+            int totalPagesCount = couponPage.getTotalPages();
+            int currentPageIndex = couponPage.getNumber();
+
+
+            couponPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+            couponPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+            couponPageInfo.put(KEY_CONTENT, couponDTOList);
+
+        // 2. 페이징 처리 안할 때
+        } else {
+            List<CouponEntity> couponEntityList = couponRepository.findAll(specification);
+            List<CouponDTO> couponDTOList = couponEntityList
+                .stream()
+                .map(couponEntity -> mapper.map(couponEntity, CouponDTO.class))
+                .peek(
+                    couponDTO -> couponDTO.setMembershipLevelName(
+                        membershipRepository.findById(
+                                couponDTO
+                                    .getMembershipLevelCodeFk()
+                            )
+                            .get()
+                            .getMembershipLevelName()
+                    )
+                )
+                .toList();
+            couponPageInfo.put(KEY_CONTENT, couponDTOList);
+        }
 
         return couponPageInfo;
     }

@@ -97,7 +97,12 @@ public class ExcelUtil {
 			for (int k = 0; k < fields.length; k++) {
 				fields[k].setAccessible(true);
 				bodyCell = bodyRow.createCell(k);
-				bodyCell.setCellValue(String.valueOf(fields[k].get(dto)));
+				Object value = fields[k].get(dto);
+				if (value == null) {
+					continue;
+				} else {
+					bodyCell.setCellValue(String.valueOf(fields[k].get(dto)));
+				}
 
 				// 컬럼 너비 조정
 				if (j == dtoList.size()) {

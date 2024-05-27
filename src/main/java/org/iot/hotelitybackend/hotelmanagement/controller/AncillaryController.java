@@ -1,6 +1,10 @@
 package org.iot.hotelitybackend.hotelmanagement.controller;
 
+import static org.iot.hotelitybackend.common.constant.Constant.*;
+import static org.iot.hotelitybackend.common.util.ExcelUtil.*;
+
 import java.io.ByteArrayInputStream;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -33,8 +37,22 @@ public class AncillaryController {
 	}
 
 	@GetMapping("/facilities")
-	public ResponseEntity<ResponseVO> selectAllFacilities(@RequestParam int pageNum) {
-		Map<String, Object> facilityPageInfo = ancillaryService.selectAllFacilities(pageNum);
+	public ResponseEntity<ResponseVO> selectAllFacilities(
+		@RequestParam(required = false) Integer pageNum,
+		@RequestParam(required = false) Integer ancillaryCodePk,
+		@RequestParam(required = false) String ancillaryName,
+		@RequestParam(required = false) String branchCodeFk,
+		@RequestParam(required = false) String ancillaryLocation,
+		@RequestParam(required = false) LocalTime ancillaryOpenTime,
+		@RequestParam(required = false) LocalTime ancillaryCloseTime,
+		@RequestParam(required = false) String ancillaryPhoneNumber,
+		@RequestParam(required = false) Integer ancillaryCategoryCodeFk,
+		@RequestParam(required = false) String branchName,
+		@RequestParam(required = false) String ancillaryCategoryName
+	) {
+		Map<String, Object> facilityPageInfo = ancillaryService.selectAllFacilities(
+			pageNum, ancillaryCodePk, ancillaryName, branchCodeFk, ancillaryLocation, ancillaryOpenTime, ancillaryCloseTime, ancillaryPhoneNumber, ancillaryCategoryCodeFk, branchName, ancillaryCategoryName
+		);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(facilityPageInfo)
@@ -86,10 +104,33 @@ public class AncillaryController {
 	}
 
 	@GetMapping("facilities/excel/download")
-	public ResponseEntity<InputStreamResource> downloadAllFacilitiesExcel() {
+	public ResponseEntity<InputStreamResource> downloadAllFacilitiesExcel(
+		@RequestParam(required = false) Integer pageNum,
+		@RequestParam(required = false) Integer ancillaryCodePk,
+		@RequestParam(required = false) String ancillaryName,
+		@RequestParam(required = false) String branchCodeFk,
+		@RequestParam(required = false) String ancillaryLocation,
+		@RequestParam(required = false) LocalTime ancillaryOpenTime,
+		@RequestParam(required = false) LocalTime ancillaryCloseTime,
+		@RequestParam(required = false) String ancillaryPhoneNumber,
+		@RequestParam(required = false) Integer ancillaryCategoryCodeFk,
+		@RequestParam(required = false) String branchName,
+		@RequestParam(required = false) String ancillaryCategoryName
+	) {
 		try {
-			List<AncillaryDTO> ancillaryDTOList = ancillaryService.selectAllFacilitiesForExcel();
-			Map<String, Object> result = ancillaryService.createFacilitiesExcelFile(ancillaryDTOList);
+			// 파일명을 적어주세요.
+			String title = "부대시설";
+
+			// 컬럼명은 DTO 의 필드 순서대로 적어주셔야 합니다,,,
+			String[] headerStrings = {"부대시설코드", "부대시설이름", "지점코드", "부대시설위치", "부대시설영업시작시간", "부대시설영업종료시간", "부대시설전화번호", "부대시설카테고리코드", "지점명", "부대시설카테고리이름"};
+
+			// 조회해서 DTO 리스트 가져오기
+			Map<String, Object> facilityListInfo = ancillaryService.selectAllFacilities(
+				pageNum, ancillaryCodePk, ancillaryName, branchCodeFk, ancillaryLocation, ancillaryOpenTime, ancillaryCloseTime, ancillaryPhoneNumber, ancillaryCategoryCodeFk, branchName, ancillaryCategoryName
+			);
+
+			// 엑셀 시트와 파일 만들기
+			Map<String, Object> result = createExcelFile((List<AncillaryDTO>)facilityListInfo.get(KEY_CONTENT), title, headerStrings);
 
 			return ResponseEntity
 				.ok()
@@ -98,6 +139,7 @@ public class AncillaryController {
 
 		} catch (Exception e) {
 			log.info(e.getMessage());
+			e.printStackTrace();
 		}
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
