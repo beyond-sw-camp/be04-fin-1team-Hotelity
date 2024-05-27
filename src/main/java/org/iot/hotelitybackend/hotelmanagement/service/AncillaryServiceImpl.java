@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.AncillaryEntity;
+import org.iot.hotelitybackend.hotelmanagement.aggregate.AncillarySpecification;
 import org.iot.hotelitybackend.hotelmanagement.dto.AncillaryDTO;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryCategoryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryRepository;
@@ -34,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -57,40 +60,162 @@ public class AncillaryServiceImpl implements AncillaryService{
 	}
 
 	@Override
-	public Map<String, Object> selectAllFacilities(int pageNum) {
-		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
-		Page<AncillaryEntity> ancillaryEntityPage = ancillaryRepository.findAll(pageable);
-		List<AncillaryDTO> ancillaryDTOList = ancillaryEntityPage
-			.stream()
-			.map(ancillaryEntity -> mapper.map(ancillaryEntity, AncillaryDTO.class))
-			.peek(ancillaryDTO -> {
+	public Map<String, Object> selectAllFacilities(
+		Integer pageNum,
+		Integer ancillaryCodePk,
+		String ancillaryName,
+		String branchCodeFk,
+		String ancillaryLocation,
+		LocalTime ancillaryOpenTime,
+		LocalTime ancillaryCloseTime,
+		String ancillaryPhoneNumber,
+		Integer ancillaryCategoryCodeFk,
+		String branchName,
+		String ancillaryCategoryName
+	) {
 
-				// 지점 이름 가져와 붙이기
-				ancillaryDTO.setBranchName(
-					branchRepository.findById(
-						ancillaryDTO.getBranchCodeFk()
-					).orElseThrow(IllegalArgumentException::new).getBranchName()
-				);
+		Specification<AncillaryEntity> spec = (root, query, criteriaBuilder) -> null;
 
-				// 부대시설 카테고리 이름 가져와 붙이기
-				ancillaryDTO.setAncillaryCategoryName(
-					ancillaryCategoryRepository.findById(
-						ancillaryDTO.getAncillaryCategoryCodeFk()
-					).orElseThrow(IllegalArgumentException::new).getAncillaryCategoryName()
-				);
-			})
-			.toList();
 
-		int totalPagesCount = ancillaryEntityPage.getTotalPages();
-		int currentPageIndex = ancillaryEntityPage.getNumber();
+		// 1-1. 부대시설코드 기준으로 필터링
+		if (ancillaryCodePk != null) {
+			spec = spec.and(AncillarySpecification.equalsAncillaryCodePk(ancillaryCodePk));
+		}
 
-		Map<String, Object> ancillaryPageInfo = new HashMap<>();
+		// 1-2. 부대시설이름 기준으로 검색
+		if (ancillaryName != null) {
+			spec = spec.and(AncillarySpecification.likeAncillaryName(ancillaryName));
+		}
 
-		ancillaryPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-		ancillaryPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-		ancillaryPageInfo.put(KEY_CONTENT, ancillaryDTOList);
+		// 1-3. 지점이름 기준으로 검색
+		if (branchName != null) {
+			spec = spec.and(
+				AncillarySpecification.equalsBranchCodeFk(
+					branchRepository.findByBranchName(branchName)
+						.getBranchCodePk()
+				)
+			);
+		}
 
-		return ancillaryPageInfo;
+		// 1-4. 부대시설위치 기준으로 검색 (like)
+		if (ancillaryLocation != null) {
+			spec = spec.and(AncillarySpecification.likeAncillaryLocation(ancillaryLocation));
+		}
+
+		// 1-5. 검색할 운영시작시간보다 큰 기준으로 검색
+		if (ancillaryOpenTime != null) {
+			spec = spec.and(AncillarySpecification.byOpenTimeGreaterThenOrEqual(ancillaryOpenTime));
+		}
+
+		// 1-6. 검색할 운영종료시간보다 작은 기준으로 검색
+		if (ancillaryCloseTime != null) {
+			spec = spec.and(AncillarySpecification.byCloseTimeLessThenOrEqual(ancillaryCloseTime));
+		}
+
+		// 1-7. 부대시설전화번호 기준으로 검색 (like)
+		if (ancillaryPhoneNumber != null) {
+			spec = spec.and(AncillarySpecification.likeAncillaryPhoneNumber(ancillaryPhoneNumber));
+		}
+
+		// 1-8. 부대시설카테고리이름 기준으로 검색
+		if (ancillaryCategoryName != null) {
+			spec = spec.and(
+				AncillarySpecification.equalsAncillaryCategoryCodeFk(
+					ancillaryCategoryRepository.findByAncillaryCategoryName(ancillaryCategoryName)
+						.getAncillaryCategoryCodePk()
+				)
+			);
+		}
+
+		// 2. 위에서 구성한 Specification 을 적용하여 findAll
+		List<AncillaryDTO> ancillaryDTOList;
+		Map<String, Object> ancillaryListInfo = new HashMap<>();
+
+		// 2-1. 페이징처리 할 때
+		if (pageNum != null) {
+			Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
+			Page<AncillaryEntity> ancillaryEntityList = ancillaryRepository.findAll(spec, pageable);
+
+			ancillaryDTOList = ancillaryEntityList
+				.stream()
+				.map(ancillaryEntity -> mapper.map(ancillaryEntity, AncillaryDTO.class))
+				.peek(ancillaryDTO -> {
+
+					// 지점 이름 가져와 붙이기
+					ancillaryDTO.setBranchName(
+						branchRepository.findById(
+							ancillaryDTO.getBranchCodeFk()
+						).orElseThrow(IllegalArgumentException::new).getBranchName()
+					);
+
+					// 부대시설 카테고리 이름 가져와 붙이기
+					ancillaryDTO.setAncillaryCategoryName(
+						ancillaryCategoryRepository.findById(
+							ancillaryDTO.getAncillaryCategoryCodeFk()
+						).orElseThrow(IllegalArgumentException::new).getAncillaryCategoryName()
+					);
+				})
+				.toList();
+
+			int totalPagesCount = ancillaryEntityList.getTotalPages();
+			int currentPageIndex = ancillaryEntityList.getNumber();
+			ancillaryListInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+			ancillaryListInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+
+		// 2-2. 페이징 처리 안할 때
+		} else {
+			List<AncillaryEntity> ancillaryEntityList = ancillaryRepository.findAll(spec);
+			ancillaryDTOList = ancillaryEntityList
+				.stream()
+				.map(ancillaryEntity -> mapper.map(ancillaryEntity, AncillaryDTO.class))
+				.peek(ancillaryDTO -> {
+
+					// 지점 이름 가져와 붙이기
+					ancillaryDTO.setBranchName(
+						branchRepository.findById(
+							ancillaryDTO.getBranchCodeFk()
+						).orElseThrow(IllegalArgumentException::new).getBranchName()
+					);
+
+					// 부대시설 카테고리 이름 가져와 붙이기
+					ancillaryDTO.setAncillaryCategoryName(
+						ancillaryCategoryRepository.findById(
+							ancillaryDTO.getAncillaryCategoryCodeFk()
+						).orElseThrow(IllegalArgumentException::new).getAncillaryCategoryName()
+					);
+				})
+				.toList();
+		}
+
+		ancillaryListInfo.put(KEY_CONTENT, ancillaryDTOList);
+
+		// List<AncillaryDTO> ancillaryDTOList = ancillaryEntityPage
+		// 	.stream()
+		// 	.map(ancillaryEntity -> mapper.map(ancillaryEntity, AncillaryDTO.class))
+		// 	.peek(ancillaryDTO -> {
+		//
+		// 		// 지점 이름 가져와 붙이기
+		// 		ancillaryDTO.setBranchName(
+		// 			branchRepository.findById(
+		// 				ancillaryDTO.getBranchCodeFk()
+		// 			).orElseThrow(IllegalArgumentException::new).getBranchName()
+		// 		);
+		//
+		// 		// 부대시설 카테고리 이름 가져와 붙이기
+		// 		ancillaryDTO.setAncillaryCategoryName(
+		// 			ancillaryCategoryRepository.findById(
+		// 				ancillaryDTO.getAncillaryCategoryCodeFk()
+		// 			).orElseThrow(IllegalArgumentException::new).getAncillaryCategoryName()
+		// 		);
+		// 	})
+		// 	.toList();
+		//
+		//
+		// Map<String, Object> ancillaryPageInfo = new HashMap<>();
+		//
+		// ancillaryPageInfo.put(KEY_CONTENT, ancillaryDTOList);
+
+		return ancillaryListInfo;
 	}
 
 	@Override

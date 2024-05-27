@@ -5,11 +5,24 @@ import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyFacility;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestRegistFacility;
 
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
 public interface AncillaryService {
-	Map<String, Object> selectAllFacilities(int pageNum);
+	Map<String, Object> selectAllFacilities(
+		Integer pageNum,
+		Integer ancillaryCodePk,
+		String ancillaryName,
+		String branchCodeFk,
+		String ancillaryLocation,
+		LocalTime ancillaryOpenTime,
+		LocalTime ancillaryCloseTime,
+		String ancillaryPhoneNumber,
+		Integer ancillaryCategoryCodeFk,
+		String branchName,
+		String ancillaryCategoryName
+	);
 
     Map<String, Object> registFacility(RequestRegistFacility requestRegistFacility);
 
