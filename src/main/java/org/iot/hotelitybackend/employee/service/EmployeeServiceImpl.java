@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -73,37 +74,105 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Map<String, Object> selectEmployeesList(
-            int pageNum, String branchCode, Integer departmentCode, String employeeName
+            Integer pageNum,
+            Integer employeeCode,
+            String employeeName,
+            String employeeAddress,
+            String employeePhoneNumber,
+            String employeeOfficePhoneNumber,
+            String employeeEmail,
+            String employeeResignStatus,
+            Integer permissionCode,
+            Integer positionCode,
+            Integer rankCode,
+            Integer departmentCode,
+            String branchCode,
+            String orderBy,
+            Integer sortBy
     ) {
         Specification<EmployeeEntity> spec = (root, query, criteriaBuilder) -> null;
 
-        if (branchCode != null && !branchCode.isEmpty()) {
-            spec = spec.and(EmploySpecification.equalsBranch(branchCode));
-        }
-
-        if (departmentCode != null) {
-            spec = spec.and(EmploySpecification.equalsDepartment(departmentCode));
+        if (employeeCode != null) {
+            spec = spec.and(EmployeeSpecification.equalsEmployeeCodePk(employeeCode));
         }
 
         if (employeeName != null && !employeeName.isEmpty()) {
-            spec = spec.and(EmploySpecification.containsEmployeeName(employeeName));
+            spec = spec.and(EmployeeSpecification.containsEmployeeName(employeeName));
         }
 
-        Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
-        Page<EmployeeEntity> employeePage = employeeRepository.findAll(spec, pageable);
+        if (employeeAddress != null && !employeeAddress.isEmpty()) {
+            spec = spec.and(EmployeeSpecification.containsEmployeeAddress(employeeAddress));
+        }
 
-        List<EmployeeDTO> employeeDTOList = employeePage
-                .stream()
-                .map(employeeEntity -> mapper.map(employeeEntity, EmployeeDTO.class))
-                .toList();
+        if (employeePhoneNumber != null && !employeePhoneNumber.isEmpty()) {
+            spec = spec.and(EmployeeSpecification.containsEmployeePhoneNumber(employeePhoneNumber));
+        }
 
-        int totalPagesCount = employeePage.getTotalPages();
-        int currentPageIndex = employeePage.getNumber();
+        if (employeeOfficePhoneNumber != null && !employeeOfficePhoneNumber.isEmpty()) {
+            spec = spec.and(EmployeeSpecification.containsEmployeeOfficePhoneNumber(employeeOfficePhoneNumber));
+        }
+
+        if (employeeEmail != null && !employeeEmail.isEmpty()) {
+            spec = spec.and(EmployeeSpecification.containsEmployeeEmail(employeeEmail));
+        }
+
+        if (employeeResignStatus != null && !employeeResignStatus.isEmpty()) {
+            spec = spec.and(EmployeeSpecification.equalsEmployeeResignStatus(employeeResignStatus));
+        }
+
+        if (permissionCode != null) {
+            spec = spec.and(EmployeeSpecification.equalsPermission(permissionCode));
+        }
+
+        if (positionCode != null) {
+            spec = spec.and(EmployeeSpecification.equalsPosition(positionCode));
+        }
+
+        if (rankCode != null) {
+            spec = spec.and(EmployeeSpecification.equalsRank(rankCode));
+        }
+
+        if (departmentCode != null) {
+            spec = spec.and(EmployeeSpecification.equalsDepartment(departmentCode));
+        }
+
+        if (branchCode != null && !branchCode.isEmpty()) {
+            spec = spec.and(EmployeeSpecification.equalsBranch(branchCode));
+        }
 
         Map<String, Object> employeePageInfo = new HashMap<>();
+        List<EmployeeDTO> employeeDTOList;
 
-        employeePageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-        employeePageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+        if (pageNum != null) {
+            Pageable pageable;
+
+            if (orderBy != null && !orderBy.isEmpty() && sortBy != null) {
+                pageable = PageRequest.of(pageNum, PAGE_SIZE, sortBy == 1
+                        ? Sort.by(orderBy).ascending()
+                        : Sort.by(orderBy).descending());
+            } else {
+                pageable = PageRequest.of(pageNum, PAGE_SIZE);
+            }
+            Page<EmployeeEntity> employeePage = employeeRepository.findAll(spec, pageable);
+
+            employeeDTOList = employeePage
+                    .stream()
+                    .map(employeeEntity -> mapper.map(employeeEntity, EmployeeDTO.class))
+                    .toList();
+
+            int totalPagesCount = employeePage.getTotalPages();
+            int currentPageIndex = employeePage.getNumber();
+
+            employeePageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+            employeePageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+        } else {
+            List<EmployeeEntity> employeeEntityList = employeeRepository.findAll(spec);
+            employeeDTOList = employeeEntityList
+                    .stream()
+                    .map(employeeEntity -> mapper.map(employeeEntity, EmployeeDTO.class))
+                    .toList();
+        }
+
         employeePageInfo.put(KEY_CONTENT, employeeDTOList);
 
         return employeePageInfo;

@@ -10,9 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
-import static org.iot.hotelitybackend.common.constant.Constant.KEY_TOTAL_PAGES_COUNT;
+import static org.iot.hotelitybackend.common.constant.Constant.KEY_CONTENT;
 
 @RestController
 @RequestMapping("/employees")
@@ -29,17 +30,31 @@ public class EmployeeController {
     /* 조건별 전체 직원 페이지 리스트 조회 */
     @GetMapping("/page")
     public ResponseEntity<ResponseVO> selectEmployeesList(
-            @RequestParam int pageNum,
-            @RequestParam(required = false) String branchCode,
+            @RequestParam(required = false) Integer pageNum,
+            @RequestParam(required = false) Integer employeeCode,
+            @RequestParam(required = false) String employeeName,
+            @RequestParam(required = false) String employeeAddress,
+            @RequestParam(required = false) String employeePhoneNumber,
+            @RequestParam(required = false) String employeeOfficePhoneNumber,
+            @RequestParam(required = false) String employeeEmail,
+            @RequestParam(required = false) String employeeResignStatus,
+            @RequestParam(required = false) Integer permissionCode,
+            @RequestParam(required = false) Integer positionCode,
+            @RequestParam(required = false) Integer rankCode,
             @RequestParam(required = false) Integer departmentCode,
-            @RequestParam(required = false) String employeeName
+            @RequestParam(required = false) String branchCode,
+            @RequestParam(required = false) String orderBy,
+            @RequestParam(required = false) Integer sortBy
     ) {
-        Map<String, Object> employPageInfo =
-                employeeService.selectEmployeesList(pageNum, branchCode, departmentCode, employeeName);
+        Map<String, Object> employPageInfo = employeeService.selectEmployeesList(
+                pageNum, employeeCode, employeeName, employeeAddress, employeePhoneNumber,
+                employeeOfficePhoneNumber, employeeEmail, employeeResignStatus,
+                permissionCode, positionCode, rankCode, departmentCode, branchCode,
+                orderBy, sortBy);
 
         ResponseVO response;
 
-        if ((Integer) employPageInfo.get(KEY_TOTAL_PAGES_COUNT) != 0) {
+        if (!((List<EmployeeDTO>) employPageInfo.get(KEY_CONTENT)).isEmpty()) {
             response = ResponseVO.builder()
                     .data(employPageInfo)
                     .resultCode(HttpStatus.OK.value())
