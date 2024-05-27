@@ -237,6 +237,29 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
+	public Map<String, Object> insertCustomer(CustomerDTO customerDTO) {
+		CustomerEntity customerEntity = CustomerEntity.builder()
+			.customerName(customerDTO.getCustomerName())
+			.customerEmail(customerDTO.getCustomerEmail())
+			.customerPhoneNumber(customerDTO.getCustomerPhoneNumber())
+			.customerEnglishName(customerDTO.getCustomerEnglishName())
+			.customerAddress(customerDTO.getCustomerAddress())
+			.customerInfoAgreement(customerDTO.getCustomerInfoAgreement())
+			.customerStatus(1)
+			.customerRegisteredDate(new Date())
+			.customerType(customerDTO.getCustomerType())
+			.nationCodeFk(customerDTO.getNationCodeFk())
+			.customerGender(customerDTO.getCustomerGender())
+			.build();
+
+		customerRepository.save(customerEntity);
+
+		Map<String, Object> modifiedCustomerInfo = new HashMap<>();
+		modifiedCustomerInfo.put(KEY_CONTENT, "success");
+		return modifiedCustomerInfo;
+	}
+
+	@Override
 	public ByteArrayInputStream downloadExcel(Integer customerCodePk, String customerName, String customerEmail,
 		String customerPhoneNumber, String customerEnglishName, String customerAddress, Integer customerInfoAgreement,
 		Integer customerStatus, Date customerRegisteredDate, Integer nationCodeFk, String customerGender,
