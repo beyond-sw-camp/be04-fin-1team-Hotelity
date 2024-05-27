@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface StayService {
 	Map<String, Object> selectStaysList(
-		int pageNum, Integer stayCodePk, Integer customerCodeFk,
+		Integer pageNum, Integer stayCodePk, Integer customerCodeFk,
 		String customerName, String roomCodeFk, String roomName,
 		String roomLevelName, Integer roomCapacity, Integer stayPeopleCount,
 		LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime,
