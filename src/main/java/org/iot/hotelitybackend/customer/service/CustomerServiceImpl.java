@@ -245,7 +245,7 @@ public class CustomerServiceImpl implements CustomerService {
 			.customerEnglishName(customerDTO.getCustomerEnglishName())
 			.customerAddress(customerDTO.getCustomerAddress())
 			.customerInfoAgreement(customerDTO.getCustomerInfoAgreement())
-			.customerStatus(1)
+			.customerStatus(customerDTO.getCustomerStatus())
 			.customerRegisteredDate(new Date())
 			.customerType(customerDTO.getCustomerType())
 			.nationCodeFk(customerDTO.getNationCodeFk())
