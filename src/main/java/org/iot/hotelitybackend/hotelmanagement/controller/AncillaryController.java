@@ -1,13 +1,6 @@
 package org.iot.hotelitybackend.hotelmanagement.controller;
 
-import static org.iot.hotelitybackend.common.constant.Constant.*;
-import static org.iot.hotelitybackend.common.util.ExcelUtil.*;
-
-import java.io.ByteArrayInputStream;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Map;
-
+import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.hotelmanagement.dto.AncillaryDTO;
 import org.iot.hotelitybackend.hotelmanagement.service.AncillaryService;
@@ -21,7 +14,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.ByteArrayInputStream;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Map;
+
+import static org.iot.hotelitybackend.common.constant.Constant.KEY_CONTENT;
+import static org.iot.hotelitybackend.common.util.ExcelType.ANCILLARY;
+import static org.iot.hotelitybackend.common.util.ExcelUtil.createExcelFile;
 
 @Slf4j
 @RestController
@@ -118,11 +118,6 @@ public class AncillaryController {
 		@RequestParam(required = false) String ancillaryCategoryName
 	) {
 		try {
-			// 파일명을 적어주세요.
-			String title = "부대시설";
-
-			// 컬럼명은 DTO 의 필드 순서대로 적어주셔야 합니다,,,
-			String[] headerStrings = {"부대시설코드", "부대시설이름", "지점코드", "부대시설위치", "부대시설영업시작시간", "부대시설영업종료시간", "부대시설전화번호", "부대시설카테고리코드", "지점명", "부대시설카테고리이름"};
 
 			// 조회해서 DTO 리스트 가져오기
 			Map<String, Object> facilityListInfo = ancillaryService.selectAllFacilities(
@@ -130,7 +125,11 @@ public class AncillaryController {
 			);
 
 			// 엑셀 시트와 파일 만들기
-			Map<String, Object> result = createExcelFile((List<AncillaryDTO>)facilityListInfo.get(KEY_CONTENT), title, headerStrings);
+			Map<String, Object> result = createExcelFile(
+					(List<AncillaryDTO>)facilityListInfo.get(KEY_CONTENT),
+					ANCILLARY.getFileName(),
+					ANCILLARY.getHeaderStrings()
+			);
 
 			return ResponseEntity
 				.ok()

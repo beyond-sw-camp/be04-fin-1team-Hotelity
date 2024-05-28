@@ -1,13 +1,6 @@
 package org.iot.hotelitybackend.hotelservice.controller;
 
-import static org.iot.hotelitybackend.common.constant.Constant.*;
-import static org.iot.hotelitybackend.common.util.ExcelUtil.*;
-
-import java.io.ByteArrayInputStream;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-
+import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.service.ReservationService;
@@ -17,13 +10,16 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+import static org.iot.hotelitybackend.common.constant.Constant.KEY_CONTENT;
+import static org.iot.hotelitybackend.common.util.ExcelType.RESERVATION;
+import static org.iot.hotelitybackend.common.util.ExcelUtil.createExcelFile;
 
 @Slf4j
 @RestController
@@ -140,17 +136,6 @@ public class ReservationController {
 		@RequestParam(required = false) String orderBy,
 		@RequestParam(required = false) Integer sortBy
 	) {
-		// 파일명을 적어주세요.
-		String title = "예약";
-
-		// 컬럼명은 DTO 의 필드 순서대로 적어주셔야 합니다,,,
-		String[] headerStrings = {
-			"예약코드", "고객코드", "고객이름", "고객영문이름",
-			"객실코드", "객실카테고리명", "객실등급명", "객실수용인원",
-			"지점코드", "예약시점", "예약체크인일자", "예약체크아웃일자",
-			"예약취소상태", "예약인원"
-		};
-
 		int year = reservationCheckinDate.getYear();
 		int month = reservationCheckinDate.getMonthValue();
 
@@ -170,9 +155,9 @@ public class ReservationController {
 		try {
 
 			Map<String, Object> resultExcel = createExcelFile(
-				(List<ReservationDTO>)reservationInfo.get(KEY_CONTENT),
-				title,
-				headerStrings
+					(List<ReservationDTO>)reservationInfo.get(KEY_CONTENT),
+					RESERVATION.getFileName(),
+					RESERVATION.getHeaderStrings()
 			);
 
 			return ResponseEntity
