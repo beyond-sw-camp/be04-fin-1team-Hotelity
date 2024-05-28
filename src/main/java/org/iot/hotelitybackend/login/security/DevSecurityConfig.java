@@ -1,14 +1,12 @@
 package org.iot.hotelitybackend.login.security;
 
-import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
-import org.iot.hotelitybackend.login.jwt.JwtFilter;
+import org.iot.hotelitybackend.login.jwt.DevJwtFilter;
 import org.iot.hotelitybackend.login.jwt.JwtUtil;
 import org.iot.hotelitybackend.login.repository.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,26 +25,23 @@ import java.util.List;
 import static org.iot.hotelitybackend.common.constant.Constant.CORS_EXPOSED_HEADER_SET_COOKIE;
 import static org.iot.hotelitybackend.common.constant.Constant.KEY_AUTHORIZATION;
 
-@Profile("staging")
+@Profile("dev")
 @Configuration
 @EnableWebSecurity(debug = true)
-public class WebSecurityConfig {
+public class DevSecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final EmployeeRepository employeeRepository;
 
     @Autowired
-    public WebSecurityConfig(
+    public DevSecurityConfig(
             JwtUtil jwtUtil,
             RefreshTokenRepository refreshTokenRepository,
-            AuthenticationConfiguration authenticationConfiguration,
-            EmployeeRepository employeeRepository
+            AuthenticationConfiguration authenticationConfiguration
     ) {
         this.jwtUtil = jwtUtil;
         this.refreshTokenRepository = refreshTokenRepository;
         this.authenticationConfiguration = authenticationConfiguration;
-        this.employeeRepository = employeeRepository;
     }
 
     @Bean
@@ -55,7 +50,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain configureSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain configureSecurityFilterChainDev(HttpSecurity http) throws Exception {
 
         // configure CORS
         http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(request -> {
@@ -84,45 +79,12 @@ public class WebSecurityConfig {
         // http basic disable
         http.httpBasic(AbstractHttpConfigurer::disable);
 
-        // 인가(Authorization)
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/reissue").permitAll()
-
-                .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
-
-                /* 고객 */
-                .requestMatchers(HttpMethod.POST, "/customers/**").hasAnyRole("ADMIN", "HM")
-                .requestMatchers(HttpMethod.PUT, "/customers/**").hasAnyRole("ADMIN", "HM")
-                .requestMatchers(HttpMethod.DELETE, "/customers/**").hasAnyRole("ADMIN", "HM")
-
-                /* 직원 */
-                .requestMatchers(HttpMethod.POST, "/employees/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/employees/**").hasRole("ADMIN")
-
-                /* 호텔관리 */
-                .requestMatchers(HttpMethod.POST, "/hotel-management/**").hasAnyRole("ADMIN", "HM")
-                .requestMatchers(HttpMethod.PUT, "/hotel-management/**").hasAnyRole("ADMIN", "HM")
-                .requestMatchers(HttpMethod.DELETE, "/hotel-management/**").hasAnyRole("ADMIN", "HM")
-
-                /* 호텔서비스 */
-                .requestMatchers(HttpMethod.POST, "/hotel-service/**").hasAnyRole("ADMIN", "HM")
-                .requestMatchers(HttpMethod.PUT, "/hotel-service/**").hasAnyRole("ADMIN", "HM")
-                .requestMatchers(HttpMethod.DELETE, "/hotel-service/**").hasAnyRole("ADMIN", "HM")
-
-                /* 마케팅 */
-                .requestMatchers(HttpMethod.POST, "/marketing/**").hasAnyRole("ADMIN", "MS")
-                .requestMatchers(HttpMethod.PUT, "/marketing/**").hasAnyRole("ADMIN", "MS")
-                .requestMatchers(HttpMethod.DELETE, "/marketing/**").hasAnyRole("ADMIN", "MS")
-
-                /* 영업관리 */
-                .requestMatchers(HttpMethod.POST, "/sales/**").hasAnyRole("ADMIN", "MS")
-                .requestMatchers(HttpMethod.PUT, "/sales/**").hasAnyRole("ADMIN", "MS")
-                .requestMatchers(HttpMethod.DELETE, "/sales/**").hasAnyRole("ADMIN", "MS")
-
-                .anyRequest().authenticated()
+                .requestMatchers("/**").permitAll()
+                .anyRequest().permitAll()
         );
 
-        http.addFilterBefore(new JwtFilter(jwtUtil, employeeRepository), AuthenticationFilter.class);
+        http.addFilterBefore(new DevJwtFilter(), AuthenticationFilter.class);
 
         AuthenticationFilter loginFilter = new AuthenticationFilter(
                 authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository);

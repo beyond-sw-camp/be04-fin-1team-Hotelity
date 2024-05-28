@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: hotelity-backend
+  config:
+    activate:
+      on-profile: dev
+hotelity-backend:
+  security:
+    enabled: false  # dev 환경에서는 인증/인가 비활성화

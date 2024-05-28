@@ -21,6 +21,12 @@ repositories {
     mavenCentral()
 }
 
+bootRun {
+    if (project.hasProperty('profile')) {
+        systemProperty 'spring.profiles.active', profile
+    }
+}
+
 dependencies {
 
     // Spring Web, DevTools
