@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final RankRepository rankRepository;
     private final DepartmentRepository departmentRepository;
     private final BranchRepository branchRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     public EmployeeServiceImpl(
@@ -41,7 +44,8 @@ public class EmployeeServiceImpl implements EmployeeService {
             PositionRepository positionRepository,
             RankRepository rankRepository,
             DepartmentRepository departmentRepository,
-            BranchRepository branchRepository
+            BranchRepository branchRepository,
+            BCryptPasswordEncoder bCryptPasswordEncoder
     ) {
         this.mapper = mapper;
         this.employeeRepository = employeeRepository;
@@ -50,6 +54,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.rankRepository = rankRepository;
         this.departmentRepository = departmentRepository;
         this.branchRepository = branchRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 
         /* custom mapping */
         this.mapper.typeMap(EmployeeEntity.class, EmployeeDTO.class).addMappings(modelMapper -> {
@@ -59,47 +64,115 @@ public class EmployeeServiceImpl implements EmployeeService {
             modelMapper.map(EmployeeEntity::getBranchName, EmployeeDTO::setNameOfBranch);
             modelMapper.map(EmployeeEntity::getDepartmentName, EmployeeDTO::setNameOfDepartment);
 
-            modelMapper.map(EmployeeEntity::getPermissionId, EmployeeDTO::setDepartmentCodeFk);
+            modelMapper.map(EmployeeEntity::getPermissionId, EmployeeDTO::setPermissionCodeFk);
             modelMapper.map(EmployeeEntity::getPositionId, EmployeeDTO::setPositionCodeFk);
+            modelMapper.map(EmployeeEntity::getRankId, EmployeeDTO::setRankCodeFk);
             modelMapper.map(EmployeeEntity::getBranchId, EmployeeDTO::setBranchCodeFk);
             modelMapper.map(EmployeeEntity::getDepartmentId, EmployeeDTO::setDepartmentCodeFk);
-            modelMapper.map(EmployeeEntity::getPositionId, EmployeeDTO::setPositionCodeFk);
         });
     }
 
     @Override
     public Map<String, Object> selectEmployeesList(
-            int pageNum, String branchCode, Integer departmentCode, String employeeName
+            Integer pageNum,
+            Integer employeeCode,
+            String employeeName,
+            String employeeAddress,
+            String employeePhoneNumber,
+            String employeeOfficePhoneNumber,
+            String employeeEmail,
+            String employeeResignStatus,
+            Integer permissionCode,
+            Integer positionCode,
+            Integer rankCode,
+            Integer departmentCode,
+            String branchCode,
+            String orderBy,
+            Integer sortBy
     ) {
         Specification<EmployeeEntity> spec = (root, query, criteriaBuilder) -> null;
 
-        if (branchCode != null && !branchCode.isEmpty()) {
-            spec = spec.and(EmploySpecification.equalsBranch(branchCode));
-        }
-
-        if (departmentCode != null) {
-            spec = spec.and(EmploySpecification.equalsDepartment(departmentCode));
+        if (employeeCode != null) {
+            spec = spec.and(EmployeeSpecification.equalsEmployeeCodePk(employeeCode));
         }
 
         if (employeeName != null && !employeeName.isEmpty()) {
-            spec = spec.and(EmploySpecification.containsEmployeeName(employeeName));
+            spec = spec.and(EmployeeSpecification.containsEmployeeName(employeeName));
         }
 
-        Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
-        Page<EmployeeEntity> employeePage = employeeRepository.findAll(spec, pageable);
+        if (employeeAddress != null && !employeeAddress.isEmpty()) {
+            spec = spec.and(EmployeeSpecification.containsEmployeeAddress(employeeAddress));
+        }
 
-        List<EmployeeDTO> employeeDTOList = employeePage
-                .stream()
-                .map(employeeEntity -> mapper.map(employeeEntity, EmployeeDTO.class))
-                .toList();
+        if (employeePhoneNumber != null && !employeePhoneNumber.isEmpty()) {
+            spec = spec.and(EmployeeSpecification.containsEmployeePhoneNumber(employeePhoneNumber));
+        }
 
-        int totalPagesCount = employeePage.getTotalPages();
-        int currentPageIndex = employeePage.getNumber();
+        if (employeeOfficePhoneNumber != null && !employeeOfficePhoneNumber.isEmpty()) {
+            spec = spec.and(EmployeeSpecification.containsEmployeeOfficePhoneNumber(employeeOfficePhoneNumber));
+        }
+
+        if (employeeEmail != null && !employeeEmail.isEmpty()) {
+            spec = spec.and(EmployeeSpecification.containsEmployeeEmail(employeeEmail));
+        }
+
+        if (employeeResignStatus != null && !employeeResignStatus.isEmpty()) {
+            spec = spec.and(EmployeeSpecification.equalsEmployeeResignStatus(employeeResignStatus));
+        }
+
+        if (permissionCode != null) {
+            spec = spec.and(EmployeeSpecification.equalsPermission(permissionCode));
+        }
+
+        if (positionCode != null) {
+            spec = spec.and(EmployeeSpecification.equalsPosition(positionCode));
+        }
+
+        if (rankCode != null) {
+            spec = spec.and(EmployeeSpecification.equalsRank(rankCode));
+        }
+
+        if (departmentCode != null) {
+            spec = spec.and(EmployeeSpecification.equalsDepartment(departmentCode));
+        }
+
+        if (branchCode != null && !branchCode.isEmpty()) {
+            spec = spec.and(EmployeeSpecification.equalsBranch(branchCode));
+        }
 
         Map<String, Object> employeePageInfo = new HashMap<>();
+        List<EmployeeDTO> employeeDTOList;
 
-        employeePageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-        employeePageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+        if (pageNum != null) {
+            Pageable pageable;
+
+            if (orderBy != null && !orderBy.isEmpty() && sortBy != null) {
+                pageable = PageRequest.of(pageNum, PAGE_SIZE, sortBy == 1
+                        ? Sort.by(orderBy).ascending()
+                        : Sort.by(orderBy).descending());
+            } else {
+                pageable = PageRequest.of(pageNum, PAGE_SIZE);
+            }
+            Page<EmployeeEntity> employeePage = employeeRepository.findAll(spec, pageable);
+
+            employeeDTOList = employeePage
+                    .stream()
+                    .map(employeeEntity -> mapper.map(employeeEntity, EmployeeDTO.class))
+                    .toList();
+
+            int totalPagesCount = employeePage.getTotalPages();
+            int currentPageIndex = employeePage.getNumber();
+
+            employeePageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+            employeePageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+        } else {
+            List<EmployeeEntity> employeeEntityList = employeeRepository.findAll(spec);
+            employeeDTOList = employeeEntityList
+                    .stream()
+                    .map(employeeEntity -> mapper.map(employeeEntity, EmployeeDTO.class))
+                    .toList();
+        }
+
         employeePageInfo.put(KEY_CONTENT, employeeDTOList);
 
         return employeePageInfo;
@@ -121,6 +194,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     @Override
     public EmployeeDTO registEmployee(EmployeeDTO newEmployee) {
+        boolean isExist = employeeRepository.existsByEmployeeNameAndEmployeePhoneNumberAndEmployeeEmail(
+                newEmployee.getEmployeeName(), newEmployee.getEmployeePhoneNumber(), newEmployee.getEmployeeEmail()
+        );
+
+        if (isExist) {
+            return null;
+        }
+
         PermissionEntity permission =
                 permissionRepository.findById(newEmployee.getPermissionCodeFk()).orElse(null);
         DepartmentEntity department =
@@ -129,25 +210,27 @@ public class EmployeeServiceImpl implements EmployeeService {
         BranchEntity branch = branchRepository.findById(newEmployee.getBranchCodeFk()).orElse(null);
         RankEntity rank = rankRepository.findById(newEmployee.getRankCodeFk()).orElse(null);
 
+        String encodedPassword = bCryptPasswordEncoder.encode(newEmployee.getEmployeeSystemPassword());
+
         EmployeeEntity employeeEntity = EmployeeEntity.builder()
                 .employeeName(newEmployee.getEmployeeName())
                 .employeeAddress(newEmployee.getEmployeeAddress())
                 .employeePhoneNumber(newEmployee.getEmployeePhoneNumber())
                 .employeeOfficePhoneNumber(newEmployee.getEmployeeOfficePhoneNumber())
                 .employeeEmail(newEmployee.getEmployeeEmail())
-                .employeeSystemPassword(newEmployee.getEmployeeSystemPassword())
+                .employeeSystemPassword(encodedPassword)
                 .employeeResignStatus("N")
                 .employeeProfileImageLink(newEmployee.getEmployeeProfileImageLink())
-                .employPermission(permission)
-                .employPosition(position)
-                .employRank(rank)
-                .employDepartment(department)
-                .employBranch(branch)
+                .employeePermission(permission)
+                .employeePosition(position)
+                .employeeRank(rank)
+                .employeeDepartment(department)
+                .employeeBranch(branch)
                 .build();
 
         EmployeeEntity createdEmployeeEntity = employeeRepository.save(employeeEntity);
 
-        return mapper.map(employeeRepository.save(createdEmployeeEntity), EmployeeDTO.class);
+        return mapper.map(createdEmployeeEntity, EmployeeDTO.class);
     }
 
     @Transactional
@@ -174,12 +257,11 @@ public class EmployeeServiceImpl implements EmployeeService {
                     .employeeSystemPassword(modifiedEmployInfo.getEmployeeSystemPassword())
                     .employeeResignStatus(modifiedEmployInfo.getEmployeeResignStatus())
                     .employeeProfileImageLink(modifiedEmployInfo.getEmployeeProfileImageLink())
-                    .employPermission(permission)
-                    .employPosition(position)
-                    .employRank(rank)
-                    .employDepartment(department)
-                    .employBranch(branch)
-                    .stayList(employeeEntity.getStayList())
+                    .employeePermission(permission)
+                    .employeePosition(position)
+                    .employeeRank(rank)
+                    .employeeDepartment(department)
+                    .employeeBranch(branch)
                     .build();
 
             return mapper.map(employeeRepository.save(modifiedEmployee), EmployeeDTO.class);

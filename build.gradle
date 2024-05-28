@@ -28,6 +28,10 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
+
     // springboot actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
@@ -44,8 +48,8 @@ dependencies {
     // modelMapper
     implementation 'org.modelmapper:modelmapper:3.2.0'
 
-//    // redis
-//    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // xlsx
     //  https://mvnrepository.com/artifact/org.apache.poi/poi
@@ -53,6 +57,11 @@ dependencies {
     implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.2'
     // https://mvnrepository.com/artifact/org.apache.tika/tika-core
     implementation group: 'org.apache.tika', name: 'tika-core', version: '2.3.0'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
     //smtp
     implementation 'org.springframework.boot:spring-boot-starter-mail' // Email

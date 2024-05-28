@@ -1,19 +1,27 @@
 package org.iot.hotelitybackend.employee.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 import org.iot.hotelitybackend.employee.service.EmployeeService;
 import org.iot.hotelitybackend.employee.vo.RequestEmployee;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
-import static org.iot.hotelitybackend.common.constant.Constant.KEY_TOTAL_PAGES_COUNT;
+import static org.iot.hotelitybackend.common.constant.Constant.KEY_CONTENT;
+import static org.iot.hotelitybackend.common.util.ExcelUtil.createExcelFile;
 
+@Slf4j
 @RestController
 @RequestMapping("/employees")
 public class EmployeeController {
@@ -29,17 +37,31 @@ public class EmployeeController {
     /* 조건별 전체 직원 페이지 리스트 조회 */
     @GetMapping("/page")
     public ResponseEntity<ResponseVO> selectEmployeesList(
-            @RequestParam int pageNum,
-            @RequestParam(required = false) String branchCode,
+            @RequestParam(required = false) Integer pageNum,
+            @RequestParam(required = false) Integer employeeCode,
+            @RequestParam(required = false) String employeeName,
+            @RequestParam(required = false) String employeeAddress,
+            @RequestParam(required = false) String employeePhoneNumber,
+            @RequestParam(required = false) String employeeOfficePhoneNumber,
+            @RequestParam(required = false) String employeeEmail,
+            @RequestParam(required = false) String employeeResignStatus,
+            @RequestParam(required = false) Integer permissionCode,
+            @RequestParam(required = false) Integer positionCode,
+            @RequestParam(required = false) Integer rankCode,
             @RequestParam(required = false) Integer departmentCode,
-            @RequestParam(required = false) String employeeName
+            @RequestParam(required = false) String branchCode,
+            @RequestParam(required = false) String orderBy,
+            @RequestParam(required = false) Integer sortBy
     ) {
-        Map<String, Object> employPageInfo =
-                employeeService.selectEmployeesList(pageNum, branchCode, departmentCode, employeeName);
+        Map<String, Object> employPageInfo = employeeService.selectEmployeesList(
+                pageNum, employeeCode, employeeName, employeeAddress, employeePhoneNumber,
+                employeeOfficePhoneNumber, employeeEmail, employeeResignStatus,
+                permissionCode, positionCode, rankCode, departmentCode, branchCode,
+                orderBy, sortBy);
 
         ResponseVO response;
 
-        if ((Integer) employPageInfo.get(KEY_TOTAL_PAGES_COUNT) != 0) {
+        if (!((List<EmployeeDTO>) employPageInfo.get(KEY_CONTENT)).isEmpty()) {
             response = ResponseVO.builder()
                     .data(employPageInfo)
                     .resultCode(HttpStatus.OK.value())
@@ -76,10 +98,19 @@ public class EmployeeController {
         EmployeeDTO newEmployeeDTO = mapper.map(newEmployee, EmployeeDTO.class);
         EmployeeDTO employee = employeeService.registEmployee(newEmployeeDTO);
 
-        ResponseVO response = ResponseVO.builder()
-                .data(employee)
-                .resultCode(HttpStatus.CREATED.value())
-                .build();
+        ResponseVO response;
+
+        if (employee == null) {
+            response = ResponseVO.builder()
+                    .resultCode(HttpStatus.BAD_REQUEST.value())
+                    .message("이미 등록된 직원입니다.")
+                    .build();
+        } else {
+            response = ResponseVO.builder()
+                    .data(employee)
+                    .resultCode(HttpStatus.CREATED.value())
+                    .build();
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -122,5 +153,57 @@ public class EmployeeController {
         };
 
         return ResponseEntity.status(response.getResultCode()).body(response);
+    }
+
+    /* 직원 리스트 엑셀 파일 다운로드 */
+    @GetMapping("/excel")
+    public ResponseEntity<InputStreamResource> downloadEmployeeList(
+            @RequestParam(required = false) Integer pageNum,
+            @RequestParam(required = false) Integer employeeCode,
+            @RequestParam(required = false) String employeeName,
+            @RequestParam(required = false) String employeeAddress,
+            @RequestParam(required = false) String employeePhoneNumber,
+            @RequestParam(required = false) String employeeOfficePhoneNumber,
+            @RequestParam(required = false) String employeeEmail,
+            @RequestParam(required = false) String employeeResignStatus,
+            @RequestParam(required = false) Integer permissionCode,
+            @RequestParam(required = false) Integer positionCode,
+            @RequestParam(required = false) Integer rankCode,
+            @RequestParam(required = false) Integer departmentCode,
+            @RequestParam(required = false) String branchCode,
+            @RequestParam(required = false) String orderBy,
+            @RequestParam(required = false) Integer sortBy
+    ) {
+        String title = "직원목록";
+
+        String[] headers = {
+                "직원코드", "이름", "주소", "휴대폰번호", "내선번호", "이메일", "비밀번호", "퇴사여부", "직원프로필이미지링크",
+                "권한코드", "직책코드", "직급코드", "부서코드", "지점코드", "권한명", "직책명", "직급명", "부서명", "지점명"
+        };
+
+
+        Map<String, Object> employeeList = employeeService.selectEmployeesList(
+                pageNum, employeeCode, employeeName, employeeAddress, employeePhoneNumber,
+                employeeOfficePhoneNumber, employeeEmail, employeeResignStatus,
+                permissionCode, positionCode, rankCode, departmentCode, branchCode,
+                orderBy, sortBy);
+
+        try {
+            Map<String, Object> result = createExcelFile(
+                    (List<EmployeeDTO>)employeeList.get(KEY_CONTENT),
+                    title,
+                    headers
+            );
+
+            return ResponseEntity
+                    .ok()
+                    .headers((HttpHeaders)result.get("headers"))
+                    .body(new InputStreamResource((ByteArrayInputStream)result.get("result")));
+
+        } catch (IOException | IllegalAccessException e) {
+            log.info(e.getMessage());
+        }
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
