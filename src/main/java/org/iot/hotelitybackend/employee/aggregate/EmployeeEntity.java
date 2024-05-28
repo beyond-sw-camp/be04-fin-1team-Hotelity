@@ -6,9 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.BranchEntity;
-import org.iot.hotelitybackend.hotelservice.aggregate.StayEntity;
-
-import java.util.List;
 
 @Entity
 @Table(name = "employee_tb")
@@ -48,10 +45,6 @@ public class EmployeeEntity {
 	@JoinColumn(name = "branch_code_fk", nullable = false)
 	private BranchEntity branch;
 
-	@JoinColumn(name="employee_code_fk")
-	@OneToMany
-	private List<StayEntity> stayList;
-
 	@Builder
 	public EmployeeEntity(
             Integer employeeCodePk,
@@ -68,9 +61,7 @@ public class EmployeeEntity {
 			PositionEntity employeePosition,
 			RankEntity employeeRank,
 			DepartmentEntity employeeDepartment,
-			BranchEntity employeeBranch,
-
-			List<StayEntity> stayList
+			BranchEntity employeeBranch
     ) {
 		this.employeeCodePk = employeeCodePk;
 		this.employeeName = employeeName;
@@ -87,8 +78,6 @@ public class EmployeeEntity {
 		this.rank = employeeRank;
 		this.department = employeeDepartment;
 		this.branch = employeeBranch;
-
-        this.stayList = stayList;
     }
 
 	public String getPermissionName() {
