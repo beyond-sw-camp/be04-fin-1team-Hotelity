@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.iot.hotelitybackend.employee.aggregate.EmployeeEntity;
 import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
 import org.iot.hotelitybackend.login.vo.LoginUserDetails;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import static org.iot.hotelitybackend.common.constant.Constant.KEY_AUTHORIZATION;
 import static org.iot.hotelitybackend.common.constant.Constant.MESSAGE_TOKEN_EXPIRED;
 
+@Profile("staging")
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final EmployeeRepository employeeRepository;

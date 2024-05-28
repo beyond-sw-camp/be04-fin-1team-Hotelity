@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: hotelity-backend
+  config:
+    activate:
+      on-profile: staging
+hotelity-backend:
+  security:
+    enabled: true  # staging 환경에서는 인증/인가 활성화
