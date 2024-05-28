@@ -1,18 +1,29 @@
 package org.iot.hotelitybackend.hotelservice.controller;
 
+import static org.iot.hotelitybackend.common.constant.Constant.*;
+import static org.iot.hotelitybackend.common.util.ExcelUtil.*;
+
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import org.iot.hotelitybackend.common.vo.ResponseVO;
+import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.service.StayService;
 import org.iot.hotelitybackend.hotelservice.vo.RequestCheckinInfo;
 import org.iot.hotelitybackend.hotelservice.vo.RequestModifyStay;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/hotel-service")
 public class StayController {
@@ -29,7 +40,7 @@ public class StayController {
 	/* 투숙 전체 내역 조회 (다중 조건 검색) */
 	@GetMapping("/stays/page")
 	public ResponseEntity<ResponseVO> selectStaysList(
-		@RequestParam int pageNum,
+		@RequestParam(required = false) Integer pageNum,
 		@RequestParam(required = false) Integer stayCodePk,
 		@RequestParam(required = false) Integer customerCodeFk,
 		@RequestParam(required = false) String customerName,
@@ -178,5 +189,64 @@ public class StayController {
 			.build();
 
 		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	@GetMapping("stays/page/excel/download")
+	public ResponseEntity<InputStreamResource> downloadStaysList(
+		@RequestParam(required = false) Integer pageNum,
+		@RequestParam(required = false) Integer stayCodePk,
+		@RequestParam(required = false) Integer customerCodeFk,
+		@RequestParam(required = false) String customerName,
+		@RequestParam(required = false) String roomCodeFk,
+		@RequestParam(required = false) String roomName,
+		@RequestParam(required = false) String roomLevelName,
+		@RequestParam(required = false) Integer roomCapacity,
+		@RequestParam(required = false) Integer stayPeopleCount,
+		@RequestParam(required = false) LocalDateTime stayCheckinTime,
+		@RequestParam(required = false) LocalDateTime stayCheckoutTime,
+		@RequestParam(required = false) String branchCodeFk,
+		@RequestParam(required = false) Integer employeeCodeFk,
+		@RequestParam(required = false) String employeeName,
+		@RequestParam(required = false) Integer reservationCodeFk,
+		@RequestParam(required = false) Integer stayCheckoutStatus,
+		@RequestParam(required = false) String orderBy,
+		@RequestParam(required = false) Integer sortBy
+	) {
+		// 파일명을 적어주세요.
+		String title = "투숙";
+
+		// 컬럼명은 DTO 의 필드 순서대로 적어주셔야 합니다,,,
+		String[] headerStrings = {
+			"투숙코드", "고객코드", "고객이름", "객실코드",
+			"객실카테고리명", "객실등급명", "객실수용인원", "실제투숙인원",
+			"투숙체크인시간", "투숙체크아웃시간", "직원코드", "담당직원명", "지점코드", "예약코드"};
+
+		// 조회해서 DTO 리스트 가져오기
+		Map<String, Object> stayListInfo =
+			stayService.selectStaysList(
+				pageNum, stayCodePk, customerCodeFk, customerName, roomCodeFk,
+				roomName, roomLevelName, roomCapacity, stayPeopleCount, stayCheckinTime,
+				stayCheckoutTime, branchCodeFk, employeeCodeFk, employeeName, reservationCodeFk,
+				stayCheckoutStatus, orderBy, sortBy
+			);
+
+		try {
+
+			// 엑셀 시트와 파일 만들기
+			Map<String, Object> result = createExcelFile((List<StayDTO>)stayListInfo.get(KEY_CONTENT), title, headerStrings);
+
+			return ResponseEntity
+				.ok()
+				.headers((HttpHeaders)result.get("headers"))
+				.body(new InputStreamResource((ByteArrayInputStream)result.get("result")));
+
+		} catch (Exception e) {
+
+			log.info(e.getMessage());
+			e.printStackTrace();
+
+		}
+
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 }

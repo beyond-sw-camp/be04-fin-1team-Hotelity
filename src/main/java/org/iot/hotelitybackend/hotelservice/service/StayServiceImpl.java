@@ -64,7 +64,7 @@ public class StayServiceImpl implements StayService {
 	/* 투숙 내역 전체 조회(다중 조건 검색) */
 	@Override
 	public Map<String, Object> selectStaysList(
-		int pageNum, Integer stayCodePk, Integer customerCodeFk,
+		Integer pageNum, Integer stayCodePk, Integer customerCodeFk,
 		String customerName, String roomCodeFk, String roomName,
 		String roomLevelName, Integer roomCapacity, Integer stayPeopleCount,
 		LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime,
@@ -72,18 +72,7 @@ public class StayServiceImpl implements StayService {
 		Integer reservationCodeFk, Integer stayCheckoutStatus,
 		String orderBy, Integer sortBy) {
 
-		Pageable pageable;
 
-		if (orderBy == null) {
-			pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("stayCheckinTime").descending());
-		} else {
-			if (sortBy == 1) {
-				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
-			}
-			else{
-				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
-			}
-		}
 		Specification<StayEntity> spec = Specification.where(null);
 
 		// 투숙코드
@@ -156,14 +145,34 @@ public class StayServiceImpl implements StayService {
 			spec = spec.and(StaySpecification.equalsReservationCodeFk(reservationCodeFk));
 		}
 
-		Page<StayEntity> stayPage = stayRepository.findAll(spec, pageable);
-		List<StayEntity> stayEntityList = stayPage.getContent();
-		List<StayDTO> stayDTOList = setDTOField(stayEntityList);
-
 		Map<String, Object> stayPageInfo = new HashMap<>();
-		stayPageInfo.put(KEY_TOTAL_PAGES_COUNT, stayPage.getTotalPages());
-		stayPageInfo.put(KEY_CURRENT_PAGE_INDEX, stayPage.getNumber());
-		stayPageInfo.put(KEY_CONTENT, stayDTOList);
+
+		// 1. 페이징 처리 할 때
+		if (pageNum != null) {
+			Pageable pageable;
+
+			if (orderBy == null) {
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("stayCheckinTime").descending());
+			} else {
+				if (sortBy == 1) {
+					pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
+				} else {
+					pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
+				}
+			}
+			Page<StayEntity> stayPage = stayRepository.findAll(spec, pageable);
+			List<StayEntity> stayEntityList = stayPage.getContent();
+			List<StayDTO> stayDTOList = setDTOField(stayEntityList);
+			stayPageInfo.put(KEY_TOTAL_PAGES_COUNT, stayPage.getTotalPages());
+			stayPageInfo.put(KEY_CURRENT_PAGE_INDEX, stayPage.getNumber());
+			stayPageInfo.put(KEY_CONTENT, stayDTOList);
+
+		// 2. 페이징 처리 안할 때
+		} else {
+			List<StayEntity> stayEntityList = stayRepository.findAll(spec);
+			List<StayDTO> stayDTOList = setDTOField(stayEntityList);
+			stayPageInfo.put(KEY_CONTENT, stayDTOList);
+		}
 
 		return stayPageInfo;
 	}

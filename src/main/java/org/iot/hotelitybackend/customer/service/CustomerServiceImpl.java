@@ -18,7 +18,6 @@ import org.iot.hotelitybackend.customer.repository.NationRepository;
 import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
 import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.service.PaymentServiceImpl;
-import org.iot.hotelitybackend.hotelservice.service.ReservationServiceImpl;
 import org.iot.hotelitybackend.hotelservice.service.StayServiceImpl;
 import org.iot.hotelitybackend.sales.aggregate.MembershipEntity;
 import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
@@ -30,7 +29,6 @@ import org.iot.hotelitybackend.sales.repository.MembershipRepository;
 import org.iot.hotelitybackend.sales.service.CouponIssueServiceImpl;
 import org.iot.hotelitybackend.sales.service.VocServiceImpl;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -232,6 +230,29 @@ public class CustomerServiceImpl implements CustomerService {
 			.customerGender(customerEntity.getCustomerGender())
 			.build();
 		customerRepository.save(customer);
+
+		Map<String, Object> modifiedCustomerInfo = new HashMap<>();
+		modifiedCustomerInfo.put(KEY_CONTENT, "success");
+		return modifiedCustomerInfo;
+	}
+
+	@Override
+	public Map<String, Object> insertCustomer(CustomerDTO customerDTO) {
+		CustomerEntity customerEntity = CustomerEntity.builder()
+			.customerName(customerDTO.getCustomerName())
+			.customerEmail(customerDTO.getCustomerEmail())
+			.customerPhoneNumber(customerDTO.getCustomerPhoneNumber())
+			.customerEnglishName(customerDTO.getCustomerEnglishName())
+			.customerAddress(customerDTO.getCustomerAddress())
+			.customerInfoAgreement(customerDTO.getCustomerInfoAgreement())
+			.customerStatus(customerDTO.getCustomerStatus())
+			.customerRegisteredDate(new Date())
+			.customerType(customerDTO.getCustomerType())
+			.nationCodeFk(customerDTO.getNationCodeFk())
+			.customerGender(customerDTO.getCustomerGender())
+			.build();
+
+		customerRepository.save(customerEntity);
 
 		Map<String, Object> modifiedCustomerInfo = new HashMap<>();
 		modifiedCustomerInfo.put(KEY_CONTENT, "success");
