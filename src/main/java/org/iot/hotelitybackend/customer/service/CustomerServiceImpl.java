@@ -1,16 +1,12 @@
 package org.iot.hotelitybackend.customer.service;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.iot.hotelitybackend.common.util.ExcelType;
 import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
 import org.iot.hotelitybackend.customer.aggregate.CustomerSpecification;
+import org.iot.hotelitybackend.customer.aggregate.NationEntity;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.dto.SelectCustomerDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
@@ -21,7 +17,6 @@ import org.iot.hotelitybackend.hotelservice.service.PaymentServiceImpl;
 import org.iot.hotelitybackend.hotelservice.service.StayServiceImpl;
 import org.iot.hotelitybackend.sales.aggregate.MembershipEntity;
 import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
-import org.iot.hotelitybackend.customer.aggregate.NationEntity;
 import org.iot.hotelitybackend.sales.dto.CouponIssueDTO;
 import org.iot.hotelitybackend.sales.dto.VocDTO;
 import org.iot.hotelitybackend.sales.repository.MembershipIssueRepository;
@@ -48,8 +43,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -302,7 +295,7 @@ public class CustomerServiceImpl implements CustomerService {
 		headerCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 		headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-		Sheet customerSheet = workbook.createSheet("고객");
+		Sheet customerSheet = workbook.createSheet(ExcelType.CUSTOMER.getFileName());
 
 		createDashboardSheet(customerDTOList, customerSheet, headerCellStyle);
 
@@ -314,8 +307,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 	private void createDashboardSheet(List<CustomerDTO> customer, Sheet customerSheet, CellStyle headerCellStyle) {
 		Row headerRow = customerSheet.createRow(0);
-		String[] headerStrings = {"고객코드", "고객타입",	"국가",	"영문 이름"	, "한글 이름",	"성별", "이메일"
-			, "전화번호", "주소", "멤버십 등급"};
+		String[] headerStrings = ExcelType.CUSTOMER.getHeaderStrings();
 
 		int idx = 0;
 		Cell headerCell = null;
