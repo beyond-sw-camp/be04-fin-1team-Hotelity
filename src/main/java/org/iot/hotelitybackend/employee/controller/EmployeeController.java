@@ -1,6 +1,7 @@
 package org.iot.hotelitybackend.employee.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.iot.hotelitybackend.common.util.ExcelType;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 import org.iot.hotelitybackend.employee.service.EmployeeService;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.iot.hotelitybackend.common.constant.Constant.KEY_CONTENT;
+import static org.iot.hotelitybackend.common.util.ExcelType.EMPLOYEE;
 import static org.iot.hotelitybackend.common.util.ExcelUtil.createExcelFile;
 
 @Slf4j
@@ -174,14 +176,6 @@ public class EmployeeController {
             @RequestParam(required = false) String orderBy,
             @RequestParam(required = false) Integer sortBy
     ) {
-        String title = "직원목록";
-
-        String[] headers = {
-                "직원코드", "이름", "주소", "휴대폰번호", "내선번호", "이메일", "비밀번호", "퇴사여부", "직원프로필이미지링크",
-                "권한코드", "직책코드", "직급코드", "부서코드", "지점코드", "권한명", "직책명", "직급명", "부서명", "지점명"
-        };
-
-
         Map<String, Object> employeeList = employeeService.selectEmployeesList(
                 pageNum, employeeCode, employeeName, employeeAddress, employeePhoneNumber,
                 employeeOfficePhoneNumber, employeeEmail, employeeResignStatus,
@@ -191,8 +185,8 @@ public class EmployeeController {
         try {
             Map<String, Object> result = createExcelFile(
                     (List<EmployeeDTO>)employeeList.get(KEY_CONTENT),
-                    title,
-                    headers
+                    EMPLOYEE.getFileName(),
+                    EMPLOYEE.getHeaderStrings()
             );
 
             return ResponseEntity

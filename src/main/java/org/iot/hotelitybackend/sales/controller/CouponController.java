@@ -1,10 +1,7 @@
 package org.iot.hotelitybackend.sales.controller;
 
-import static org.iot.hotelitybackend.common.constant.Constant.*;
-import static org.iot.hotelitybackend.common.util.ExcelUtil.*;
-
+import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
-import org.iot.hotelitybackend.sales.aggregate.CouponEntity;
 import org.iot.hotelitybackend.sales.dto.CouponDTO;
 import org.iot.hotelitybackend.sales.service.CouponService;
 import org.iot.hotelitybackend.sales.vo.RequestCoupon;
@@ -20,7 +17,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
+import static org.iot.hotelitybackend.common.constant.Constant.KEY_CONTENT;
+import static org.iot.hotelitybackend.common.util.ExcelType.COUPON;
+import static org.iot.hotelitybackend.common.util.ExcelUtil.createExcelFile;
 
 @Slf4j
 @RestController
@@ -99,14 +98,6 @@ public class CouponController {
         @RequestParam(required = false) String orderBy,
         @RequestParam(required = false) Integer sortBy
     ) {
-        // 파일명을 적어주세요.
-        String title = "쿠폰종류";
-
-        // 컬럼명은 DTO 에 적혀있는 필드 순서대로 적어주셔야 합니다,,,
-        String[] headerStrings = {
-            "쿠폰코드", "쿠폰이름", "쿠폰타입", "쿠폰할인율",
-            "쿠폰개시일", "쿠폰상세정보", "멤버십등급코드", "멤버십등급명"
-        };
 
         // 조회해서 DTO 리스트 가져오기
         Map<String, Object> couponPageInfo = couponService.selectAllCouponsType(pageNum, couponCodePk
@@ -115,8 +106,10 @@ public class CouponController {
 
         try {
             // 엑셀 시트와 파일 만들기
-            Map<String, Object> result = createExcelFile((List<CouponDTO>)couponPageInfo.get(KEY_CONTENT), title,
-                headerStrings);
+            Map<String, Object> result = createExcelFile(
+                    (List<CouponDTO>)couponPageInfo.get(KEY_CONTENT),
+                    COUPON.getFileName(),
+                    COUPON.getHeaderStrings());
 
             return ResponseEntity
                 .ok()
