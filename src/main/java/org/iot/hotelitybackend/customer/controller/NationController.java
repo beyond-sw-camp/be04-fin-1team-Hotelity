@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/nations")
-@CrossOrigin(origins = "http://localhost:5173")
 public class NationController {
 	private final ModelMapper mapper;
 	private final NationService nationService;
