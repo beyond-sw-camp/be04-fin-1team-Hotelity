@@ -1,9 +1,9 @@
 package org.iot.hotelitybackend.employee.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.iot.hotelitybackend.common.util.ExcelType;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
+import org.iot.hotelitybackend.employee.service.AwsS3Service;
 import org.iot.hotelitybackend.employee.service.EmployeeService;
 import org.iot.hotelitybackend.employee.vo.RequestEmployee;
 import org.modelmapper.ModelMapper;
@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,11 +30,13 @@ import static org.iot.hotelitybackend.common.util.ExcelUtil.createExcelFile;
 public class EmployeeController {
     private final ModelMapper mapper;
     private final EmployeeService employeeService;
+    private final AwsS3Service awsS3Service;
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService, ModelMapper mapper) {
+    public EmployeeController(EmployeeService employeeService, ModelMapper mapper, AwsS3Service awsS3Service) {
         this.mapper = mapper;
         this.employeeService = employeeService;
+        this.awsS3Service = awsS3Service;
     }
 
     /* 조건별 전체 직원 페이지 리스트 조회 */
@@ -184,20 +187,50 @@ public class EmployeeController {
 
         try {
             Map<String, Object> result = createExcelFile(
-                    (List<EmployeeDTO>)employeeList.get(KEY_CONTENT),
+                    (List<EmployeeDTO>) employeeList.get(KEY_CONTENT),
                     EMPLOYEE.getFileName(),
                     EMPLOYEE.getHeaderStrings()
             );
 
             return ResponseEntity
                     .ok()
-                    .headers((HttpHeaders)result.get("headers"))
-                    .body(new InputStreamResource((ByteArrayInputStream)result.get("result")));
+                    .headers((HttpHeaders) result.get("headers"))
+                    .body(new InputStreamResource((ByteArrayInputStream) result.get("result")));
 
         } catch (IOException | IllegalAccessException e) {
             log.info(e.getMessage());
         }
 
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    /* S3 이미지 업로드 */
+    @PostMapping("/{employeeCode}/image")
+    public ResponseEntity<?> uploadImageToS3(
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @PathVariable("employeeCode") int employCode
+    ) {
+        String imgUrl = awsS3Service.upload(image, employCode);
+
+        if (imgUrl == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(ResponseVO.builder().data(imgUrl).resultCode(HttpStatus.OK.value()).build());
+    }
+
+    /* S3 이미지 삭제 */
+    @DeleteMapping("/{employeeCode}/image")
+    public ResponseEntity<?> deleteImageFromS3(
+            @RequestParam String imageAddress,
+            @PathVariable("employeeCode") int employCode
+    ) {
+        boolean result = awsS3Service.deleteImageFromS3(imageAddress, employCode);
+
+        if (!result) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(ResponseVO.builder().resultCode(HttpStatus.OK.value()).build());
     }
 }
