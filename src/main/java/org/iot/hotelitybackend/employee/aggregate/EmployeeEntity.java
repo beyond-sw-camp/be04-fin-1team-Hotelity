@@ -1,10 +1,7 @@
 package org.iot.hotelitybackend.employee.aggregate;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.BranchEntity;
 
 @Entity
@@ -23,6 +20,8 @@ public class EmployeeEntity {
 	private String employeeEmail;
 	private String employeeSystemPassword;
 	private String employeeResignStatus;
+
+	@Setter
 	private String employeeProfileImageLink;
 
 	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
