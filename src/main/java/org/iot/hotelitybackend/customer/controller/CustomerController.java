@@ -33,7 +33,6 @@ import static org.iot.hotelitybackend.common.util.ExcelType.CUSTOMER;
 @Slf4j
 @RestController
 @RequestMapping("/customers")
-@CrossOrigin(origins = "http://localhost:5173")
 public class CustomerController {
     private final CustomerService customerService;
     private final ModelMapper mapper;
