@@ -16,8 +16,8 @@ public class CustomerSpecification {
 
 	public static Specification<CustomerEntity> equalsMembershipLevelName(String membershipLevelName) {
 		return (root, query, criteriaBuilder) -> {
-			Join<CustomerEntity, MembershipIssueEntity> issueJoin = root.join("membershipIssues");
-			Join<MembershipIssueEntity, MembershipEntity> membershipJoin = issueJoin.join("membership");
+			Join<CustomerEntity, MembershipIssueEntity> issueJoin = root.join("membershipIssues", JoinType.LEFT);
+			Join<MembershipIssueEntity, MembershipEntity> membershipJoin = issueJoin.join("membership", JoinType.LEFT);
 			return criteriaBuilder.equal(membershipJoin.get("membershipLevelName"), membershipLevelName);
 		};
 	}
@@ -27,7 +27,7 @@ public class CustomerSpecification {
 	}
 
 	public static Specification<CustomerEntity> equalsCustomerName(String customerName) {
-		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("customerName"), customerName);
+		return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("customerName"), "%" + customerName + "%");
 	}
 
 	public static Specification<CustomerEntity> equalsCustomerEmail(String customerEmail) {
@@ -35,7 +35,7 @@ public class CustomerSpecification {
 	}
 
 	public static Specification<CustomerEntity> equalsCustomerPhoneNumber(String customerPhoneNumber) {
-		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("customerPhoneNumber"), customerPhoneNumber);
+		return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("customerPhoneNumber"), "%" + customerPhoneNumber + "%");
 	}
 
 	public static Specification<CustomerEntity> equalsCustomerEnglishName(String customerEnglishName) {

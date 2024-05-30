@@ -15,6 +15,11 @@ public interface CustomerService {
 		Date customerRegisteredDate, Integer nationCodeFk, String customerGender, String nationName, String customerType,
 		String membershipLevelName, String orderBy, Integer sortBy, Integer pageNum);
 
+	// Map<String, Object> selectCustomersListTest(Integer customerCodePk, String customerName, String customerEmail,
+	// 	String customerPhoneNumber, String customerEnglishName, String customerAddress, Integer customerInfoAgreement, Integer customerStatus,
+	// 	Date customerRegisteredDate, Integer nationCodeFk, String customerGender, String nationName, String customerType,
+	// 	String membershipLevelName, String orderBy, Integer sortBy, Integer pageNum);
+
     SelectCustomerDTO selectCustomerByCustomerCodePk(Integer customerCodePk);
 
 	Map<String, Object> readExcel(Workbook workbook);

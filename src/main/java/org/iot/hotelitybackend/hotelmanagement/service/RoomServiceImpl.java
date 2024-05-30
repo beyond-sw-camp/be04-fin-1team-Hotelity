@@ -41,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -76,7 +77,9 @@ public class RoomServiceImpl implements RoomService {
 		String roomCurrentStatus,
 		Float roomDiscountRate,
 		String roomView,
-		Integer roomSubRoomsCount
+		Integer roomSubRoomsCount,
+		String orderBy,
+		Integer sortBy
 	) {
 
 		Specification<RoomEntity> spec = (root, query, criteriaBuilder) -> null;
@@ -144,7 +147,15 @@ public class RoomServiceImpl implements RoomService {
 
 		// 2-1. 페이징처리 할 때
 		if (pageNum != null) {
-			Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
+			Pageable pageable;
+
+			if (orderBy != null && !orderBy.isEmpty() && sortBy != null) {
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, sortBy == 1
+					? Sort.by(orderBy).ascending()
+					: Sort.by(orderBy).descending());
+			} else {
+				pageable = PageRequest.of(pageNum, PAGE_SIZE);
+			}
 			Page<RoomEntity> roomEntityList = roomRepository.findAll(spec, pageable);
 
 			roomDTOList = roomEntityList
@@ -166,16 +177,7 @@ public class RoomServiceImpl implements RoomService {
 		// 2-2. 페이징 처리 안할 때
 		} else {
 			List<RoomEntity> roomEntityList = roomRepository.findAll(spec);
-			roomDTOList = roomEntityList
-				.stream()
-				.map(roomEntity -> mapper.map(roomEntity, RoomDTO.class))
-				.peek(roomDTO -> {
-					RoomCategoryEntity foundRoomCategoryEntity = roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()).orElseThrow(IllegalArgumentException::new);
-					roomDTO.setRoomName(foundRoomCategoryEntity.getRoomName());
-					roomDTO.setRoomSubRoomsCount(foundRoomCategoryEntity.getRoomSubRoomsCount());
-					roomDTO.setBranchName(branchRepository.findById(roomDTO.getBranchCodeFk()).orElseThrow(IllegalArgumentException::new).getBranchName());
-				})
-				.toList();
+			roomDTOList = setDTOList(roomEntityList);
 		}
 
 		roomListInfo.put(KEY_CONTENT, roomDTOList);
@@ -191,6 +193,19 @@ public class RoomServiceImpl implements RoomService {
 				.toArray(Predicate[]::new);
 			return criteriaBuilder.or(predicates);
 		};
+	}
+
+	private List<RoomDTO> setDTOList(List<RoomEntity> roomEntityList) {
+		return roomEntityList
+			.stream()
+			.map(roomEntity -> mapper.map(roomEntity, RoomDTO.class))
+			.peek(roomDTO -> {
+				RoomCategoryEntity foundRoomCategoryEntity = roomCategoryRepository.findById(roomDTO.getRoomCategoryCodeFk()).orElseThrow(IllegalArgumentException::new);
+				roomDTO.setRoomName(foundRoomCategoryEntity.getRoomName());
+				roomDTO.setRoomSubRoomsCount(foundRoomCategoryEntity.getRoomSubRoomsCount());
+				roomDTO.setBranchName(branchRepository.findById(roomDTO.getBranchCodeFk()).orElseThrow(IllegalArgumentException::new).getBranchName());
+			})
+			.toList();
 	}
 
 	@Transactional
