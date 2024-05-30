@@ -200,7 +200,7 @@ public class StayServiceImpl implements StayService {
 
 		ReservationServiceImpl reservationService = new ReservationServiceImpl(
 			reservationRepository, mapper, customerRepository, roomRepository,
-			roomCategoryRepository, roomLevelRepository, branchRepository
+			roomCategoryRepository, roomLevelRepository, branchRepository, stayRepository
 		);
 
 		// 예약 정보 가져오기
