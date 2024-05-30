@@ -1,28 +1,21 @@
 package org.iot.hotelitybackend.common.util;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpHeaders;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.HttpHeaders;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ExcelUtil {
@@ -56,7 +49,7 @@ public class ExcelUtil {
 		String time = dateFormat.format(calendar.getTime());
 
 		// UTF8 로 인코딩 해줘야 파일명에 한글 들어갔을 때 오류 발생 안함
-		String fileName = URLEncoder.encode(title + "_" + time + ".xlsx", "UTF-8");
+		String fileName = URLEncoder.encode(title + "_" + time + ".xlsx", StandardCharsets.UTF_8);
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Content-Type", "application/vnd.ms-excel");
@@ -97,7 +90,12 @@ public class ExcelUtil {
 			for (int k = 0; k < fields.length; k++) {
 				fields[k].setAccessible(true);
 				bodyCell = bodyRow.createCell(k);
-				bodyCell.setCellValue(String.valueOf(fields[k].get(dto)));
+				Object value = fields[k].get(dto);
+				if (value == null) {
+					continue;
+				} else {
+					bodyCell.setCellValue(String.valueOf(fields[k].get(dto)));
+				}
 
 				// 컬럼 너비 조정
 				if (j == dtoList.size()) {

@@ -1,12 +1,6 @@
 package org.iot.hotelitybackend.hotelmanagement.controller;
 
-import static org.iot.hotelitybackend.common.constant.Constant.*;
-import static org.iot.hotelitybackend.common.util.ExcelUtil.*;
-
-import java.io.ByteArrayInputStream;
-import java.util.List;
-import java.util.Map;
-
+import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.hotelmanagement.dto.RoomDTO;
 import org.iot.hotelitybackend.hotelmanagement.service.RoomService;
@@ -17,16 +11,15 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.ByteArrayInputStream;
+import java.util.List;
+import java.util.Map;
+
+import static org.iot.hotelitybackend.common.constant.Constant.KEY_CONTENT;
+import static org.iot.hotelitybackend.common.util.ExcelType.ROOM;
+import static org.iot.hotelitybackend.common.util.ExcelUtil.createExcelFile;
 
 @RestController
 @RequestMapping("hotel-management")
@@ -107,18 +100,17 @@ public class RoomController {
 		@RequestParam(required = false) Integer roomSubRoomsCount
 	) {
 		try {
-			// 파일명을 적어주세요.
-			String title = "객실";
-
-			// 컬럼명은 DTO 의 필드 순서대로 적어주셔야 합니다,,,
-			String[] headerStrings = {"객실코드", "지점코드", "객실호수", "객실카테고리코드", "객실현재상태", "객실할인율", "객실이미지링크", "객실뷰", "객실카테고리명", "지점명", "객실방개수"};
 
 			// 조회해서 DTO 리스트 가져오기
 			Map<String, Object> roomListInfo = roomService.selectSearchedRoomsList(
 				pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount);
 
 			// 엑셀 시트와 파일 만들기
-			Map<String, Object> result = createExcelFile((List<RoomDTO>)roomListInfo.get(KEY_CONTENT), title, headerStrings);
+			Map<String, Object> result = createExcelFile(
+					(List<RoomDTO>)roomListInfo.get(KEY_CONTENT),
+					ROOM.getFileName(),
+					ROOM.getHeaderStrings()
+			);
 
 			return ResponseEntity
 				.ok()

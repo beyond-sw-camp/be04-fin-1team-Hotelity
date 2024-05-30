@@ -45,16 +45,6 @@ public class CouponIssueServiceImpl implements CouponIssueService{
     public Map<String, Object> selectCouponIssueList(Integer pageNum, Integer couponIssueCodePk, String couponName,
         Integer customerCodePk, String customerName, Double couponDiscountRate, LocalDateTime couponIssueDate, LocalDateTime couponExpireDate,
         LocalDateTime couponUseDate, String orderBy, Integer sortBy) {
-        Pageable pageable;
-        if(orderBy == null){
-            pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("couponIssueCodePk"));
-        } else{
-            if(sortBy == 1){
-                pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
-            } else {
-                pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
-            }
-        }
 
         Specification<CouponIssueEntity> specification = (root, query, criteriaBuilder) -> null;
 
@@ -83,29 +73,63 @@ public class CouponIssueServiceImpl implements CouponIssueService{
             specification = specification.and(CouponIssueSpecification.equalsCustomerCodePk(customerCodePk));
         }
 
-        Page<CouponIssueEntity> couponIssuePage = couponIssueRepository.findAll(specification, pageable);
-        List<CouponIssueDTO> couponIssueDTOList = couponIssuePage
-            .stream()
-            .map(couponIssueEntity -> mapper.map(couponIssueEntity, CouponIssueDTO.class))
-            .peek(couponIssueDTO -> {
-                    couponIssueDTO.setCustomerName(
-                        mapper.map(customerRepository.findById(couponIssueDTO.getCustomerCodeFk()), CustomerDTO.class)
-                            .getCustomerName());
-                    couponIssueDTO.setCouponName(couponRepository.findById(couponIssueDTO.getCouponCodeFk()).get().getCouponName());
-                    couponIssueDTO.setCouponDiscountRate(couponRepository.findById(couponIssueDTO.getCouponCodeFk()).get()
-                        .getCouponDiscountRate());
-                }
-            )
-            .toList();
-
-        int totalPagesCount = couponIssuePage.getTotalPages();
-        int currentPageIndex = couponIssuePage.getNumber();
-
         Map<String, Object> couponIssuePageInfo = new HashMap<>();
 
-        couponIssuePageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-        couponIssuePageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-        couponIssuePageInfo.put(KEY_CONTENT, couponIssueDTOList);
+        // 1. 페이징 처리 할 때
+        if (pageNum != null) {
+            Pageable pageable;
+            if (orderBy == null) {
+                pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("couponIssueCodePk"));
+            } else {
+                if (sortBy == 1) {
+                    pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
+                } else {
+                    pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
+                }
+            }
+
+            Page<CouponIssueEntity> couponIssuePage = couponIssueRepository.findAll(specification, pageable);
+            List<CouponIssueDTO> couponIssueDTOList = couponIssuePage
+                .stream()
+                .map(couponIssueEntity -> mapper.map(couponIssueEntity, CouponIssueDTO.class))
+                .peek(couponIssueDTO -> {
+                        couponIssueDTO.setCustomerName(
+                            mapper.map(customerRepository.findById(couponIssueDTO.getCustomerCodeFk()), CustomerDTO.class)
+                                .getCustomerName());
+                        couponIssueDTO.setCouponName(
+                            couponRepository.findById(couponIssueDTO.getCouponCodeFk()).get().getCouponName());
+                        couponIssueDTO.setCouponDiscountRate(
+                            couponRepository.findById(couponIssueDTO.getCouponCodeFk()).get()
+                                .getCouponDiscountRate());
+                    }
+                )
+                .toList();
+            int totalPagesCount = couponIssuePage.getTotalPages();
+            int currentPageIndex = couponIssuePage.getNumber();
+            couponIssuePageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+            couponIssuePageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+            couponIssuePageInfo.put(KEY_CONTENT, couponIssueDTOList);
+
+        // 2. 페이징 처리 안할 때
+        } else {
+            List<CouponIssueEntity> couponIssueEntityList = couponIssueRepository.findAll(specification);
+            List<CouponIssueDTO> couponIssueDTOList = couponIssueEntityList
+                .stream()
+                .map(couponIssueEntity -> mapper.map(couponIssueEntity, CouponIssueDTO.class))
+                .peek(couponIssueDTO -> {
+                        couponIssueDTO.setCustomerName(
+                            mapper.map(customerRepository.findById(couponIssueDTO.getCustomerCodeFk()), CustomerDTO.class)
+                                .getCustomerName());
+                        couponIssueDTO.setCouponName(
+                            couponRepository.findById(couponIssueDTO.getCouponCodeFk()).get().getCouponName());
+                        couponIssueDTO.setCouponDiscountRate(
+                            couponRepository.findById(couponIssueDTO.getCouponCodeFk()).get()
+                                .getCouponDiscountRate());
+                    }
+                )
+                .toList();
+            couponIssuePageInfo.put(KEY_CONTENT, couponIssueDTOList);
+        }
 
         return couponIssuePageInfo;
     }

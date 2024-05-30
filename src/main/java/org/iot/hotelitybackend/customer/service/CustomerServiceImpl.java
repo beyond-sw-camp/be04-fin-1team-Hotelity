@@ -1,16 +1,12 @@
 package org.iot.hotelitybackend.customer.service;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.iot.hotelitybackend.common.util.ExcelType;
 import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
 import org.iot.hotelitybackend.customer.aggregate.CustomerSpecification;
+import org.iot.hotelitybackend.customer.aggregate.NationEntity;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.dto.SelectCustomerDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
@@ -18,11 +14,9 @@ import org.iot.hotelitybackend.customer.repository.NationRepository;
 import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
 import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.service.PaymentServiceImpl;
-import org.iot.hotelitybackend.hotelservice.service.ReservationServiceImpl;
 import org.iot.hotelitybackend.hotelservice.service.StayServiceImpl;
 import org.iot.hotelitybackend.sales.aggregate.MembershipEntity;
 import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
-import org.iot.hotelitybackend.customer.aggregate.NationEntity;
 import org.iot.hotelitybackend.sales.dto.CouponIssueDTO;
 import org.iot.hotelitybackend.sales.dto.VocDTO;
 import org.iot.hotelitybackend.sales.repository.MembershipIssueRepository;
@@ -30,7 +24,6 @@ import org.iot.hotelitybackend.sales.repository.MembershipRepository;
 import org.iot.hotelitybackend.sales.service.CouponIssueServiceImpl;
 import org.iot.hotelitybackend.sales.service.VocServiceImpl;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -50,8 +43,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -239,6 +230,33 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
+	public Map<String, Object> insertCustomer(CustomerDTO customerDTO) {
+		CustomerEntity customerEntity = CustomerEntity.builder()
+			.customerName(customerDTO.getCustomerName())
+			.customerEmail(customerDTO.getCustomerEmail())
+			.customerPhoneNumber(customerDTO.getCustomerPhoneNumber())
+			.customerEnglishName(customerDTO.getCustomerEnglishName())
+			.customerAddress(customerDTO.getCustomerAddress())
+			.customerInfoAgreement(customerDTO.getCustomerInfoAgreement())
+			.customerStatus(customerDTO.getCustomerStatus())
+			.customerRegisteredDate(new Date())
+			.customerType(customerDTO.getCustomerType())
+			.nationCodeFk(customerDTO.getNationCodeFk())
+			.customerGender(customerDTO.getCustomerGender())
+			.build();
+
+		customerRepository.save(customerEntity);
+
+		Map<String, Object> modifiedCustomerInfo = new HashMap<>();
+		if(customerRepository.findById(customerEntity.getCustomerCodePk()).isPresent()){
+			modifiedCustomerInfo.put(KEY_CONTENT, customerEntity.getCustomerName() + "님의 정보가 성공적으로 등록되었습니다.");
+		} else{
+			modifiedCustomerInfo.put(KEY_CONTENT, "등록에 실패하였습니다.");
+		}
+		return modifiedCustomerInfo;
+	}
+
+	@Override
 	public ByteArrayInputStream downloadExcel(Integer customerCodePk, String customerName, String customerEmail,
 		String customerPhoneNumber, String customerEnglishName, String customerAddress, Integer customerInfoAgreement,
 		Integer customerStatus, Date customerRegisteredDate, Integer nationCodeFk, String customerGender,
@@ -281,7 +299,7 @@ public class CustomerServiceImpl implements CustomerService {
 		headerCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 		headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-		Sheet customerSheet = workbook.createSheet("고객");
+		Sheet customerSheet = workbook.createSheet(ExcelType.CUSTOMER.getFileName());
 
 		createDashboardSheet(customerDTOList, customerSheet, headerCellStyle);
 
@@ -293,8 +311,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 	private void createDashboardSheet(List<CustomerDTO> customer, Sheet customerSheet, CellStyle headerCellStyle) {
 		Row headerRow = customerSheet.createRow(0);
-		String[] headerStrings = {"고객코드", "고객타입",	"국가",	"영문 이름"	, "한글 이름",	"성별", "이메일"
-			, "전화번호", "주소", "멤버십 등급"};
+		String[] headerStrings = ExcelType.CUSTOMER.getHeaderStrings();
 
 		int idx = 0;
 		Cell headerCell = null;

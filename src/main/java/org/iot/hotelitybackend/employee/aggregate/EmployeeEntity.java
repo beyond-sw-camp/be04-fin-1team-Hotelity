@@ -1,14 +1,8 @@
 package org.iot.hotelitybackend.employee.aggregate;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.BranchEntity;
-import org.iot.hotelitybackend.hotelservice.aggregate.StayEntity;
-
-import java.util.List;
 
 @Entity
 @Table(name = "employee_tb")
@@ -26,6 +20,8 @@ public class EmployeeEntity {
 	private String employeeEmail;
 	private String employeeSystemPassword;
 	private String employeeResignStatus;
+
+	@Setter
 	private String employeeProfileImageLink;
 
 	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
@@ -48,10 +44,6 @@ public class EmployeeEntity {
 	@JoinColumn(name = "branch_code_fk", nullable = false)
 	private BranchEntity branch;
 
-	@JoinColumn(name="employee_code_fk")
-	@OneToMany
-	private List<StayEntity> stayList;
-
 	@Builder
 	public EmployeeEntity(
             Integer employeeCodePk,
@@ -64,13 +56,11 @@ public class EmployeeEntity {
             String employeeResignStatus,
             String employeeProfileImageLink,
 
-			PermissionEntity employPermission,
-			PositionEntity employPosition,
-			RankEntity employRank,
-			DepartmentEntity employDepartment,
-			BranchEntity employBranch,
-
-			List<StayEntity> stayList
+			PermissionEntity employeePermission,
+			PositionEntity employeePosition,
+			RankEntity employeeRank,
+			DepartmentEntity employeeDepartment,
+			BranchEntity employeeBranch
     ) {
 		this.employeeCodePk = employeeCodePk;
 		this.employeeName = employeeName;
@@ -82,13 +72,11 @@ public class EmployeeEntity {
 		this.employeeResignStatus = employeeResignStatus;
 		this.employeeProfileImageLink = employeeProfileImageLink;
 
-		this.permission = employPermission;
-		this.position = employPosition;
-		this.rank = employRank;
-		this.department = employDepartment;
-		this.branch = employBranch;
-
-        this.stayList = stayList;
+		this.permission = employeePermission;
+		this.position = employeePosition;
+		this.rank = employeeRank;
+		this.department = employeeDepartment;
+		this.branch = employeeBranch;
     }
 
 	public String getPermissionName() {

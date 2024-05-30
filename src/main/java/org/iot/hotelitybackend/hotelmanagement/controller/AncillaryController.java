@@ -1,9 +1,6 @@
 package org.iot.hotelitybackend.hotelmanagement.controller;
 
-import java.io.ByteArrayInputStream;
-import java.util.List;
-import java.util.Map;
-
+import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.hotelmanagement.dto.AncillaryDTO;
 import org.iot.hotelitybackend.hotelmanagement.service.AncillaryService;
@@ -17,7 +14,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.ByteArrayInputStream;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Map;
+
+import static org.iot.hotelitybackend.common.constant.Constant.KEY_CONTENT;
+import static org.iot.hotelitybackend.common.util.ExcelType.ANCILLARY;
+import static org.iot.hotelitybackend.common.util.ExcelUtil.createExcelFile;
 
 @Slf4j
 @RestController
@@ -33,8 +37,22 @@ public class AncillaryController {
 	}
 
 	@GetMapping("/facilities")
-	public ResponseEntity<ResponseVO> selectAllFacilities(@RequestParam int pageNum) {
-		Map<String, Object> facilityPageInfo = ancillaryService.selectAllFacilities(pageNum);
+	public ResponseEntity<ResponseVO> selectAllFacilities(
+		@RequestParam(required = false) Integer pageNum,
+		@RequestParam(required = false) Integer ancillaryCodePk,
+		@RequestParam(required = false) String ancillaryName,
+		@RequestParam(required = false) String branchCodeFk,
+		@RequestParam(required = false) String ancillaryLocation,
+		@RequestParam(required = false) LocalTime ancillaryOpenTime,
+		@RequestParam(required = false) LocalTime ancillaryCloseTime,
+		@RequestParam(required = false) String ancillaryPhoneNumber,
+		@RequestParam(required = false) Integer ancillaryCategoryCodeFk,
+		@RequestParam(required = false) String branchName,
+		@RequestParam(required = false) String ancillaryCategoryName
+	) {
+		Map<String, Object> facilityPageInfo = ancillaryService.selectAllFacilities(
+			pageNum, ancillaryCodePk, ancillaryName, branchCodeFk, ancillaryLocation, ancillaryOpenTime, ancillaryCloseTime, ancillaryPhoneNumber, ancillaryCategoryCodeFk, branchName, ancillaryCategoryName
+		);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(facilityPageInfo)
@@ -86,10 +104,32 @@ public class AncillaryController {
 	}
 
 	@GetMapping("facilities/excel/download")
-	public ResponseEntity<InputStreamResource> downloadAllFacilitiesExcel() {
+	public ResponseEntity<InputStreamResource> downloadAllFacilitiesExcel(
+		@RequestParam(required = false) Integer pageNum,
+		@RequestParam(required = false) Integer ancillaryCodePk,
+		@RequestParam(required = false) String ancillaryName,
+		@RequestParam(required = false) String branchCodeFk,
+		@RequestParam(required = false) String ancillaryLocation,
+		@RequestParam(required = false) LocalTime ancillaryOpenTime,
+		@RequestParam(required = false) LocalTime ancillaryCloseTime,
+		@RequestParam(required = false) String ancillaryPhoneNumber,
+		@RequestParam(required = false) Integer ancillaryCategoryCodeFk,
+		@RequestParam(required = false) String branchName,
+		@RequestParam(required = false) String ancillaryCategoryName
+	) {
 		try {
-			List<AncillaryDTO> ancillaryDTOList = ancillaryService.selectAllFacilitiesForExcel();
-			Map<String, Object> result = ancillaryService.createFacilitiesExcelFile(ancillaryDTOList);
+
+			// 조회해서 DTO 리스트 가져오기
+			Map<String, Object> facilityListInfo = ancillaryService.selectAllFacilities(
+				pageNum, ancillaryCodePk, ancillaryName, branchCodeFk, ancillaryLocation, ancillaryOpenTime, ancillaryCloseTime, ancillaryPhoneNumber, ancillaryCategoryCodeFk, branchName, ancillaryCategoryName
+			);
+
+			// 엑셀 시트와 파일 만들기
+			Map<String, Object> result = createExcelFile(
+					(List<AncillaryDTO>)facilityListInfo.get(KEY_CONTENT),
+					ANCILLARY.getFileName(),
+					ANCILLARY.getHeaderStrings()
+			);
 
 			return ResponseEntity
 				.ok()
@@ -98,6 +138,7 @@ public class AncillaryController {
 
 		} catch (Exception e) {
 			log.info(e.getMessage());
+			e.printStackTrace();
 		}
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}

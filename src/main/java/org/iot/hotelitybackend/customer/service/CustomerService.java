@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Workbook;
+import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.dto.SelectCustomerDTO;
 
 public interface CustomerService {
@@ -24,4 +25,6 @@ public interface CustomerService {
 		String nationName, String customerType, String membershipLevelName) throws IOException;
 
 	Map<String, Object> deleteCustomerByCustomerCodePk(int customerCodePk);
+
+	Map<String, Object> insertCustomer(CustomerDTO customerDTO);
 }

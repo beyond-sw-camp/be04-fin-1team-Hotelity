@@ -1,5 +1,6 @@
 package org.iot.hotelitybackend.customer.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -8,8 +9,6 @@ import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.dto.SelectCustomerDTO;
 import org.iot.hotelitybackend.customer.service.CustomerService;
-import org.iot.hotelitybackend.customer.vo.ResponseCustomer;
-import org.iot.hotelitybackend.sales.dto.MembershipDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -17,23 +16,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
+import static org.iot.hotelitybackend.common.util.ExcelType.CUSTOMER;
 
 @Slf4j
 @RestController
@@ -87,6 +82,18 @@ public class CustomerController {
         // ResponseCustomer responseCustomer = mapper.map(customer, ResponseCustomer.class);
 
         return ResponseEntity.status(HttpStatus.OK).body(customer);
+    }
+
+    @PostMapping()
+    public ResponseEntity<ResponseVO> insertCustomer(@RequestBody CustomerDTO customerDTO){
+        Map<String, Object> customerPageInfo = customerService.insertCustomer(customerDTO);
+
+        ResponseVO response = ResponseVO.builder()
+            .data(customerPageInfo)
+            .resultCode(HttpStatus.OK.value())
+            .build();
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
     }
 
     @DeleteMapping("/{customerCodePk}")
@@ -152,7 +159,15 @@ public class CustomerController {
                 customerGender, nationName, customerType, membershipLevelName
             );
 
-            String fileName = "Customer.xlsx";
+            // 파일명에 현재시간 넣기 위한 작업
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
+            String time = dateFormat.format(calendar.getTime());
+
+            // UTF8 로 인코딩 해줘야 파일명에 한글 들어갔을 때 오류 발생 안함
+            String fileName = URLEncoder.encode(
+                    CUSTOMER.getFileName() + "_" + time + ".xlsx", StandardCharsets.UTF_8);
+
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", "application/vnd.ms-excel");
             headers.add("Content-Disposition", "attachment; filename=" + fileName);

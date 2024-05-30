@@ -1,21 +1,28 @@
 package org.iot.hotelitybackend.hotelservice.controller;
 
-import java.time.LocalDateTime;
-import java.util.Map;
-
+import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
+import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.service.ReservationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+import static org.iot.hotelitybackend.common.constant.Constant.KEY_CONTENT;
+import static org.iot.hotelitybackend.common.util.ExcelType.RESERVATION;
+import static org.iot.hotelitybackend.common.util.ExcelUtil.createExcelFile;
+
+@Slf4j
 @RestController
 @RequestMapping("/hotel-service")
 public class ReservationController {
@@ -63,7 +70,7 @@ public class ReservationController {
 				branchCodeFk,reservationDate,
 				reservationCheckInDate, reservationCheckoutDate,
 				reservationCancelStatus, orderBy, sortBy
-				);
+			);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(reservationInfo)
@@ -109,5 +116,61 @@ public class ReservationController {
 			.build();
 
 		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	@GetMapping("/reservations/{reservationCheckinDate}/excel/download")
+	public ResponseEntity<InputStreamResource> downloadReservationListByMonth(
+		@PathVariable("reservationCheckinDate") LocalDateTime reservationCheckinDate,
+		@RequestParam(required = false) Integer reservationCodePk,
+		@RequestParam(required = false) Integer customerCodeFk,
+		@RequestParam(required = false) String customerName,
+		@RequestParam(required = false) String customerEnglishName,
+		@RequestParam(required = false) String roomCodeFk,
+		@RequestParam(required = false) String roomName,
+		@RequestParam(required = false) String roomLevelName,
+		@RequestParam(required = false) Integer roomCapacity,
+		@RequestParam(required = false) String branchCodeFk,
+		@RequestParam(required = false) LocalDateTime reservationDate,
+		@RequestParam(required = false) LocalDateTime reservationCheckInDate,
+		@RequestParam(required = false) LocalDateTime reservationCheckoutDate,
+		@RequestParam(required = false) Integer reservationCancelStatus,
+		@RequestParam(required = false) String orderBy,
+		@RequestParam(required = false) Integer sortBy
+	) {
+		int year = reservationCheckinDate.getYear();
+		int month = reservationCheckinDate.getMonthValue();
+
+		// 조회해서 DTO 리스트 가져오기
+		Map<String, Object> reservationInfo =
+			reservationService.selectReservationListByMonth(
+				year, month,
+				reservationCodePk, customerCodeFk,
+				customerName, customerEnglishName,
+				roomCodeFk, roomName,
+				roomLevelName, roomCapacity,
+				branchCodeFk, reservationDate,
+				reservationCheckInDate, reservationCheckoutDate,
+				reservationCancelStatus, orderBy, sortBy
+			);
+
+		try {
+
+			Map<String, Object> resultExcel = createExcelFile(
+					(List<ReservationDTO>)reservationInfo.get(KEY_CONTENT),
+					RESERVATION.getFileName(),
+					RESERVATION.getHeaderStrings()
+			);
+
+			return ResponseEntity
+				.ok()
+				.headers((HttpHeaders)resultExcel.get("headers"))
+				.body(new InputStreamResource((ByteArrayInputStream)resultExcel.get("result")));
+
+		} catch (Exception e) {
+			log.info(e.getMessage());
+			e.printStackTrace();
+		}
+
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 }
