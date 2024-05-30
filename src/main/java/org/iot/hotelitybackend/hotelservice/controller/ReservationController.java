@@ -7,6 +7,7 @@ import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.hotelservice.service.ReservationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +34,7 @@ public class ReservationController {
 	 * 프론트에서 해당 리스트를 받아 날짜를 기준으로 예약 건 수를 카운트 하여 캘린더에 출력 */
 	@GetMapping("/reservations/{reservationCheckinDate}")
 	public ResponseEntity<ResponseVO> selectReservationListByMonth(
-		@PathVariable("reservationCheckinDate") LocalDateTime reservationCheckinDate,
+		@PathVariable("reservationCheckinDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime reservationCheckinDate,
 		@RequestParam(required = false) Integer reservationCodePk,
 		@RequestParam(required = false) Integer customerCodeFk,
 		@RequestParam(required = false) String customerName,

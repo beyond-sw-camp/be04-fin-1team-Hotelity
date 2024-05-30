@@ -20,4 +20,5 @@ public class ReservationDTO {
     private LocalDateTime reservationCheckoutDate;
     private Integer reservationCancelStatus;
     private Integer reservationPersonnel;
+    private Integer stayStatus;
 }

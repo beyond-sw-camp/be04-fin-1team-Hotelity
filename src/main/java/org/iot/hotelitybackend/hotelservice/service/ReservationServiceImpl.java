@@ -1,13 +1,15 @@
 package org.iot.hotelitybackend.hotelservice.service;
 
+import static java.util.stream.Collectors.*;
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
@@ -17,13 +19,12 @@ import org.iot.hotelitybackend.hotelmanagement.repository.RoomLevelRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomRepository;
 import org.iot.hotelitybackend.hotelservice.aggregate.ReservationEntity;
 import org.iot.hotelitybackend.hotelservice.aggregate.ReservationSpecification;
+import org.iot.hotelitybackend.hotelservice.aggregate.StayEntity;
 import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
+import org.iot.hotelitybackend.hotelservice.repository.StayRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -37,12 +38,13 @@ public class ReservationServiceImpl implements ReservationService {
 	private final RoomCategoryRepository roomCategoryRepository;
 	private final RoomLevelRepository roomLevelRepository;
 	private final BranchRepository branchRepository;
+	private final StayRepository stayRepository;
 
 	@Autowired
 	public ReservationServiceImpl(ReservationRepository reservationRepository, ModelMapper mapper,
 		CustomerRepository customerRepository, RoomRepository roomRepository,
-		RoomCategoryRepository roomCategoryRepository,
-		RoomLevelRepository roomLevelRepository, BranchRepository branchRepository) {
+		RoomCategoryRepository roomCategoryRepository, RoomLevelRepository roomLevelRepository,
+		BranchRepository branchRepository, StayRepository stayRepository) {
 		this.reservationRepository = reservationRepository;
 		this.mapper = mapper;
 		this.customerRepository = customerRepository;
@@ -50,6 +52,7 @@ public class ReservationServiceImpl implements ReservationService {
 		this.roomCategoryRepository = roomCategoryRepository;
 		this.roomLevelRepository = roomLevelRepository;
 		this.branchRepository = branchRepository;
+		this.stayRepository = stayRepository;
 	}
 
 	/* 월별 예약 리스트 전체 조회 */
@@ -143,7 +146,7 @@ public class ReservationServiceImpl implements ReservationService {
 		if (orderBy == null) {
 			reservationDTOList.stream().sorted(
 					Comparator.comparing(ReservationDTO::getReservationCheckinDate).reversed())
-				.collect(Collectors.toList());
+				.collect(toList());
 		} else {
 			reservationDTOList = sortList(reservationDTOList, orderBy, sortBy);
 		}
@@ -207,7 +210,7 @@ public class ReservationServiceImpl implements ReservationService {
 			comparator = comparator.reversed();
 		}
 
-		return list.stream().sorted(comparator).collect(Collectors.toList());
+		return list.stream().sorted(comparator).collect(toList());
 	}
 
 	/* 예약 코드로 특정 예약 내역 조회 */
@@ -244,6 +247,8 @@ public class ReservationServiceImpl implements ReservationService {
 	/* fk 값들의 이름을 가져오는 코드 */
 	public List<ReservationDTO> setDTOField(List<ReservationEntity> reservationEntityList) {
 
+		AtomicReference<List<StayEntity>> existingStayEntity = new AtomicReference<>(new ArrayList<>());
+
 		List<ReservationDTO> list =
 			reservationEntityList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
 				// 고객명
@@ -263,9 +268,13 @@ public class ReservationServiceImpl implements ReservationService {
 								).get().getRoomCategoryCodeFk()
 							).get().getRoomLevelCodeFk()
 						).get().getRoomLevelName()
-					)
-				).toList();
-
+					))
+				.peek(reservationDTO -> {
+					existingStayEntity.set(stayRepository.findByReservationCodeFk(reservationDTO.getReservationCodePk())
+						.stream()
+						.toList());
+					reservationDTO.setStayStatus(existingStayEntity.get().isEmpty() ? 0 : 1);
+				}).toList();
 		return list;
 	}
 }
