@@ -1,8 +1,11 @@
 package org.iot.hotelitybackend.customer.aggregate;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.hibernate.annotations.Formula;
 import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
 
 import jakarta.persistence.Column;
@@ -80,9 +83,24 @@ public class CustomerEntity {
 	}
 
 	@OneToMany(mappedBy = "customer")
-	private Set<MembershipIssueEntity> membershipIssues;
+	private List<MembershipIssueEntity> membershipIssues;
 
 
+
+	@Formula(
+		"(SELECT m.membership_level_name "
+			+ "FROM membership_tb m "
+			+ "JOIN membership_issue_tb mi ON m.membership_level_code_pk = mi.membership_level_code_fk "
+			+ "WHERE mi.customer_code_fk = customer_code_pk)"
+	)
+	private String membershipLevelName;
+
+	@Formula(
+		"(SELECT n.nation_name "
+			+ "FROM nationality_tb n "
+			+ "WHERE n.nation_code_pk = nation_code_fk)"
+	)
+	private String nationName;
 
 	public CustomerEntity() {
 

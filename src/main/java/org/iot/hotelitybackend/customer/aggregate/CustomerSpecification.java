@@ -16,8 +16,8 @@ public class CustomerSpecification {
 
 	public static Specification<CustomerEntity> equalsMembershipLevelName(String membershipLevelName) {
 		return (root, query, criteriaBuilder) -> {
-			Join<CustomerEntity, MembershipIssueEntity> issueJoin = root.join("membershipIssues");
-			Join<MembershipIssueEntity, MembershipEntity> membershipJoin = issueJoin.join("membership");
+			Join<CustomerEntity, MembershipIssueEntity> issueJoin = root.join("membershipIssues", JoinType.LEFT);
+			Join<MembershipIssueEntity, MembershipEntity> membershipJoin = issueJoin.join("membership", JoinType.LEFT);
 			return criteriaBuilder.equal(membershipJoin.get("membershipLevelName"), membershipLevelName);
 		};
 	}
