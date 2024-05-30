@@ -19,7 +19,9 @@ public interface RoomService {
 		String roomCurrentStatus,
 		Float roomDiscountRate,
 		String roomView,
-		Integer roomSubRoomsCount
+		Integer roomSubRoomsCount,
+		String orderBy,
+		Integer sortBy
 	);
 
 	Map<String, Object> modifyRoomInfo(RequestModifyRoom requestModifyRoom, String roomCodePk);
