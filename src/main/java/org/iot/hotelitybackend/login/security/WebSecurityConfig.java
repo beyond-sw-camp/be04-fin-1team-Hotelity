@@ -87,6 +87,7 @@ public class WebSecurityConfig {
         // 인가(Authorization)
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/reissue").permitAll()
+                .requestMatchers(HttpMethod.GET, "/hotel-management/branches").permitAll()
 
                 .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
 
