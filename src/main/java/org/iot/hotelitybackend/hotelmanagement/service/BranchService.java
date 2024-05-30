@@ -9,7 +9,9 @@ import org.iot.hotelitybackend.hotelmanagement.vo.RequestRegistBranch;
 
 public interface BranchService {
 
-	Map<String, Object> selectAllBranches(int pageNum);
+	List<BranchDTO> selectAllBranches();
+
+	Map<String, Object> selectAllBranches(Integer pageNum);
 
 	Map<String, Object> registBranch(RequestRegistBranch requestRegistBranch);
 
