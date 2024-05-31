@@ -23,4 +23,5 @@ public class ReservationDTO {
     private Integer reservationCancelStatus;
     private Integer reservationPersonnel;
     private Integer stayStatus;
+    private String stayPeriod;
 }

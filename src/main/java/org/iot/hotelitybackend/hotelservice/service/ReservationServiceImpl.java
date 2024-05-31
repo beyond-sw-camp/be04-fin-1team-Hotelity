@@ -296,7 +296,21 @@ public class ReservationServiceImpl implements ReservationService {
 						.stream()
 						.toList());
 					reservationDTO.setStayStatus(existingStayEntity.get().isEmpty() ? 0 : 1);
-				}).toList();
+				})
+				.peek(reservationDTO -> reservationDTO.setStayPeriod(
+					calculateStayPeriod(reservationDTO.getReservationCodePk())))
+				.toList();
 		return list;
+	}
+
+	/* 숙박 일수 계산 */
+	public String calculateStayPeriod(Integer reservationCodePk){
+		ReservationEntity reservationEntity = reservationRepository.findById(reservationCodePk).orElse(null);
+
+		LocalDateTime checkinDate = reservationEntity.getReservationCheckinDate();
+		LocalDateTime checkoutDate = reservationEntity.getReservationCheckoutDate();
+
+		Integer result = checkoutDate.getDayOfYear() - checkinDate.getDayOfYear();
+		return result + "박";
 	}
 }
