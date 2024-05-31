@@ -23,7 +23,6 @@ import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
 import org.iot.hotelitybackend.hotelservice.repository.StayRepository;
 import org.iot.hotelitybackend.hotelservice.vo.RequestModifyStay;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,6 +32,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.iot.hotelitybackend.hotelservice.service.ReservationServiceImpl;
 
 @Service
 public class StayServiceImpl implements StayService {
@@ -46,12 +46,14 @@ public class StayServiceImpl implements StayService {
 	private final RoomCategoryRepository roomCategoryRepository;
 	private final RoomLevelRepository roomLevelRepository;
 	private final BranchRepository branchRepository;
+	private final ReservationServiceImpl reservationService;
 
 	@Autowired
 	public StayServiceImpl(StayRepository stayRepository, ModelMapper mapper, EmployeeRepository employeeRepository,
 		ReservationRepository reservationRepository, CustomerRepository customerRepository,
 		RoomRepository roomRepository, RoomCategoryRepository roomCategoryRepository,
-		RoomLevelRepository roomLevelRepository, BranchRepository branchRepository) {
+		RoomLevelRepository roomLevelRepository, BranchRepository branchRepository,
+		ReservationServiceImpl reservationService) {
 		this.stayRepository = stayRepository;
 		this.mapper = mapper;
 		this.employeeRepository = employeeRepository;
@@ -61,6 +63,7 @@ public class StayServiceImpl implements StayService {
 		this.roomCategoryRepository = roomCategoryRepository;
 		this.roomLevelRepository = roomLevelRepository;
 		this.branchRepository = branchRepository;
+		this.reservationService = reservationService;
 
 		this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 		this.mapper.typeMap(StayEntity.class, StayDTO.class)
@@ -447,6 +450,10 @@ public class StayServiceImpl implements StayService {
 							).get().getRoomCodeFk()
 						).get().getRoomCategoryCodeFk()
 					).get().getRoomCapacity()))
+				// 숙박 일수
+				.peek(stayDTO -> stayDTO.setStayPeriod(
+					reservationService.calculateStayPeriod(stayDTO.getReservationCodeFk())
+				))
 				.toList();
 
 		return list;

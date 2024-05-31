@@ -21,4 +21,5 @@ public class StayDTO {
 	private String PICEmployeeName;
 	private String branchCodeFk;
 	private Integer reservationCodeFk;
+	private String stayPeriod;
 }
