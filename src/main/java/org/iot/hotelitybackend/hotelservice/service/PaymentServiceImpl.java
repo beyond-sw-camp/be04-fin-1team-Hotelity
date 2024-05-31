@@ -41,25 +41,14 @@ public class PaymentServiceImpl implements PaymentService {
 	/* 다중 조건 검색을 적용한 결제 내역 전체 조회 */
 	@Override
 	public Map<String, Object> selectPaymentLogList(
-		int pageNum,
+		Integer pageNum,
 		Integer customerCodeFk, String customerName,
 		LocalDateTime paymentDate, Integer paymentCancelStatus,
 		String paymentMethod, Integer reservationCodeFk,
 		Integer paymentTypeCodeFk, String paymentTypeName,
 		String orderBy, Integer sortBy) {
 
-		Pageable pageable;
 
-		if (orderBy == null) {
-			pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("paymentCodePk"));
-		} else {
-			if (sortBy == 1) {
-				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
-			}
-			else{
-				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
-			}
-		}
 
 		Specification<PaymentEntity> spec = (root, query, criteriaBuilder) -> null;
 
@@ -103,19 +92,43 @@ public class PaymentServiceImpl implements PaymentService {
 			spec = spec.and(PaymentSpecification.equalsPaymentTypeName(paymentTypeName));
 		}
 
-		Page<PaymentEntity> paymentEntityPage = paymentRepository.findAll(spec, pageable);
-		List<PaymentDTO> paymentDTOList = paymentEntityPage
-			.stream()
-			.map(paymentEntity -> mapper.map(paymentEntity, PaymentDTO.class))
-			.toList();
-
-		int totalPagesCount = paymentEntityPage.getTotalPages();
-		int currentPageIndex = paymentEntityPage.getNumber();
-
 		Map<String, Object> roomPageInfo = new HashMap<>();
+		List<PaymentDTO> paymentDTOList;
 
-		roomPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-		roomPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+		// 1. 페이징 처리 안할 때
+		if (pageNum != null) {
+			Pageable pageable;
+
+			if (orderBy == null) {
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("paymentCodePk"));
+			} else {
+				if (sortBy == 1) {
+					pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
+				}
+				else{
+					pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
+				}
+			}
+			Page<PaymentEntity> paymentEntityPage = paymentRepository.findAll(spec, pageable);
+			paymentDTOList = paymentEntityPage
+				.stream()
+				.map(paymentEntity -> mapper.map(paymentEntity, PaymentDTO.class))
+				.toList();
+
+			int totalPagesCount = paymentEntityPage.getTotalPages();
+			int currentPageIndex = paymentEntityPage.getNumber();
+
+			roomPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+			roomPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+
+		// 2. 페이징 처리 안할 때
+		} else {
+			List<PaymentEntity> paymentEntityList = paymentRepository.findAll(spec);
+			paymentDTOList = paymentEntityList
+				.stream()
+				.map(paymentEntity -> mapper.map(paymentEntity, PaymentDTO.class))
+				.toList();
+		}
 		roomPageInfo.put(KEY_CONTENT, paymentDTOList);
 
 		return roomPageInfo;
