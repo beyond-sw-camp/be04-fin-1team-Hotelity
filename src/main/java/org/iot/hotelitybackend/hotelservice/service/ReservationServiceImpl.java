@@ -24,6 +24,7 @@ import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
 import org.iot.hotelitybackend.hotelservice.repository.StayRepository;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,18 @@ public class ReservationServiceImpl implements ReservationService {
 		this.roomLevelRepository = roomLevelRepository;
 		this.branchRepository = branchRepository;
 		this.stayRepository = stayRepository;
+
+		this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		this.mapper.typeMap(ReservationEntity.class, ReservationDTO.class)
+			.addMappings(mapperNew -> mapperNew.map(
+				src -> src.getCustomer().getCustomerName(),
+				ReservationDTO::setCustomerName
+			))
+			.addMappings(mapperNew -> mapperNew.map(
+				src -> src.getCustomer().getCustomerEnglishName(),
+				ReservationDTO::setCustomerEnglishName
+			));
+
 	}
 
 	/* 월별 예약 리스트 전체 조회 */

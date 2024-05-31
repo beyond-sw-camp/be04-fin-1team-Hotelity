@@ -1,5 +1,7 @@
 package org.iot.hotelitybackend.hotelmanagement.aggregate;
 
+import org.hibernate.annotations.Formula;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -27,18 +29,46 @@ public class RoomEntity {
 	private Integer roomNumber;
 	private Integer roomCategoryCodeFk;
 
-	@ManyToOne
-	@JoinColumn(name = "roomCategoryCodeFk", insertable = false, updatable = false)
-	private RoomCategoryEntity roomCategory;
+	// @ManyToOne
+	// @JoinColumn(name = "room_category_code_fk", insertable = false, updatable = false)
+	// private RoomCategoryEntity roomCategory;
 
 	private String  roomCurrentStatus;
 	private Float roomDiscountRate;
 	private String roomImageLink;
 	private String roomView;
+	@Formula(
+		"("
+			+ "SELECT rc.room_name "
+			+ "FROM room_tb r "
+			+ "JOIN room_category_tb rc ON rc.room_category_code_pk = r.room_category_code_fk "
+			+ "WHERE r.room_code_pk = room_code_pk"
+			+ ")"
+	)
+	private String roomName;
+	@Formula(
+		"("
+			+ "SELECT rc.room_sub_rooms_count "
+			+ "FROM room_tb r "
+			+ "JOIN room_category_tb rc ON rc.room_category_code_pk = r.room_category_code_fk "
+			+ "WHERE r.room_code_pk = room_code_pk"
+			+ ")"
+	)
+	private String roomSubRoomsCount;
+	@Formula(
+		"("
+			+ "SELECT rc.room_price "
+			+ "FROM room_tb r "
+			+ "JOIN room_category_tb rc ON rc.room_category_code_pk = r.room_category_code_fk "
+			+ "WHERE r.room_code_pk = room_code_pk"
+			+ ")"
+	)
+	private String roomPrice;
 
 	@Builder
 	public RoomEntity(String roomCodePk, String branchCodeFk, Integer roomNumber, Integer roomCategoryCodeFk,
-		String roomCurrentStatus, Float roomDiscountRate, String roomImageLink, String roomView) {
+		String roomCurrentStatus, Float roomDiscountRate, String roomImageLink, String roomView, String roomName,
+		String roomSubRoomsCount, String roomPrice) {
 		this.roomCodePk = roomCodePk;
 		this.branchCodeFk = branchCodeFk;
 		this.roomNumber = roomNumber;
@@ -47,5 +77,8 @@ public class RoomEntity {
 		this.roomDiscountRate = roomDiscountRate;
 		this.roomImageLink = roomImageLink;
 		this.roomView = roomView;
+		this.roomName = roomName;
+		this.roomSubRoomsCount = roomSubRoomsCount;
+		this.roomPrice = roomPrice;
 	}
 }

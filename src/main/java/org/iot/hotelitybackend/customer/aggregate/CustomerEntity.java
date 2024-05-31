@@ -87,20 +87,20 @@ public class CustomerEntity {
 
 
 
-	// @Formula(
-	// 	"(SELECT m.membership_level_name "
-	// 		+ "FROM membership_tb m "
-	// 		+ "JOIN membership_issue_tb mi ON m.membership_level_code_pk = mi.membership_level_code_fk "
-	// 		+ "WHERE mi.customer_code_fk = customer_code_pk)"
-	// )
-	// private String membershipLevelName;
-	//
-	// @Formula(
-	// 	"(SELECT n.nation_name "
-	// 		+ "FROM nationality_tb n "
-	// 		+ "WHERE n.nation_code_pk = nation_code_fk)"
-	// )
-	// private String nationName;
+	@Formula(
+		"(SELECT m.membership_level_name "
+			+ "FROM membership_tb m "
+			+ "JOIN membership_issue_tb mi ON m.membership_level_code_pk = mi.membership_level_code_fk "
+			+ "WHERE mi.customer_code_fk = customer_code_pk)"
+	)
+	private String membershipLevelName;
+
+	@Formula(
+		"(SELECT n.nation_name "
+			+ "FROM nationality_tb n "
+			+ "WHERE n.nation_code_pk = nation_code_fk)"
+	)
+	private String nationName;
 
 	public CustomerEntity() {
 
