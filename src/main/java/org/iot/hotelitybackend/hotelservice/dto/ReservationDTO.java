@@ -4,6 +4,8 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+import org.springframework.web.bind.annotation.Mapping;
+
 @Data
 public class ReservationDTO {
     private Integer reservationCodePk;

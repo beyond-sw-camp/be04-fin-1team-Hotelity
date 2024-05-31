@@ -12,8 +12,25 @@ import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomLevelEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Root;
 
 public class StaySpecification {
+
+	private Join<StayEntity, ReservationEntity> reservationJoin;
+	private Join<ReservationEntity, CustomerEntity> customerJoin;
+	private Join<ReservationEntity, RoomEntity> roomJoin;
+	private Join<RoomEntity, RoomCategoryEntity> roomCategoryJoin;
+	private Join<RoomCategoryEntity, RoomLevelEntity> roomLevelJoin;
+	private Join<StayEntity, EmployeeEntity> employeeJoin;
+
+	public void initializeJoins(Root<StayEntity> root) {
+		this.reservationJoin = root.join("reservation");
+		this.customerJoin = reservationJoin.join("customer");
+		this.roomJoin = reservationJoin.join("room");
+		this.roomCategoryJoin = roomJoin.join("roomCategory");
+		this.roomLevelJoin = roomCategoryJoin.join("roomLevel");
+		this.employeeJoin = root.join("employee");
+	}
 
 	// 투숙코드
 	public static Specification<StayEntity> equalsStayCodePk(Integer stayCodePk) {
@@ -149,106 +166,4 @@ public class StaySpecification {
 		return (root, query, criteriaBuilder) ->
 			criteriaBuilder.equal(root.get("reservationCodeFk"), reservationCodeFk);
 	}
-
-
-	// ===== 서브 쿼리 =====
-	// public static Specification<StayEntity> equalsStayCodePk(Integer stayCodePk) {
-	// 	return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("stayCodePk"), stayCodePk);
-	// }
-	//
-	// public static Specification<StayEntity> equalsCustomerCodeFk(Integer customerCodeFk) {
-	// 	return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("customerCodeFk"), customerCodeFk);
-	// }
-	//
-	// public static Specification<StayEntity> likeCustomerName(String customerName) {
-	// 	return (root, query, criteriaBuilder) -> {
-	// 		Subquery<Integer> subquery = query.subquery(Integer.class);
-	// 		Join<StayEntity, ReservationEntity> reservationJoin = subquery.from(ReservationEntity.class).join("customer");
-	// 		subquery.select(reservationJoin.get("reservationCodePk"))
-	// 			.where(criteriaBuilder.like(reservationJoin.get("customer").get("customerName"), "%" + customerName + "%"));
-	// 		return criteriaBuilder.in(root.get("reservationCodeFk")).value(subquery);
-	// 	};
-	// }
-	//
-	// public static Specification<StayEntity> equalsRoomCodeFk(String roomCodeFk) {
-	// 	return (root, query, criteriaBuilder) -> {
-	// 		Subquery<Integer> subquery = query.subquery(Integer.class);
-	// 		Join<StayEntity, ReservationEntity> reservationJoin = subquery.from(ReservationEntity.class).join("room");
-	// 		subquery.select(reservationJoin.get("reservationCodePk"))
-	// 			.where(criteriaBuilder.equal(reservationJoin.get("room").get("roomCodeFk"), roomCodeFk));
-	// 		return criteriaBuilder.in(root.get("reservationCodeFk")).value(subquery);
-	// 	};
-	// }
-	//
-	// public static Specification<StayEntity> likeRoomName(String roomName) {
-	// 	return (root, query, criteriaBuilder) -> {
-	// 		Subquery<Integer> subquery = query.subquery(Integer.class);
-	// 		Join<StayEntity, ReservationEntity> reservationJoin = subquery.from(ReservationEntity.class).join("room").join("roomCategory");
-	// 		subquery.select(reservationJoin.get("reservationCodePk"))
-	// 			.where(criteriaBuilder.like(reservationJoin.get("roomCategory").get("roomName"), "%" + roomName + "%"));
-	// 		return criteriaBuilder.in(root.get("reservationCodeFk")).value(subquery);
-	// 	};
-	// }
-	//
-	// public static Specification<StayEntity> likeRoomLevelName(String roomLevelName) {
-	// 	return (root, query, criteriaBuilder) -> {
-	// 		Subquery<Integer> subquery = query.subquery(Integer.class);
-	// 		Join<StayEntity, ReservationEntity> reservationJoin = subquery.from(ReservationEntity.class).join("room").join("roomCategory").join("roomLevel");
-	// 		subquery.select(reservationJoin.get("reservationCodePk"))
-	// 			.where(criteriaBuilder.like(reservationJoin.get("roomLevel").get("roomLevelName"), "%" + roomLevelName + "%"));
-	// 		return criteriaBuilder.in(root.get("reservationCodeFk")).value(subquery);
-	// 	};
-	// }
-	//
-	// public static Specification<StayEntity> equalsRoomCapacity(Integer roomCapacity) {
-	// 	return (root, query, criteriaBuilder) -> {
-	// 		Subquery<Integer> subquery = query.subquery(Integer.class);
-	// 		Join<StayEntity, ReservationEntity> reservationJoin = subquery.from(ReservationEntity.class).join("room").join("roomCategory");
-	// 		subquery.select(reservationJoin.get("reservationCodePk"))
-	// 			.where(criteriaBuilder.equal(reservationJoin.get("roomCategory").get("roomCapacity"), roomCapacity));
-	// 		return criteriaBuilder.in(root.get("reservationCodeFk")).value(subquery);
-	// 	};
-	// }
-	//
-	// public static Specification<StayEntity> equalsStayPeopleCount(Integer stayPeopleCount) {
-	// 	return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("stayPeopleCount"), stayPeopleCount);
-	// }
-	//
-	// public static Specification<StayEntity> equalsBranchCodeFk(String branchCodeFk) {
-	// 	return (root, query, criteriaBuilder) -> {
-	// 		Subquery<Integer> subquery = query.subquery(Integer.class);
-	// 		Join<StayEntity, ReservationEntity> reservationJoin = subquery.from(ReservationEntity.class).join("reservation");
-	// 		subquery.select(reservationJoin.get("reservationCodeFk"))
-	// 			.where(criteriaBuilder.equal(reservationJoin.get("branch").get("branchCodePk"), branchCodeFk));
-	// 		return criteriaBuilder.in(root.get("branchCodeFk")).value(subquery);
-	// 	};
-	// }
-	//
-	// public static Specification<StayEntity> equalsStayCheckinTime(LocalDateTime stayCheckinTime) {
-	// 	LocalDate date = stayCheckinTime.toLocalDate();
-	// 	return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("stayCheckinTime").as(LocalDate.class), date);
-	// }
-	//
-	// public static Specification<StayEntity> equalsStayCheckoutTime(LocalDateTime stayCheckoutTime) {
-	// 	LocalDate date = stayCheckoutTime.toLocalDate();
-	// 	return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("stayCheckoutTime").as(LocalDate.class), date);
-	// }
-	//
-	// public static Specification<StayEntity> equalsEmployeeCodeFk(Integer employeeCodeFk) {
-	// 	return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employeeCodeFk"), employeeCodeFk);
-	// }
-	//
-	// public static Specification<StayEntity> likeEmployeeName(String employeeName) {
-	// 	return (root, query, criteriaBuilder) -> {
-	// 		Subquery<Integer> subquery = query.subquery(Integer.class);
-	// 		Root<EmployeeEntity> employeeJoin = subquery.from(EmployeeEntity.class);
-	// 		subquery.select(employeeJoin.get("employeeCodePk"))
-	// 			.where(criteriaBuilder.like(employeeJoin.get("employeeName"), "%" + employeeName + "%"));
-	// 		return criteriaBuilder.in(root.get("employeeCodeFk")).value(subquery);
-	// 	};
-	// }
-	//
-	// public static Specification<StayEntity> equalsReservationCodeFk(Integer reservationCodeFk) {
-	// 	return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("reservationCodeFk"), reservationCodeFk);
-	// }
 }
