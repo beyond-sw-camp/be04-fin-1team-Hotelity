@@ -458,21 +458,4 @@ public class StayServiceImpl implements StayService {
 
 		return list;
 	}
-
-	/* 숙박 일수 계산 */
-	// private String calculateStayPeriod(Integer reservationCodeFk) {
-	//
-	// 	ReservationDTO reservationDTO =
-	// 		mapper.map(reservationRepository.findById(reservationCodeFk), ReservationDTO.class);
-	//
-	// 	LocalDateTime checkinTime = reservationDTO.getReservationCheckinDate();
-	// 	LocalDateTime checkoutDate = reservationDTO.getReservationCheckoutDate();
-	//
-	// 	if (checkinTime != null && checkoutDate != null) {
-	// 		Integer result = checkoutDate.getDayOfYear() - checkinTime.getDayOfYear();
-	// 		return result + "박";
-	// 	}
-	//
-	// 	return null;
-	// }
 }
