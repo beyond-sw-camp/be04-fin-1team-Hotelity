@@ -81,6 +81,15 @@ public class StayEntity {
 	private String roomCodeFk;
 
 	@Formula("(SELECT "
+		+ "c.room_number "
+		+ "FROM stay_tb a "
+		+ "JOIN reservation_tb b ON (a.reservation_code_fk = b.reservation_code_pk) "
+		+ "JOIN room_tb c ON (b.room_code_fk = c.room_code_pk) "
+		+ "WHERE b.reservation_code_pk = reservation_code_fk)"
+	)
+	private Integer roomNumber;
+
+	@Formula("(SELECT "
 		+ "d.room_name "
 		+ "FROM stay_tb a "
 		+ "JOIN reservation_tb b ON (a.reservation_code_fk = b.reservation_code_pk) "

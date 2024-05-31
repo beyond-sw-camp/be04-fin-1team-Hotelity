@@ -397,6 +397,13 @@ public class StayServiceImpl implements StayService {
 				.peek(stayDTO -> stayDTO.setRoomCode(
 					mapper.map(reservationRepository.findById(stayDTO.getReservationCodeFk()), ReservationDTO.class)
 						.getRoomCodeFk()))
+				// 객실 번호
+				.peek(stayDTO -> stayDTO.setRoomNumber(
+					roomRepository.findById(
+						reservationRepository.findById(stayDTO.getReservationCodeFk())
+							.get().getRoomCodeFk()
+					).get().getRoomNumber()))
+				// 객실 등급명
 				.peek(stayDTO -> stayDTO.setRoomLevelName(
 					roomLevelRepository.findById(
 						roomCategoryRepository.findById(
