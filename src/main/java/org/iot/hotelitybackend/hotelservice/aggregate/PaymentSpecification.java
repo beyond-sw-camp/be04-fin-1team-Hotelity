@@ -62,4 +62,8 @@ public class PaymentSpecification {
 		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("paymentCancelStatus"),
 			paymentCancelStatus);
 	}
+
+	public static Specification<PaymentEntity> equalsPaymentCodePk(Integer paymentCodePk) {
+		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("paymentCodePk"), paymentCodePk);
+	}
 }

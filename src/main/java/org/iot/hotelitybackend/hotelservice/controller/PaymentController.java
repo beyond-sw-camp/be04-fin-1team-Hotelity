@@ -43,6 +43,7 @@ public class PaymentController {
 	@GetMapping("/payments/page")
 	public ResponseEntity<ResponseVO> selectPaymentLogListWithFilter(
 		@RequestParam int pageNum,
+		@RequestParam(required = false) Integer paymentCodePk,
 		@RequestParam(required = false) Integer customerCodeFk,
 		@RequestParam(required = false) String customerName,
 		@RequestParam(required = false) LocalDateTime paymentDate,
@@ -56,7 +57,7 @@ public class PaymentController {
 
 		Map<String, Object> paymentLogInfo =
 			paymentService.selectPaymentLogList(
-				pageNum, customerCodeFk, customerName, paymentDate, paymentCancelStatus,
+				pageNum, paymentCodePk, customerCodeFk, customerName, paymentDate, paymentCancelStatus,
 				paymentMethod, reservationCodeFk, paymentTypeCodeFk, paymentTypeName,
 				orderBy, sortBy
 			);

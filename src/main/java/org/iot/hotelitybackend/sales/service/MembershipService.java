@@ -1,11 +1,10 @@
 package org.iot.hotelitybackend.sales.service;
 
 
-import org.iot.hotelitybackend.sales.dto.MembershipDTO;
-
-import java.util.List;
+import java.util.Map;
 
 public interface MembershipService {
 
-    List<MembershipDTO> selectAllMembership();
+    Map<String, Object> selectAllMembership(Integer pageNum, Integer membershipLevelCodePk, String membershipLevelName,
+        String membershipInfo, Integer membershipCriteriaAmount);
 }

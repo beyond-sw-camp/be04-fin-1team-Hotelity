@@ -42,7 +42,7 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public Map<String, Object> selectPaymentLogList(
 		Integer pageNum,
-		Integer customerCodeFk, String customerName,
+		Integer paymentCodePk, Integer customerCodeFk, String customerName,
 		LocalDateTime paymentDate, Integer paymentCancelStatus,
 		String paymentMethod, Integer reservationCodeFk,
 		Integer paymentTypeCodeFk, String paymentTypeName,
@@ -51,6 +51,9 @@ public class PaymentServiceImpl implements PaymentService {
 
 
 		Specification<PaymentEntity> spec = (root, query, criteriaBuilder) -> null;
+		if(paymentCodePk != null){
+			spec = spec.and(PaymentSpecification.equalsPaymentCodePk(paymentCodePk));
+		}
 
 		// 고객 코드
 		if (customerCodeFk != null) {

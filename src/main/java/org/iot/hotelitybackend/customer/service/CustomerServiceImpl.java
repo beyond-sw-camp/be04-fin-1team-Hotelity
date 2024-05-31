@@ -143,7 +143,7 @@ public class CustomerServiceImpl implements CustomerService {
 				SelectCustomerDTO selectCustomerDTO = mapper.map(customerDTO, SelectCustomerDTO.class);
 				selectCustomerDTO.setPayment(
 					(List<PaymentDTO>)paymentService.selectPaymentLogList(0,
-						customerCodePk, null,
+						null, customerCodePk, null,
 						null, null,
 						null, null,
 						null, null,
