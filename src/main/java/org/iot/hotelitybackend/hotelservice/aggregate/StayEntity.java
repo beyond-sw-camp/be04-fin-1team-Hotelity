@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.Formula;
 import org.iot.hotelitybackend.employee.aggregate.EmployeeEntity;
 
 @Entity
@@ -59,4 +60,17 @@ public class StayEntity {
 		// reservationCodeFk가 중복되므로 둘 중에 하나의 값만 db에 반영하도록 하는 설정
 		insertable = false, updatable = false)
 	private ReservationEntity reservation;
+
+	@Formula("(SELECT "
+		+ "c.customer_name "
+		+ "FROM stay_tb a "
+		+ "JOIN reservation_tb b ON (a.reservation_code_fk = b.reservation_code_pk) "
+		+ "JOIN customer_tb c ON (b.customer_code_fk = c.customer_code_pk) LIMIT 1)"
+	)
+	private String customerName;
+	// private String roomCodeFk;
+	// private String roomName;
+	// private String roomLevelName;
+	// private Integer roomCapacity;
+	// private String branchCodeFk;
 }

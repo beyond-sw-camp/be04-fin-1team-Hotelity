@@ -23,6 +23,7 @@ import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
 import org.iot.hotelitybackend.hotelservice.repository.StayRepository;
 import org.iot.hotelitybackend.hotelservice.vo.RequestModifyStay;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -369,6 +370,13 @@ public class StayServiceImpl implements StayService {
 	}
 
 	private List<StayDTO> setDTOField(List<StayEntity> stayEntityList) {
+		// mapper.addMappings(new PropertyMap<ReservationEntity, ReservationDTO>() {
+		// 	// @Override
+		// 	// protected void configure() {
+		// 	// 	map().setCustomerName(source.getCustomer().getCustomerName());
+		// 	// }
+		// });
+
 		List<StayDTO> list =
 			stayEntityList.stream().map(stayEntity -> mapper.map(stayEntity, StayDTO.class))
 				.peek(stayDTO -> stayDTO.setCustomerCodeFk(
