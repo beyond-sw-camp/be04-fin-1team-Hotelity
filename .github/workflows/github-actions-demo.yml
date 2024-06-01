@@ -1,4 +1,4 @@
-name: ela-prac-service
+name: github-actions
 
 permissions:
   contents: read
@@ -6,9 +6,13 @@ permissions:
 
 on:
   push:
-    branches: ["main", "dev/feature1"]
-#  pull_request:
-#    types: [ opened, reopened, synchronize ]
+    branches: ["main", "develop"]
+  pull_request:
+    branches: [ "main", "develop"]
+    paths:
+      - "**.jar"
+    
+   # types: [ opened, reopened, synchronize ]
 
 jobs:
   build:
