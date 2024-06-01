@@ -79,6 +79,18 @@ public class RoomServiceImpl implements RoomService {
 			.addMappings(mapperNew -> mapperNew.map(
 				src -> src.getRoomPrice(),
 				RoomDTO::setRoomPrice
+			))
+			.addMappings(mapperNew -> mapperNew.map(
+				src -> src.getRoomCapacity(),
+				RoomDTO::setRoomCapacity
+			))
+			.addMappings(mapperNew -> mapperNew.map(
+				src -> src.getRoomBathroomCount(),
+				RoomDTO::setRoomBathroomCount
+			))
+			.addMappings(mapperNew -> mapperNew.map(
+				src -> src.getRoomSpecificInfo(),
+				RoomDTO::setRoomSpecificInfo
 			));
 	}
 
@@ -96,6 +108,9 @@ public class RoomServiceImpl implements RoomService {
 		Integer minPrice,
 		Integer maxPrice,
 		Integer roomPrice,
+		Integer roomCapacity,
+		Integer roomBathroomCount,
+		String roomSpecificInfo,
 		String orderBy,
 		Integer sortBy
 	) {
