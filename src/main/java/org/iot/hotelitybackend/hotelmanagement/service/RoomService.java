@@ -20,6 +20,8 @@ public interface RoomService {
 		Float roomDiscountRate,
 		String roomView,
 		Integer roomSubRoomsCount,
+		Integer minPrice,
+		Integer maxPrice,
 		String orderBy,
 		Integer sortBy
 	);
