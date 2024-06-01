@@ -21,6 +21,7 @@ import org.iot.hotelitybackend.hotelservice.aggregate.ReservationEntity;
 import org.iot.hotelitybackend.hotelservice.aggregate.ReservationSpecification;
 import org.iot.hotelitybackend.hotelservice.aggregate.StayEntity;
 import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
+import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
 import org.iot.hotelitybackend.hotelservice.repository.StayRepository;
 import org.modelmapper.ModelMapper;
@@ -64,8 +65,7 @@ public class ReservationServiceImpl implements ReservationService {
 			.addMappings(mapperNew -> mapperNew.map(
 				src -> src.getCustomer().getCustomerEnglishName(),
 				ReservationDTO::setCustomerEnglishName
-			));
-
+			));;
 	}
 
 	/* 월별 예약 리스트 전체 조회 */
@@ -274,20 +274,43 @@ public class ReservationServiceImpl implements ReservationService {
 				).get().getRoomName())))
 				// 객실등급명
 				.peek(reservationDTO -> reservationDTO.setRoomLevelName(
-						roomLevelRepository.findById(
-							roomCategoryRepository.findById(
-								roomRepository.findById(
-									reservationDTO.getRoomCodeFk()
-								).get().getRoomCategoryCodeFk()
-							).get().getRoomLevelCodeFk()
-						).get().getRoomLevelName()
-					))
+					roomLevelRepository.findById(
+						roomCategoryRepository.findById(
+							roomRepository.findById(
+								reservationDTO.getRoomCodeFk()
+							).get().getRoomCategoryCodeFk()
+						).get().getRoomLevelCodeFk()
+					).get().getRoomLevelName()
+				))
+				// 객실 수용 인원
+				.peek(reservationDTO -> reservationDTO.setRoomCapacity(
+					roomCategoryRepository.findById(
+						roomRepository.findById(
+							reservationDTO.getRoomCodeFk()
+						).get().getRoomCategoryCodeFk()
+					).get().getRoomCapacity()
+				))
+				// 투숙 상태
 				.peek(reservationDTO -> {
 					existingStayEntity.set(stayRepository.findByReservationCodeFk(reservationDTO.getReservationCodePk())
 						.stream()
 						.toList());
 					reservationDTO.setStayStatus(existingStayEntity.get().isEmpty() ? 0 : 1);
-				}).toList();
+				})
+				.peek(reservationDTO -> reservationDTO.setStayPeriod(
+					calculateStayPeriod(reservationDTO.getReservationCodePk())))
+				.toList();
 		return list;
+	}
+
+	/* 숙박 일수 계산 */
+	public String calculateStayPeriod(Integer reservationCodePk){
+		ReservationEntity reservationEntity = reservationRepository.findById(reservationCodePk).orElse(null);
+
+		LocalDateTime checkinDate = reservationEntity.getReservationCheckinDate();
+		LocalDateTime checkoutDate = reservationEntity.getReservationCheckoutDate();
+
+		Integer result = checkoutDate.getDayOfYear() - checkinDate.getDayOfYear();
+		return result + "박";
 	}
 }
