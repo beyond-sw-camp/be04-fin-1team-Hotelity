@@ -16,4 +16,7 @@ public class RoomDTO {
 	private String branchName;
 	private int roomSubRoomsCount;
 	private int roomPrice;
+	private int roomCapacity;
+	private int roomBathroomCount;
+	private String roomSpecificInfo;
 }

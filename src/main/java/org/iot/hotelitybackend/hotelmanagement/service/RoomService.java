@@ -23,6 +23,9 @@ public interface RoomService {
 		Integer minPrice,
 		Integer maxPrice,
 		Integer roomPrice,
+		Integer roomCapacity,
+		Integer roomBathroomCount,
+		String roomSpecificInfo,
 		String orderBy,
 		Integer sortBy
 	);
