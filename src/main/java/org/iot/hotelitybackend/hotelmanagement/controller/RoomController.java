@@ -48,12 +48,13 @@ public class RoomController {
 		@RequestParam(required = false) Integer roomSubRoomsCount,
 		@RequestParam(required = false) Integer minPrice,
 		@RequestParam(required = false) Integer maxPrice,
+		@RequestParam(required = false) Integer roomPrice,
 		@RequestParam(required = false) String orderBy,
 		@RequestParam(required = false) Integer sortBy
 	) {
 
 		Map<String, Object> roomListInfo = roomService.selectSearchedRoomsList(
-			pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount, minPrice, maxPrice, orderBy, sortBy);
+			pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount, minPrice, maxPrice, roomPrice, orderBy, sortBy);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(roomListInfo)
@@ -104,6 +105,7 @@ public class RoomController {
 		@RequestParam(required = false) Integer roomSubRoomsCount,
 		@RequestParam(required = false) Integer minPrice,
 		@RequestParam(required = false) Integer maxPrice,
+		@RequestParam(required = false) Integer roomPrice,
 		@RequestParam(required = false) String orderBy,
 		@RequestParam(required = false) Integer sortBy
 	) {
@@ -111,7 +113,7 @@ public class RoomController {
 
 			// 조회해서 DTO 리스트 가져오기
 			Map<String, Object> roomListInfo = roomService.selectSearchedRoomsList(
-				pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount, minPrice, maxPrice, orderBy, sortBy);
+				pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount, minPrice, maxPrice, roomPrice, orderBy, sortBy);
 
 			// 엑셀 시트와 파일 만들기
 			Map<String, Object> result = createExcelFile(
