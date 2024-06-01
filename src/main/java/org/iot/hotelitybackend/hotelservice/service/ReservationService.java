@@ -26,4 +26,6 @@ public interface ReservationService {
 	Map<String, Object> selectReseravtionInfoByReservationCodePk(Integer reservationCodePk);
 
 	Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate);
+
+	Map<String, Object> selectReservationsByYear(Integer yearInput);
 }
