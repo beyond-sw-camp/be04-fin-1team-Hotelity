@@ -84,6 +84,21 @@ public class StayController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
+	/* 일자별 투숙 내역 리스트 조회 (메인페이지 대시보드용) */
+	/* 날짜는 2024-06-14 형식으로 넣어줄 것. */
+	@GetMapping("/stays/daily/{dateString}")
+	public ResponseEntity<ResponseVO> selectStayByReservationCheckinDate(
+		@PathVariable("dateString") String dateString) {
+		Map<String, Object> stayListInfo = stayService.selectStayByReservationCheckinDate(dateString);
+		ResponseVO response = ResponseVO.builder()
+			.data(stayListInfo)
+			.resultCode(HttpStatus.OK.value())
+			.message(stayListInfo.get("dateString") + " 투숙 내역 조회 성공")
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
 	/* 투숙 코드로 특정 투숙 내역 조회 */
 	@GetMapping("stays/{stayCodePk}/selected")
 	public ResponseEntity<ResponseVO> selectStayByStayCodePk(

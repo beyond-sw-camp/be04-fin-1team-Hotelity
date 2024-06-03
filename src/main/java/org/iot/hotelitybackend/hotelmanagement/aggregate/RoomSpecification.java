@@ -24,4 +24,7 @@ public class RoomSpecification {
 	public static Specification<RoomEntity> likeRoomView(String roomView) {
 		return (root, query, CriteriaBuilder) -> CriteriaBuilder.like(root.get("roomView"), "%" + roomView + "%");
 	}
+	public static Specification<RoomEntity> isRoomPriceBetween(Integer minPrice, Integer maxPrice) {
+		return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get("roomPrice"), minPrice, maxPrice);
+	}
 }

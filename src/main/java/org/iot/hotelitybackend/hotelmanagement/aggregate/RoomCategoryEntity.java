@@ -33,9 +33,9 @@ public class RoomCategoryEntity {
 	private Integer roomBedCount;
 	private Integer roomLevelCodeFk;
 
-	@ManyToOne
-	@JoinColumn(name = "roomLevelCodeFk", insertable = false, updatable = false)
-	private RoomLevelEntity roomLevel;
+	// @ManyToOne
+	// @JoinColumn(name = "room_level_code_fk", insertable = false, updatable = false)
+	// private RoomLevelEntity roomLevel;
 
 	@Builder
 	public RoomCategoryEntity(

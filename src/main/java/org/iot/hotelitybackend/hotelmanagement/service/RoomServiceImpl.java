@@ -37,6 +37,7 @@ import org.iot.hotelitybackend.hotelmanagement.repository.RoomCategoryRepository
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomRepository;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyRoom;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -65,6 +66,32 @@ public class RoomServiceImpl implements RoomService {
 		this.roomCategoryRepository = roomCategoryRepository;
 		this.branchRepository = branchRepository;
 		this.mapper = mapper;
+		this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		this.mapper.typeMap(RoomEntity.class, RoomDTO.class)
+			.addMappings(mapperNew -> mapperNew.map(
+				src -> src.getRoomName(),
+				RoomDTO::setRoomName
+			))
+			.addMappings(mapperNew -> mapperNew.map(
+				src -> src.getRoomSubRoomsCount(),
+				RoomDTO::setRoomSubRoomsCount
+			))
+			.addMappings(mapperNew -> mapperNew.map(
+				src -> src.getRoomPrice(),
+				RoomDTO::setRoomPrice
+			))
+			.addMappings(mapperNew -> mapperNew.map(
+				src -> src.getRoomCapacity(),
+				RoomDTO::setRoomCapacity
+			))
+			.addMappings(mapperNew -> mapperNew.map(
+				src -> src.getRoomBathroomCount(),
+				RoomDTO::setRoomBathroomCount
+			))
+			.addMappings(mapperNew -> mapperNew.map(
+				src -> src.getRoomSpecificInfo(),
+				RoomDTO::setRoomSpecificInfo
+			));
 	}
 
 	@Override
@@ -78,6 +105,12 @@ public class RoomServiceImpl implements RoomService {
 		Float roomDiscountRate,
 		String roomView,
 		Integer roomSubRoomsCount,
+		Integer minPrice,
+		Integer maxPrice,
+		Integer roomPrice,
+		Integer roomCapacity,
+		Integer roomBathroomCount,
+		String roomSpecificInfo,
 		String orderBy,
 		Integer sortBy
 	) {
@@ -142,6 +175,11 @@ public class RoomServiceImpl implements RoomService {
 			spec = spec.and(buildOrPredicate(specs));
 		}
 
+		// 1-9. 객실 가격별 객실 필터링
+		if (minPrice != null && maxPrice != null) {
+			spec = spec.and(RoomSpecification.isRoomPriceBetween(minPrice, maxPrice));
+		}
+
 		// 2. 위에서 구성한 Specification 을 적용하여 findAll
 		List<RoomDTO> roomDTOList;
 
@@ -176,7 +214,13 @@ public class RoomServiceImpl implements RoomService {
 
 		// 2-2. 페이징 처리 안할 때
 		} else {
-			List<RoomEntity> roomEntityList = roomRepository.findAll(spec);
+			List<RoomEntity> roomEntityList;
+			if (orderBy != null && !orderBy.isEmpty() && sortBy != null) {
+				roomEntityList = roomRepository.findAll(spec, sortBy == 1 ? Sort.by(orderBy).descending() : Sort.by(orderBy).ascending());
+			} else {
+				roomEntityList = roomRepository.findAll(spec);
+			}
+
 			roomDTOList = setDTOList(roomEntityList);
 		}
 

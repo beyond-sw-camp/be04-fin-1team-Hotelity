@@ -81,6 +81,18 @@ public class ReservationController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
+	@GetMapping("/reservations/year/{yearInput}")
+	public ResponseEntity<ResponseVO> selectReservationsByYear(@PathVariable("yearInput") Integer yearInput) {
+		Map<String, Object> reservationInfo = reservationService.selectReservationsByYear(yearInput);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(reservationInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
 	/* 예약 코드로 특정 예약 내역 조회 */
 	@GetMapping("reservations/{reservationCodePk}/selected")
 	public ResponseEntity<ResponseVO> selectReservationInfoByReservationCodePk(

@@ -3,10 +3,13 @@ package org.iot.hotelitybackend.hotelservice.service;
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.text.DateFormatter;
 
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
 import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
@@ -203,6 +206,30 @@ public class StayServiceImpl implements StayService {
 
 		Map<String, Object> stayInfo = new HashMap<>();
 		stayInfo.put(KEY_CONTENT, stayDTOList);
+
+		return stayInfo;
+	}
+
+	@Override
+	public Map<String, Object> selectStayByReservationCheckinDate(String dateString) {
+		LocalDateTime dateTime = LocalDateTime.parse(dateString + "T00:00:00");
+		List<List<StayDTO>> stayDTOList = reservationRepository.findByReservationCheckinDate(dateTime)
+			.stream()
+			.map(reservation -> stayRepository.findByReservationCodeFk(reservation.getReservationCodePk())
+				.stream()
+				.map(stayEntity -> mapper.map(stayEntity, StayDTO.class))
+				.toList())
+			.toList();
+
+		Map<String, Object> stayInfo = new HashMap<>();
+		int stayYear = dateTime.getYear();
+		int stayMonth = dateTime.getMonthValue();
+		int stayDate = dateTime.getDayOfMonth();
+		stayInfo.put(KEY_CONTENT, stayDTOList);
+		stayInfo.put("year", stayYear);
+		stayInfo.put("month", stayMonth);
+		stayInfo.put("date", stayDate);
+		stayInfo.put("dateString", stayYear + "-" + stayMonth + "-" + stayDate);
 
 		return stayInfo;
 	}

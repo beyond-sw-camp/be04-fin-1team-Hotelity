@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
+import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomEntity;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomCategoryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomLevelRepository;
@@ -257,6 +258,34 @@ public class ReservationServiceImpl implements ReservationService {
 		dailyReservationInfo.put(KEY_CONTENT, dailyReservationDTOList);
 
 		return dailyReservationInfo;
+	}
+
+	@Override
+	public Map<String, Object> selectReservationsByYear(Integer yearInput) {
+
+		// 특정 월의 예약 내역을 조회하기 위해 월의 시작일과 종료일을 지정
+		LocalDateTime startOfYear =
+			LocalDateTime.of(yearInput, 1, 1, 0, 0);
+		System.out.println("해당 년도의 시작 일자: " + startOfYear);
+
+		LocalDateTime endOfYear =
+			LocalDateTime.of(yearInput, 12, startOfYear.getMonth().length(startOfYear.toLocalDate().isLeapYear()),
+				23, 59, 59);
+		System.out.println("해당 년도의 마지막 일자: " + endOfYear);
+
+		Specification<ReservationEntity> spec =
+			Specification.where(ReservationSpecification.betweenDate(startOfYear, endOfYear));
+
+		List<ReservationEntity> reservationEntityList = reservationRepository.findAll(spec);
+		List<ReservationDTO> reservationDTOList = reservationEntityList
+			.stream()
+			.map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
+			.toList();
+
+		Map<String, Object> reservationInfo = new HashMap<>();
+		reservationInfo.put(KEY_CONTENT, reservationDTOList);
+
+		return reservationInfo;
 	}
 
 	/* fk 값들의 이름을 가져오는 코드 */
