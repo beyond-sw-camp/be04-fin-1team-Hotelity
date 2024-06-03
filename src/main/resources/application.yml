@@ -1,5 +1,6 @@
 server:
   port: 8888
+
 spring:
   application:
     name: hotelity-backend
@@ -7,9 +8,9 @@ spring:
     active: dev
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: ENC(6VSddndzXr0YDHJYyT64VCk3YJIrckuloDLP0YireJqq7LOyuOoirsY3ZOlCkyDCr3hfJZBkYK/yxylrm+Xw20hCg5ISJ3lMfgvol0bCwlbV9gOLrETo091LEIZ/Tppx3vhP2CUQYWg=)
-    username: ENC(pp8u3oidFVpc67XmKnwo7g==)
-    password: ENC(DoalWPPUKYQ3TVK+I6ikUolT4CQI5zz1)
+    url: ENC(otztEs5aKXne8m58InHx6eDrOsCGK64i7ZLJUho6/K+yRK/rp5xTA6RruJUx9/GVEbjmMKmiYmYLC6RKPnadzbNsnno0uNLLzNUOMQ+B0kauAyDbD/anZAv06GyjmCdyfm05VWIOF2g=)
+    username: ENC(LwXqcdnmfm/JKkHwzvaVpA==)
+    password: ENC(iMwe5lEyyaFkIqpSxsGwrzAs4YOJlsBY)
     hikari:
       maximumPoolSize: 15
       minimumIdle: 5
@@ -28,10 +29,10 @@ spring:
       port: 6379
       expiration_time: 86400000 # 1일
   mail:
-    host: ENC(X0lp60VwcpA3UfhpJoQVfh2d9U4YAq4P)
+    host: ENC(dqAOlK8LvZVY7JI9tIHJ/Vylqe9rFtbc)
     port: 587
-    username: ENC(UpWAZf2E9rPGbAWQJHVtxSHuJgq0bMbmRBOP9301itY=)
-    password: ENC(Ucb9XqM3XXTGqCCMoj8V2Ug5RiFF4DUr4TcwImCzJ6U=)
+    username: ENC(XIVDUNkHy2oVfrR3Mmc0LsJiE9vM/JQDUpoirrzmnhw=)
+    password: ENC(s/dvkMZ265k/jDJypsc3s2QUZ04PoTxC0uTcMiZLk4o=)
     properties:
       mail:
         debug: true
@@ -44,10 +45,14 @@ spring:
 
 token:
   expiration_time: 3600000 # 1시간
-  secret: ENC(9zH/P4wC1GCUSj5EXoQogcwXf7zaU+PnWqO6AM5Dr+NuMX3KB9cgJ0u9b874/weSKWjRe/ghbHmo8cCiFWj+R7JnEput0uhYRAVyxHxJ0kkN8lH3sMZvWflfimVI6LkGj+B0AtzL3MM=)
+  secret: ENC(HiAmDQCu5uB3wxZd88tadcY88HR+h4ddSnett5UeK8A1SKj51Ta+Zt+wWkEv3pHeY+M0Hliot4SIFOxLmRXoTt9mZAmzygb0HbldxYLlFf+uia6UWS6TNhRzllzvaG8+6aRWwIZld/I=)
 
 aws:
   s3:
-    accessKey: ENC(v8DtB1meCEW7SybjNkXVotzPa+SJdPbZl37mMDL94tc=)
-    secretKey: ENC(pMI7I7holnLzpBYVfIJA4LBFvoqKsHMhPI1ixgouYt8I7aVmGnFtqWJBASghj3OThsJ54Hv8qBU=)
-    bucket: ENC(krXdCMxTE3aP2ecofK/QXkOb0K3OXSxa)
+    accessKey: ENC(RfQev1y4fyRhfeLJm5jApjlY4vXBTb9Brk7fAQR7BR0=)
+    secretKey: ENC(xuzlJoAwmK+3F0hG+udoEVYhFkMLEREMp9+bknzKJ2kHxC944WNXptWB25WSCjFNROxTfJQ017Y=)
+    bucket: ENC(u7vwg/o3mdglMhfv8KXP8N5z13UUC6EV)
+
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor

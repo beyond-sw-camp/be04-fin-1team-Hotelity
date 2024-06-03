@@ -18,7 +18,6 @@ public class HotelityBackendApplication {
 		SpringApplication.run(HotelityBackendApplication.class, args);
 	}
 
-
 	@Bean
 	public ModelMapper getModelMapper() {
 		return new ModelMapper();
