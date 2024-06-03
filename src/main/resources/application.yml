@@ -1,0 +1,53 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: hotelity-backend
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ENC(u+UPZfFYphF2Gz3Er3ryyPZDokeGagkQKHHW7OHoAzTEJpSTRMy4v7WNGeAiCuWkwJaEr6zjKOuJSY2Oacfgk+vV3zvju6iJkdkZ/l9LrWBDg5F2yhtbptfaj/jqh+lrDt+yl52I3EI=)
+    username: ENC(3xiYK3r1o2809QkMCebHsA==)
+    password: ENC(etZ8JDX1qjNTjbl5LTMxQczU00lsSzNl)
+    hikari:
+      maximumPoolSize: 15
+      minimumIdle: 5
+      idleTimeout: 10000
+  jpa:
+    generate-ddl: false
+    show-sql: true
+    database: mysql
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      #      host: 192.168.0.31
+      host: localhost
+      port: 6379
+      expiration_time: 86400000 # 1일
+  mail:
+    host: ENC(ACXnOnLnXlt4aIwedZ3MQvH+yzvCLejQ)
+    port: 587
+    username: ENC(wmrc7IxHp7RsSk05aFpKUr5MKD5MrowFAELdK6ttLdM=)
+    password: ENC(8mI8bKh7bUyquwv7oF+0eKF7zJhJ8L8oQjK4WOu2/HY=)
+    properties:
+      mail:
+        debug: true
+        smtp:
+          connectiontimeout: 5000
+          starttls:
+            enable: true
+            required: true
+          auth: false
+
+token:
+  expiration_time: 3600000 # 1시간
+  secret: ENC(uqn7vUk8PfwrU04A7RshN9Jj/LEH8ACmr9MCa/7a5uSw5LzEX4V3Et/uvV0Sy/L7SPuZBZBcdOajqvXKN6gV2BLby5tm7zhVwf3t0QBYA8z6y/ZObrTlHMGvXNXKohXHbK+LYM9Be3Q=)
+
+aws:
+  s3:
+    accessKey: ENC(iNrY4iPWoR6EpnISqohNgqsXIxbE2QlmqTaD7eweWuw=)
+    secretKey: ENC(UV4AZ1NAN8d3K19t8NqOWI8a63HMwOj8ZwsXjU5MpDTT7Kkq+8j1AkO1D6/hjHJJFeNyqxZUmCI=)
+    bucket: ENC(OGGPf31WTjkqZkdtNkZuzIrbrtNu7Svz)
