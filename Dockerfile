@@ -1,15 +1,11 @@
-# Use an official image as a parent image
-FROM openjdk:17-jdk-alpine
+FROM openjdk:17-alpine
+COPY build/libs/*.jar app.jar
 
-# Set the working directory
-WORKDIR /app
-
-# Copy the jar file
-COPY *.jar app.jar
-
-# Pass the JASYPT_KEY as an environment variable
+# ARG로 환경 변수 설정
 ARG JASYPT_KEY
-ENV JASYPT_KEY=${JASYPT_KEY}
+ENV JASYPT_KEY=$JASYPT_KEY
 
-# Run the jar file
-ENTRYPOINT ["java", "-Djasypt.encryptor.password=${JASYPT_KEY}", "-jar", "app.jar"]
+# 실행 중에 환경 변수 값을 출력
+CMD echo "JASYPT_KEY value is: $JASYPT_KEY"
+
+ENTRYPOINT ["java", "-jar", "app.jar", "—jasypt.encryptor.password=${JASYPT_KEY}"]
