@@ -73,7 +73,7 @@ public class StayServiceImpl implements StayService {
 			))
 			.addMappings(mapperNew -> mapperNew.map(
 				src -> src.getReservation().getRoom().getRoomCodePk(),
-				StayDTO::setRoomCode
+				StayDTO::setRoomCodeFk
 			));
 	}
 
@@ -274,7 +274,7 @@ public class StayServiceImpl implements StayService {
 		stayDTO.setStayCodePk(stayEntity.getStayCodePk());
 		stayDTO.setCustomerCodeFk(reservationDTO.getCustomerCodeFk());
 		stayDTO.setCustomerName(reservationDTO.getCustomerName());
-		stayDTO.setRoomCode(reservationDTO.getRoomCodeFk());
+		stayDTO.setRoomCodeFk(reservationDTO.getRoomCodeFk());
 		stayDTO.setRoomName(reservationDTO.getRoomName());
 		stayDTO.setRoomLevelName(reservationDTO.getRoomLevelName());
 		stayDTO.setRoomCapacity(reservationDTO.getRoomCapacity());
@@ -397,7 +397,7 @@ public class StayServiceImpl implements StayService {
 							.get().getCustomerCodeFk()
 					).get().customerName))
 				// 객실 코드
-				.peek(stayDTO -> stayDTO.setRoomCode(
+				.peek(stayDTO -> stayDTO.setRoomCodeFk(
 					mapper.map(reservationRepository.findById(stayDTO.getReservationCodeFk()), ReservationDTO.class)
 						.getRoomCodeFk()))
 				// 객실 번호

@@ -9,7 +9,7 @@ public class StayDTO {
 	private Integer stayCodePk;
 	private Integer customerCodeFk;
 	private String customerName;
-	private String roomCode;
+	private String roomCodeFk;
 	private Integer roomNumber;
 	private String roomName;
 	private String roomLevelName;
