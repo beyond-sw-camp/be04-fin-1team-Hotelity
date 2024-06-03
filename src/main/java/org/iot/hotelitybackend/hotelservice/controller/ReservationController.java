@@ -80,8 +80,22 @@ public class ReservationController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
+	/* 예약 시간 순서대로 최신 3개 조회 (대시보드용) */
+	@GetMapping("/reservations/latest")
+	public ResponseEntity<ResponseVO> selectLatestReservationList() {
+		Map<String, Object> latestReservationInfo = reservationService.selectLatestReservationList();
+
+		ResponseVO response = ResponseVO.builder()
+			.data(latestReservationInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
 	@GetMapping("/reservations/year/{yearInput}")
 	public ResponseEntity<ResponseVO> selectReservationsByYear(@PathVariable("yearInput") Integer yearInput) {
+
 		Map<String, Object> reservationInfo = reservationService.selectReservationsByYear(yearInput);
 
 		ResponseVO response = ResponseVO.builder()

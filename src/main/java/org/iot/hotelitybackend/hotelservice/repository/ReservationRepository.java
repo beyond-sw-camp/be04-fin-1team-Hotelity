@@ -18,4 +18,6 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
 	List<ReservationEntity> findByReservationCheckinDate(LocalDateTime reservationCheckDate);
 
 	Page<ReservationEntity> findAll(Specification<ReservationEntity> spec, Pageable pageable);
+
+	List<ReservationEntity> findTop3ByOrderByReservationDateDesc();
 }

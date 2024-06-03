@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
@@ -25,6 +26,7 @@ import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
 import org.iot.hotelitybackend.hotelservice.repository.StayRepository;
+import org.iot.hotelitybackend.hotelservice.vo.ReservationDashboardVO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -279,6 +281,51 @@ public class ReservationServiceImpl implements ReservationService {
 			.stream()
 			.map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
 			.toList();
+
+		Map<String, Object> reservationInfo = new HashMap<>();
+		reservationInfo.put(KEY_CONTENT, reservationDTOList);
+
+		return reservationInfo;
+	}
+
+	@Override
+	public Map<String, Object> selectLatestReservationList() {
+		List<ReservationEntity> reservationEntityList = reservationRepository.findTop3ByOrderByReservationDateDesc();
+		List<ReservationDashboardVO> reservationDTOList = reservationEntityList
+			.stream()
+			.map(reservationEntity -> mapper.map(reservationEntity, ReservationDashboardVO.class))
+			.peek(reservationDashboardVO -> reservationDashboardVO.setCustomerName(
+				customerRepository.findById(
+					reservationDashboardVO.getCustomerCodeFk()
+				).get().getCustomerName()
+			))
+			.peek(reservationDashboardVO -> reservationDashboardVO.setRoomName(
+				roomCategoryRepository.findById(
+					roomRepository.findById(
+						reservationDashboardVO.getRoomCodeFk()
+					).get().getRoomCategoryCodeFk()
+				).get().getRoomName()
+			))
+			.peek(reservationDashboardVO -> reservationDashboardVO.setRoomLevelName(
+				roomLevelRepository.findById(
+					roomCategoryRepository.findById(
+						roomRepository.findById(
+							reservationDashboardVO.getRoomCodeFk()
+						).get().getRoomCategoryCodeFk()
+					).get().getRoomLevelCodeFk()
+				).get().getRoomLevelName()
+			))
+			.collect(Collectors.toList());
+
+		// 예약 수가 3개보다 부족할 때
+		if(reservationDTOList.size() < 3) {
+			int limit = 3 - reservationDTOList.size();
+			for(int i = 0; i < limit; i++) {
+				ReservationDashboardVO emptyNotice = new ReservationDashboardVO();
+				emptyNotice.setCustomerName("예약이 없습니다.");
+				reservationDTOList.add(emptyNotice);
+			}
+		}
 
 		Map<String, Object> reservationInfo = new HashMap<>();
 		reservationInfo.put(KEY_CONTENT, reservationDTOList);

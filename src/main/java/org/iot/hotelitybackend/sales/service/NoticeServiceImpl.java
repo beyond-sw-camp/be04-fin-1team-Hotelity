@@ -6,6 +6,7 @@ import org.iot.hotelitybackend.sales.aggregate.NoticeEntity;
 import org.iot.hotelitybackend.sales.aggregate.NoticeSpecification;
 import org.iot.hotelitybackend.sales.dto.NoticeDTO;
 import org.iot.hotelitybackend.sales.repository.NoticeRepository;
+import org.iot.hotelitybackend.sales.vo.NoticeDashboardVO;
 import org.iot.hotelitybackend.sales.vo.RequestModifyNotice;
 import org.iot.hotelitybackend.sales.vo.RequestNotice;
 import org.modelmapper.ModelMapper;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
@@ -189,6 +191,34 @@ public class NoticeServiceImpl implements NoticeService {
 		}
 
 		return deleteNoticeInfo;
+	}
+
+	@Override
+	public Map<String, Object> selectLatestNoticeList() {
+		List<NoticeEntity> noticeEntityList = noticeRepository.findTop3ByOrderByNoticeCodePkDesc();
+		List<NoticeDashboardVO> noticeDashboardVOList = noticeEntityList
+			.stream()
+			.map(noticeEntity -> mapper.map(noticeEntity, NoticeDashboardVO.class))
+			.peek(noticeDashboardVO -> noticeDashboardVO.setPICEmployeeName(
+				employeeRepository.findById(
+					noticeDashboardVO.getEmployeeCodeFk()).get().getEmployeeName()
+			))
+			.collect(Collectors.toList());
+
+		// 공지 개수가 3개보다 부족할 때
+		if (noticeDashboardVOList.size() < 3) {
+			int limit = 3 - noticeDashboardVOList.size();
+			for (int i = 0; i < limit; i++) {
+				NoticeDashboardVO noticeDashboardVO = new NoticeDashboardVO();
+				noticeDashboardVO.setNoticeTitle("공지가 없습니다.");
+				noticeDashboardVOList.add(noticeDashboardVO);
+			}
+		}
+
+		Map<String, Object> latestNoticeList = new HashMap<>();
+		latestNoticeList.put(KEY_CONTENT, noticeDashboardVOList);
+
+		return latestNoticeList;
 	}
 
 }
