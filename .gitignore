@@ -36,7 +36,7 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 #application.yml
-org/iot/hotelitybackend/JasyptTests.java
+src/test/java/org/iot/hotelitybackend/JasyptTests.java
 
 ### NetBeans ###
 /nbproject/private/
