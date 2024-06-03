@@ -20,9 +20,9 @@ permissions:
 
 on:
   push:
-    branches: ["main", "develop"]
+    branches: ["main", "develop", "test/github-secrets"]
   pull_request:
-    branches: [ "main", "develop"]
+    branches: [ "main", "develop", "test/github-secrets"]
 #     paths:
 #       - "**.jar"
     
