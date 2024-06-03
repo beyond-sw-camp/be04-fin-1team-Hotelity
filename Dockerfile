@@ -12,4 +12,4 @@ ARG JASYPT_KEY
 ENV JASYPT_KEY=${JASYPT_KEY}
 
 # Run the jar file
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djasypt.encryptor.password=${JASYPT_KEY}", "-jar", "app.jar"]
