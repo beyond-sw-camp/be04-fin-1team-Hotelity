@@ -10,4 +10,4 @@ ENV JASYPT_KEY=$JASYPT_KEY
 # 실행 중에 환경 변수 값을 출력
 CMD echo "JASYPT_KEY value is: $JASYPT_KEY"
 
-ENTRYPOINT ["java", "-jar", "app.jar", "-Djasypt.encryptor.password=${JASYPT_KEY}"]
+ENTRYPOINT ["java", "-jar", "app.jar", "--jasypt.encryptor.password=${JASYPT_KEY}"]
