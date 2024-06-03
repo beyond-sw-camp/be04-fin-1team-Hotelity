@@ -36,6 +36,7 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 #application.yml
+JasyptTests.java
 
 ### NetBeans ###
 /nbproject/private/
