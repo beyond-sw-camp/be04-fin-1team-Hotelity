@@ -3,6 +3,7 @@ package org.iot.hotelitybackend.hotelservice.service;
 import static java.util.stream.Collectors.*;
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
@@ -263,43 +265,49 @@ public class ReservationServiceImpl implements ReservationService {
 		AtomicReference<List<StayEntity>> existingStayEntity = new AtomicReference<>(new ArrayList<>());
 
 		List<ReservationDTO> list =
-			reservationEntityList.stream().map(reservationEntity -> mapper.map(reservationEntity, ReservationDTO.class))
+			reservationEntityList.stream().map(reservationEntity -> {
+				ReservationDTO reservationDTO = mapper.map(reservationEntity, ReservationDTO.class);
+
+				// 숙박 일수 계산
+				reservationDTO.setStayPeriod(calculateStayPeriod(reservationEntity.getReservationCodePk()));
+
 				// 고객명
-				.peek(reservationDTO -> reservationDTO.setCustomerName(
+				reservationDTO.setCustomerName(
 					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()).orElse(null),
-						CustomerDTO.class).getCustomerName()))
+						CustomerDTO.class).getCustomerName());
+
 				// 객실명
-				.peek(reservationDTO -> reservationDTO.setRoomName(String.valueOf(roomCategoryRepository.findById(
+				reservationDTO.setRoomName(String.valueOf(roomCategoryRepository.findById(
 					roomRepository.findById(reservationDTO.getRoomCodeFk()).get().getRoomCategoryCodeFk()
-				).get().getRoomName())))
+				).get().getRoomName()));
+
 				// 객실등급명
-				.peek(reservationDTO -> reservationDTO.setRoomLevelName(
+				reservationDTO.setRoomLevelName(
 					roomLevelRepository.findById(
 						roomCategoryRepository.findById(
 							roomRepository.findById(
 								reservationDTO.getRoomCodeFk()
 							).get().getRoomCategoryCodeFk()
 						).get().getRoomLevelCodeFk()
-					).get().getRoomLevelName()
-				))
+					).get().getRoomLevelName());
+
 				// 객실 수용 인원
-				.peek(reservationDTO -> reservationDTO.setRoomCapacity(
+				reservationDTO.setRoomCapacity(
 					roomCategoryRepository.findById(
 						roomRepository.findById(
 							reservationDTO.getRoomCodeFk()
 						).get().getRoomCategoryCodeFk()
-					).get().getRoomCapacity()
-				))
+					).get().getRoomCapacity());
+
 				// 투숙 상태
-				.peek(reservationDTO -> {
-					existingStayEntity.set(stayRepository.findByReservationCodeFk(reservationDTO.getReservationCodePk())
-						.stream()
-						.toList());
-					reservationDTO.setStayStatus(existingStayEntity.get().isEmpty() ? 0 : 1);
-				})
-				.peek(reservationDTO -> reservationDTO.setStayPeriod(
-					calculateStayPeriod(reservationDTO.getReservationCodePk())))
-				.toList();
+				existingStayEntity.set(stayRepository.findByReservationCodeFk(reservationDTO.getReservationCodePk())
+					.stream()
+					.toList());
+				reservationDTO.setStayStatus(existingStayEntity.get().isEmpty() ? 0 : 1);
+
+				return reservationDTO;
+			}).collect(Collectors.toList());
+
 		return list;
 	}
 
