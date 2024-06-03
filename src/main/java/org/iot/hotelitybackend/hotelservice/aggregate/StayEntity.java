@@ -127,4 +127,12 @@ public class StayEntity {
 		+ "WHERE b.reservation_code_pk = reservation_code_fk)"
 	)
 	private String branchCodeFk;
+
+	// @Formula("(SELECT "
+	// 	+ "b.stay_period "
+	// 	+ "FROM stay_tb a "
+	// 	+ "JOIN reservation_tb b ON (a.reservation_code_fk = b.reservation_code_pk) "
+	// 	+ "WHERE b.reservation_code_pk = reservation_code_fk)"
+	// )
+	// private String stayPeriod;
 }
