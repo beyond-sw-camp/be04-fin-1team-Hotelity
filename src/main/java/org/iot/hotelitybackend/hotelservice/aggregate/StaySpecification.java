@@ -16,20 +16,19 @@ import jakarta.persistence.criteria.Root;
 
 public class StaySpecification {
 
-	private Join<StayEntity, ReservationEntity> reservationJoin;
-	private Join<ReservationEntity, CustomerEntity> customerJoin;
-	private Join<ReservationEntity, RoomEntity> roomJoin;
-	private Join<RoomEntity, RoomCategoryEntity> roomCategoryJoin;
-	private Join<RoomCategoryEntity, RoomLevelEntity> roomLevelJoin;
-	private Join<StayEntity, EmployeeEntity> employeeJoin;
-
-	public void initializeJoins(Root<StayEntity> root) {
-		this.reservationJoin = root.join("reservation");
-		this.customerJoin = reservationJoin.join("customer");
-		this.roomJoin = reservationJoin.join("room");
-		this.roomCategoryJoin = roomJoin.join("roomCategory");
-		this.roomLevelJoin = roomCategoryJoin.join("roomLevel");
-		this.employeeJoin = root.join("employee");
+	public static void initializeJoins(Root<StayEntity> root,
+		Join<StayEntity, ReservationEntity> reservationJoin,
+		Join<ReservationEntity, CustomerEntity> customerJoin,
+		Join<ReservationEntity, RoomEntity> roomJoin,
+		Join<RoomEntity, RoomCategoryEntity> roomCategoryJoin,
+		Join<RoomCategoryEntity, RoomLevelEntity> roomLevelJoin,
+		Join<StayEntity, EmployeeEntity> employeeJoin) {
+		reservationJoin = root.join("reservation");
+		customerJoin = reservationJoin.join("customer");
+		roomJoin = reservationJoin.join("room");
+		roomCategoryJoin = roomJoin.join("roomCategory");
+		roomLevelJoin = roomCategoryJoin.join("roomLevel");
+		employeeJoin = root.join("employee");
 	}
 
 	// 투숙코드
@@ -94,21 +93,9 @@ public class StaySpecification {
 			Join<RoomEntity, RoomCategoryEntity> roomCategoryJoin = roomJoin.join("roomCategory");
 			Join<RoomCategoryEntity, RoomLevelEntity> roomLevelJoin = roomCategoryJoin.join("roomLevel");
 
-
 			return CriteriaBuilder.like(roomLevelJoin.get("roomLevelName"), pattern);
 		};
 	}
-
-	// 객실 수용 인원
-	// public static Specification<StayEntity> equalsRoomCapacity(Integer roomCapacity) {
-	// 	return (root, query, criteriaBuilder) -> {
-	// 		Join<StayEntity, ReservationEntity> reservationJoin = root.join("reservation");
-	// 		Join<ReservationEntity, RoomEntity> roomJoin = reservationJoin.join("room");
-	// 		Join<RoomEntity, RoomCategoryEntity> roomCategoryJoin = roomJoin.join("roomCategory");
-	//
-	// 		return criteriaBuilder.equal(roomCategoryJoin.get("roomCapacity"), roomCapacity);
-	// 	};
-	// }
 
 	// 투숙 인원
 	public static Specification<StayEntity> equalsStayPeopleCount(Integer stayPeopleCount) {
