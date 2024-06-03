@@ -9,7 +9,7 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
     url: ENC(6VSddndzXr0YDHJYyT64VCk3YJIrckuloDLP0YireJqq7LOyuOoirsY3ZOlCkyDCr3hfJZBkYK/yxylrm+Xw20hCg5ISJ3lMfgvol0bCwlbV9gOLrETo091LEIZ/Tppx3vhP2CUQYWg=)
     username: ENC(pp8u3oidFVpc67XmKnwo7g==)
-    password: ENC(62X/c0Wx+myfmd8EkMEaEtFYNgXXZduD)
+    password: ENC(DoalWPPUKYQ3TVK+I6ikUolT4CQI5zz1)
     hikari:
       maximumPoolSize: 15
       minimumIdle: 5
