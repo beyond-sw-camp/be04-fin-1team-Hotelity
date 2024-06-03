@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: hotelity-backend
-          image: eodud3196/hotelity-backend:latest
+          image: eodud3196/hotelity:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8888
