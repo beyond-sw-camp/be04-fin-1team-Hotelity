@@ -29,4 +29,6 @@ public interface ReservationService {
 	Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate);
 
 	Map<String, Object> selectReservationsByYear(Integer yearInput);
+
+	Map<String, Object> selectLatestReservationList();
 }

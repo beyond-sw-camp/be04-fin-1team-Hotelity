@@ -22,4 +22,5 @@ public interface NoticeService {
 
     Map<String, Object> deleteNotice(int noticeCodePk);
 
+	Map<String, Object> selectLatestNoticeList();
 }
