@@ -30,4 +30,6 @@ public interface VocService {
 		IllegalAccessException;
 
 	Map<String, Object> deleteVoc(int vocCodePk);
+
+	Map<String, Object> selectLatestVocList();
 }

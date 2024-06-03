@@ -51,6 +51,19 @@ public class NoticeController {
         return ResponseEntity.status(response.getResultCode()).body(response);
     }
 
+    /* 최신순 공지 3개 조회 (대시보드용) */
+    @GetMapping("/notices/latest")
+    public ResponseEntity<ResponseVO> selectLatestNoticeList() {
+        Map<String, Object> latestNoticeList = noticeService.selectLatestNoticeList();
+
+        ResponseVO response = ResponseVO.builder()
+            .data(latestNoticeList)
+            .resultCode(HttpStatus.OK.value())
+            .build();
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
+    }
+
     @GetMapping("/notices/{noticeCodePk}/notice")
     public NoticeDTO selectNoticeByNoticeCodePk(@PathVariable int noticeCodePk) {
         return noticeService.selectNoticeByNoticeCodePk(noticeCodePk);

@@ -63,6 +63,19 @@ public class VocController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
+	/* 최신순 VOC 3개 조회 (대시보드용) */
+	@GetMapping("/vocs/latest")
+	public ResponseEntity<ResponseVO> selectLatestVocList() {
+		Map<String, Object> latestVocList = vocService.selectLatestVocList();
+
+		ResponseVO response = ResponseVO.builder()
+			.data(latestVocList)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
 	@GetMapping("/vocs/{vocCodePk}/voc")
 	public VocDTO selectVocByVocCodePk(@PathVariable int vocCodePk) {
 		return vocService.selectVocByVocCodePk(vocCodePk);
