@@ -212,19 +212,19 @@ public class StayServiceImpl implements StayService {
 
 	@Override
 	public Map<String, Object> selectStayByReservationCheckinDate(String dateString) {
-		LocalDateTime dateTime = LocalDateTime.parse(dateString + "T00:00:00");
-		List<List<StayDTO>> stayDTOList = reservationRepository.findByReservationCheckinDate(dateTime)
+		// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime start = LocalDateTime.parse(dateString + "T00:00:00");
+		LocalDateTime end = LocalDateTime.parse(dateString + "T23:59:59");
+		List<StayEntity> stayEntityList = stayRepository.findAllByStayCheckinTimeBetween(start, end);
+		List<StayDTO> stayDTOList = stayEntityList
 			.stream()
-			.map(reservation -> stayRepository.findByReservationCodeFk(reservation.getReservationCodePk())
-				.stream()
-				.map(stayEntity -> mapper.map(stayEntity, StayDTO.class))
-				.toList())
+			.map(stayEntity -> mapper.map(stayEntity, StayDTO.class))
 			.toList();
 
 		Map<String, Object> stayInfo = new HashMap<>();
-		int stayYear = dateTime.getYear();
-		int stayMonth = dateTime.getMonthValue();
-		int stayDate = dateTime.getDayOfMonth();
+		int stayYear = start.getYear();
+		int stayMonth = start.getMonthValue();
+		int stayDate = start.getDayOfMonth();
 		stayInfo.put(KEY_CONTENT, stayDTOList);
 		stayInfo.put("year", stayYear);
 		stayInfo.put("month", stayMonth);
