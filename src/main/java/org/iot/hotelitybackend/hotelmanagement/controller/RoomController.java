@@ -67,6 +67,18 @@ public class RoomController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
+	@GetMapping("/rooms/{roomCodePk}")
+	public ResponseEntity<ResponseVO> selectRoomInfo(@PathVariable("roomCodePk") String roomCodePk) {
+		Map<String, Object> roomInfo = roomService.selectRoomInfo(roomCodePk);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(roomInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
 	@PutMapping("/rooms/{roomCodePk}")
 	public ResponseEntity<ResponseVO> modifyRoomInfo(
 		@RequestBody RequestModifyRoom requestModifyRoom,
