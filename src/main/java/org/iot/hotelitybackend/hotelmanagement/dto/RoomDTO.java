@@ -19,4 +19,5 @@ public class RoomDTO {
 	private int roomCapacity;
 	private int roomBathroomCount;
 	private String roomSpecificInfo;
+	private String roomLevelName;
 }
