@@ -32,8 +32,11 @@ import org.iot.hotelitybackend.hotelmanagement.aggregate.RoomSpecification;
 import org.iot.hotelitybackend.hotelmanagement.dto.BranchDTO;
 import org.iot.hotelitybackend.hotelmanagement.dto.RoomCategoryDTO;
 import org.iot.hotelitybackend.hotelmanagement.dto.RoomDTO;
+import org.iot.hotelitybackend.hotelmanagement.dto.RoomImageDTO;
+import org.iot.hotelitybackend.hotelmanagement.dto.SelectRoomDTO;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomCategoryRepository;
+import org.iot.hotelitybackend.hotelmanagement.repository.RoomImageRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.RoomRepository;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyRoom;
 import org.modelmapper.ModelMapper;
@@ -59,13 +62,16 @@ public class RoomServiceImpl implements RoomService {
 	private final RoomCategoryRepository roomCategoryRepository;
 	private final BranchRepository branchRepository;
 	private final ModelMapper mapper;
+	private final RoomImageRepository roomImageRepository;
 
 	@Autowired
-	public RoomServiceImpl(RoomRepository roomRepository, RoomCategoryRepository roomCategoryRepository, BranchRepository branchRepository, ModelMapper mapper) {
+	public RoomServiceImpl(RoomRepository roomRepository, RoomCategoryRepository roomCategoryRepository, BranchRepository branchRepository, ModelMapper mapper,
+		RoomImageRepository roomImageRepository) {
 		this.roomRepository = roomRepository;
 		this.roomCategoryRepository = roomCategoryRepository;
 		this.branchRepository = branchRepository;
 		this.mapper = mapper;
+		this.roomImageRepository = roomImageRepository;
 		this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 		this.mapper.typeMap(RoomEntity.class, RoomDTO.class)
 			.addMappings(mapperNew -> mapperNew.map(
@@ -295,7 +301,14 @@ public class RoomServiceImpl implements RoomService {
 		Map<String, Object> roomInfo = new HashMap<>();
 		Optional<RoomEntity> roomEntity = roomRepository.findById(roomCodePk);
 		if (roomEntity.isPresent()) {
-			roomInfo.put(KEY_CONTENT, mapper.map(roomEntity.get(), RoomDTO.class));
+			SelectRoomDTO selectRoomDTO = mapper.map(roomEntity.get(), SelectRoomDTO.class);
+			selectRoomDTO.setRoomImageDTOList(
+				roomImageRepository.findAllByRoomCodeFk(roomCodePk)
+					.stream()
+					.map(roomImageEntity -> mapper.map(roomImageEntity, RoomImageDTO.class))
+					.collect(Collectors.toList())
+			);
+			roomInfo.put(KEY_CONTENT, selectRoomDTO);
 		} else {
 			roomInfo.put(KEY_CONTENT, "No content found.");
 		}
