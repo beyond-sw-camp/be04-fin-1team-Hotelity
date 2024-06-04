@@ -26,6 +26,7 @@ public interface RoomService {
 		Integer roomCapacity,
 		Integer roomBathroomCount,
 		String roomSpecificInfo,
+		String roomLevelName,
 		String orderBy,
 		Integer sortBy
 	);

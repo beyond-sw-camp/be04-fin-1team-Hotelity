@@ -91,6 +91,10 @@ public class RoomServiceImpl implements RoomService {
 			.addMappings(mapperNew -> mapperNew.map(
 				src -> src.getRoomSpecificInfo(),
 				RoomDTO::setRoomSpecificInfo
+			))
+			.addMappings(mapperNew -> mapperNew.map(
+				src -> src.getRoomLevelName(),
+				RoomDTO::setRoomLevelName
 			));
 	}
 
@@ -111,6 +115,7 @@ public class RoomServiceImpl implements RoomService {
 		Integer roomCapacity,
 		Integer roomBathroomCount,
 		String roomSpecificInfo,
+		String roomLevelName,
 		String orderBy,
 		Integer sortBy
 	) {

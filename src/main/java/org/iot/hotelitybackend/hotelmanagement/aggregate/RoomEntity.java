@@ -91,12 +91,22 @@ public class RoomEntity {
 			+ ")"
 	)
 	private String roomSpecificInfo;
+	@Formula(
+		"("
+			+ "SELECT rl.room_level_name "
+			+ "FROM room_tb r "
+			+ "JOIN room_category_tb rc ON rc.room_category_code_pk = r.room_category_code_fk "
+			+ "JOIN room_level_tb rl ON rl.room_level_code_pk = rc.room_level_code_fk"
+			+ "WHERE r.room_code_pk = room_code_pk"
+			+ ")"
+	)
+	private String roomLevelName;
 
 	@Builder
 	public RoomEntity(String roomCodePk, String branchCodeFk, Integer roomNumber, Integer roomCategoryCodeFk,
 		String roomCurrentStatus, Float roomDiscountRate, String roomImageLink, String roomView, String roomName,
 		String roomSubRoomsCount, String roomPrice, Integer roomCapacity, Integer roomBathroomCount,
-		String roomSpecificInfo) {
+		String roomSpecificInfo, String roomLevelName) {
 		this.roomCodePk = roomCodePk;
 		this.branchCodeFk = branchCodeFk;
 		this.roomNumber = roomNumber;
@@ -111,5 +121,6 @@ public class RoomEntity {
 		this.roomCapacity = roomCapacity;
 		this.roomBathroomCount = roomBathroomCount;
 		this.roomSpecificInfo = roomSpecificInfo;
+		this.roomLevelName = roomLevelName;
 	}
 }
