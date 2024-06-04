@@ -11,5 +11,5 @@ data:
       - job_name: prometheus
         metrics_path: '/actuator/prometheus'
         static_configs:
-          - targets: ['34f2-121-170-161-69.ngrok-free.app']       
-        scheme: https
+          - targets: ['acaa5876434cb411b84efdb70750299b-394449368.ap-northeast-2.elb.amazonaws.com:8888']       
+        scheme: http
