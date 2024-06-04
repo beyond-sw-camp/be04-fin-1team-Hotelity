@@ -34,4 +34,5 @@ public interface RoomService {
 
 	Map<String, Object> deleteRoom(String roomCodePk);
 
+	Map<String, Object> selectRoomInfo(String roomCodePk);
 }
