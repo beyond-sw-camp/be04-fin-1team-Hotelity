@@ -285,5 +285,16 @@ public class RoomServiceImpl implements RoomService {
 		return deleteRoom;
 	}
 
+	@Override
+	public Map<String, Object> selectRoomInfo(String roomCodePk) {
+		Map<String, Object> roomInfo = new HashMap<>();
+		Optional<RoomEntity> roomEntity = roomRepository.findById(roomCodePk);
+		if (roomEntity.isPresent()) {
+			roomInfo.put(KEY_CONTENT, mapper.map(roomEntity.get(), RoomDTO.class));
+		} else {
+			roomInfo.put(KEY_CONTENT, "No content found.");
+		}
+		return roomInfo;
+	}
 
 }
