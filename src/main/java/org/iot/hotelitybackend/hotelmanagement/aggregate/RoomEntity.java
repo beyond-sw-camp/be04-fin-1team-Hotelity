@@ -96,7 +96,7 @@ public class RoomEntity {
 			+ "SELECT rl.room_level_name "
 			+ "FROM room_tb r "
 			+ "JOIN room_category_tb rc ON rc.room_category_code_pk = r.room_category_code_fk "
-			+ "JOIN room_level_tb rl ON rl.room_level_code_pk = rc.room_level_code_fk"
+			+ "JOIN room_level_tb rl ON rl.room_level_code_pk = rc.room_level_code_fk "
 			+ "WHERE r.room_code_pk = room_code_pk"
 			+ ")"
 	)
