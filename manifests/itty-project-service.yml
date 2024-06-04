@@ -3,11 +3,10 @@ kind: Service
 metadata:
   name: hotelity-backend-ser
 spec:
-  type: NodePort
   ports:
-    - port: 8001
+    - port: 8888
       targetPort: 8888
       protocol: TCP
-      nodePort: 30001
+  type: LoadBalancer
   selector:
     app: hotelity-backend
