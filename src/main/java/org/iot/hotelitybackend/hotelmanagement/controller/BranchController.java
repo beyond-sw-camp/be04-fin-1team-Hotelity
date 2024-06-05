@@ -40,13 +40,16 @@ public class BranchController {
 	}
 
 	@GetMapping("/branches")
-	public ResponseEntity<ResponseVO> selectAllBranches(@RequestParam int pageNum) {
-		Map<String, Object> branchPageInfo = branchService.selectAllBranches(pageNum);
+	public ResponseEntity<ResponseVO> selectAllBranches(@RequestParam(required = false) Integer pageNum) {
+
+		Object data = pageNum == null
+				? branchService.selectAllBranches()
+				: branchService.selectAllBranches(pageNum);
 
 		ResponseVO response = ResponseVO.builder()
-			.data(branchPageInfo)
-			.resultCode(HttpStatus.OK.value())
-			.build();
+				.data(data)
+				.resultCode(HttpStatus.OK.value())
+				.build();
 
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}

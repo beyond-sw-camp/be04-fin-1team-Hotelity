@@ -62,3 +62,9 @@ openai:
       key: ENC(IzSsO5GBuqCRGIQd/FAQYFCLkk2qkhdacmKtf358axeC8Lhy93gXxUI+EkPkWwHhRuXKzQ8PjRagUZuWl4UlDQ==)
       url: https://api.openai.com/v1/chat/completions
     model: gpt-3.5-turbo
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
