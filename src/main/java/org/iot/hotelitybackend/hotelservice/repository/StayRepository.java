@@ -12,4 +12,10 @@ public interface StayRepository extends JpaRepository<StayEntity, Integer>, JpaS
 	Optional<StayEntity> findByReservationCodeFk(int reservationCodePk);
 
 	List<StayEntity> findAllByStayCheckinTimeBetween(LocalDateTime start, LocalDateTime end);
+
+	default List<StayEntity> findByStayCheckinTime(LocalDateTime stayCheckinTime) {
+		LocalDateTime startOfDay = stayCheckinTime.withHour(0).withMinute(0).withSecond(0);
+		LocalDateTime endOfDay = stayCheckinTime.withHour(23).withMinute(59).withSecond(59);
+		return findAllByStayCheckinTimeBetween(startOfDay, endOfDay);
+	}
 }

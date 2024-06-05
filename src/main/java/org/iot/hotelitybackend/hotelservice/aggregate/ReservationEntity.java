@@ -76,4 +76,19 @@ public class ReservationEntity {
 
     @OneToOne(mappedBy = "reservation")
     private StayEntity stay;
+
+    @Override
+    public String toString() {
+        return "ReservationEntity{" +
+            "reservationCodePk=" + reservationCodePk +
+            ", reservationDate=" + reservationDate +
+            ", reservationCheckinDate=" + reservationCheckinDate +
+            ", reservationCheckoutDate=" + reservationCheckoutDate +
+            ", customerCodeFk=" + customerCodeFk +
+            ", roomCodeFk='" + roomCodeFk + '\'' +
+            ", branchCodeFk='" + branchCodeFk + '\'' +
+            ", reservationCancelStatus=" + reservationCancelStatus +
+            ", reservationPersonnel=" + reservationPersonnel +
+            '}';
+    }
 }
