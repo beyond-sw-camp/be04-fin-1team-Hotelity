@@ -65,7 +65,7 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 	@Override
 	public String getDailyChatGPTResponse(String promptDataString) {
 		String prompt = promptDataString + " \n"
-			+ "이러한 오늘의 예약과 투숙 정보를 아래의 양식에 맞게 100자 이하로 요약하여 설명해. \n"
+			+ "이러한 오늘의 예약과 투숙 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
 			+ "금일 체크인 예정인 예약은 ~건이며, 현재 체크인 투숙이 진행된 예약은 ~건입니다. \n"
 			+ "그리고 금일 예약 객실 관련 특이사항으로는 ~가 있습니다. \n";
 		ChatGPTRequest request = new ChatGPTRequest(model, prompt);
@@ -93,6 +93,7 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 	private String getMonthlyDataString(LocalDateTime now) {
 		StringBuilder paymentListData = new StringBuilder();
 		StringBuilder reservationListData = new StringBuilder();
+
 		int year = now.getYear();
 		int month = now.getMonthValue();
 		LocalDateTime startOfMonth =
@@ -141,7 +142,7 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 	@Override
 	public String getMonthlyChatGPTResponse(String promptDataString) {
 		String prompt = promptDataString + " \n"
-			+ "이러한 이번달과 지난달의 결제와 예약 정보를 아래의 양식에 맞게 100자 이하로 요약하여 설명해. \n"
+			+ "이러한 이번달과 지난달의 결제와 예약 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
 			+ "이번달 결제 건수: ~건, 결제 금액 총합: ~원, 예약 건수: ~건 \n"
 			+ "지난달 결제 건수: ~건, 결제 금액 총합: ~원, 예약 건수: ~건 \n"
 			+ "지난달에 비해 이번달 결제 금액 총합은 ~% 증가/감소 했으며, \n"
@@ -158,11 +159,78 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 
 	@Override
 	public String getDataYear(LocalDateTime now) {
-		return null;
+		String thisYearData = getYearlyDataString(now);
+		String lastYearData = getYearlyDataString(now.minusYears(1));
+
+		String data =
+			"올해 데이터: \n" + thisYearData + " \n" +
+				"작년 데이터: \n" + lastYearData + " \n";
+		return data;
+	}
+
+	private String getYearlyDataString(LocalDateTime now) {
+		StringBuilder paymentListData = new StringBuilder();
+		StringBuilder reservationListData = new StringBuilder();
+
+		int year = now.getYear();
+		LocalDateTime startOfYear =
+			LocalDateTime.of(year, 1, 1, 0, 0, 0);
+		LocalDateTime endOfYear =
+			LocalDateTime.of(year, 12, startOfYear.getMonth().length(startOfYear.toLocalDate().isLeapYear()),
+				23, 59, 59);
+
+		// 해당일자의 연별 결제 데이터 수집
+		List<PaymentEntity> paymentEntityList =
+			paymentRepository.findAllByPaymentDateBetween(
+				java.sql.Timestamp.valueOf(startOfYear),
+				java.sql.Timestamp.valueOf(endOfYear)
+			);
+		if (!paymentEntityList.isEmpty()) {
+			for (PaymentEntity paymentEntity : paymentEntityList) {
+				paymentListData.append(paymentEntity.toString()).append("\n");
+			}
+		} else {
+			paymentListData.append("결제 데이터가 없습니다.");
+		}
+		System.out.println("paymentListData = " + paymentListData);
+
+		// 해당일자의 연별 예약 데이터 수집
+		List<ReservationEntity> reservationEntityList =
+			reservationRepository.findByReservationCheckinDateBetween(startOfYear, endOfYear);
+		if (!reservationEntityList.isEmpty()) {
+			for (ReservationEntity reservationEntity : reservationEntityList) {
+				reservationListData.append(reservationEntity.toString()).append("\n");
+			}
+		} else {
+			reservationListData.append("예약 데이터가 없습니다.");
+		}
+		System.out.println("reservationListData = " + reservationListData);
+
+		String data =
+			year + "년 결제: " + paymentEntityList.size() + "건, " +
+				year + "년 예약: " + reservationEntityList.size() + "건, " +
+				year + "년 결제내용: " + paymentListData + " \n" +
+				year + "년 예약내용: " + reservationListData + " \n";
+
+		return data;
 	}
 
 	@Override
 	public String getYearlyChatGPTResponse(String promptDataString) {
+		String prompt = promptDataString + " \n"
+			+ "이러한 올해와 지난해의 결제, 예약 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
+			+ "올해 결제 건수: ~건, 결제 금액 총합: ~원, 예약 건수: ~건 \n"
+			+ "작년 결제 건수: ~건, 결제 금액 총합: ~원, 예약 건수: ~건 \n"
+			+ "작년에 비해 올해 결제 금액 총합은 ~% 증가/감소 했으며, \n"
+			+ "작년에 비해 올해 예약 건수 총합은 ~% 증가/감소 했습니다. \n"
+			+ "올해 결제, 예약 내용 중 특이사항으로는 ~가 있습니다. \n";
+
+		ChatGPTRequest request = new ChatGPTRequest(model, prompt);
+		ChatGPTResponse chatGPTResponse =  template.postForObject(apiURL, request, ChatGPTResponse.class);
+
+		if (chatGPTResponse != null) {
+			return chatGPTResponse.getChoices().get(0).getMessage().getContent();
+		}
 		return null;
 	}
 }
