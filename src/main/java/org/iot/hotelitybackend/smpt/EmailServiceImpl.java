@@ -15,6 +15,7 @@ import org.iot.hotelitybackend.marketing.aggregate.CampaignCustomerEntity;
 import org.iot.hotelitybackend.marketing.aggregate.CampaignEntity;
 import org.iot.hotelitybackend.marketing.repository.CampaignCustomerRepository;
 import org.iot.hotelitybackend.marketing.repository.CampaignRepository;
+import org.iot.hotelitybackend.marketing.repository.TemplateRepository;
 import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
 import org.iot.hotelitybackend.sales.repository.MembershipIssueRepository;
 import org.iot.hotelitybackend.sales.repository.MembershipRepository;
@@ -35,17 +36,20 @@ public class EmailServiceImpl implements EmailService {
 	private final CampaignCustomerRepository campaignCustomerRepository;
 	private final MembershipIssueRepository membershipIssueRepository;
 	private final MembershipRepository membershipRepository;
+	private final TemplateRepository templateRepository;
 
 	@Autowired
 	public EmailServiceImpl(JavaMailSender mailSender, CustomerRepository customerRepository,
 		CampaignRepository campaignRepository, CampaignCustomerRepository campaignCustomerRepository,
-		MembershipIssueRepository membershipIssueRepository, MembershipRepository membershipRepository) {
+		MembershipIssueRepository membershipIssueRepository, MembershipRepository membershipRepository,
+		TemplateRepository templateRepository) {
 		this.mailSender = mailSender;
 		this.customerRepository = customerRepository;
 		this.campaignRepository = campaignRepository;
 		this.campaignCustomerRepository = campaignCustomerRepository;
 		this.membershipIssueRepository = membershipIssueRepository;
 		this.membershipRepository = membershipRepository;
+		this.templateRepository = templateRepository;
 	}
 
 	@Override
@@ -97,8 +101,12 @@ public class EmailServiceImpl implements EmailService {
 		// 캠페인 생성 후 campaign_tb 에 save
 		CampaignEntity campaignEntity = CampaignEntity.builder()
 			.campaignSendType(requestSendMailByLevelDTO.getSendType())
-			.campaignContent(requestSendMailByLevelDTO.getMessageContent())
-			.campaignSentDate(LocalDateTime.now())
+			.campaignContent(
+				templateRepository.findById(
+					requestSendMailByLevelDTO.getTemplateCode()
+				).get().getTemplateContent() + requestSendMailByLevelDTO.getMessageContent()
+			)
+			.campaignSentDate(requestSendMailByLevelDTO.getMailSendDate())
 			.campaignSentStatus(1)
 			.employeeCodeFk(requestSendMailByLevelDTO.getEmployeeCode())
 			.templateCodeFk(requestSendMailByLevelDTO.getTemplateCode())
@@ -114,7 +122,11 @@ public class EmailServiceImpl implements EmailService {
 			// 메일 발송 객체 완성시켜 메일 발송
 			message.setTo(customer.getCustomerEmail());
 			message.setSubject(requestSendMailByLevelDTO.getTitle());
-			message.setText(customer.getCustomerName() + "님, 안녕하세요. Hotelity 입니다. " + requestSendMailByLevelDTO.getMessageContent());
+			message.setText(
+				customer.getCustomerName() +
+					"님, 안녕하세요. Hotelity 입니다. " +
+					campaignEntity.getCampaignContent()
+			);
 			mailSender.send(message);
 
 			// 캠페인 발송 객체 생성 후 campaign_customer_tb 에 save
