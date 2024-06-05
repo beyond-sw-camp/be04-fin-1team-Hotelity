@@ -25,7 +25,7 @@ spring:
   data:
     redis:
       #      host: 192.168.0.31
-      host: localhost
+      host: ENC(h3W4NTNKldG2+iXGVm7NBhTBxBSKj2OWnbDQvTq0jLrpwRMKffUTAJUV3MnyBEdAJVoNo2bn5eu5/xaZhEYnWiCnExq4IJPzXwmBXL8HlFRD5Roj0b0INQ==)
       port: 6379
       expiration_time: 86400000 # 1일
   mail:
