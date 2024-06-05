@@ -99,4 +99,18 @@ public class TemplateServiceImpl implements TemplateService {
 
         return deleteTemplateInfo;
     }
+
+    @Override
+    public Map<String, Object> selectAllTemplates() {
+        List<TemplateEntity> templateEntityList = templateRepository.findAll();
+        List<TemplateDTO> templateDTOList = templateEntityList
+            .stream()
+            .map(templateEntity -> mapper.map(templateEntity, TemplateDTO.class))
+            .toList();
+
+        Map<String, Object> templateListInfo = new HashMap<>();
+        templateListInfo.put(KEY_CONTENT, templateDTOList);
+
+        return templateListInfo;
+    }
 }

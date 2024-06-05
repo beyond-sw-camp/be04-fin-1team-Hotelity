@@ -34,6 +34,18 @@ public class TemplateController {
         return ResponseEntity.status(response.getResultCode()).body(response);
     }
 
+    @GetMapping("/templates")
+    public ResponseEntity<ResponseVO> selectAllTemplates() {
+        Map<String, Object> templatePageInfo = templateService.selectAllTemplates();
+
+        ResponseVO response = ResponseVO.builder()
+                .data(templatePageInfo)
+                .resultCode(HttpStatus.OK.value())
+                .build();
+
+        return ResponseEntity.status(response.getResultCode()).body(response);
+    }
+
     @GetMapping("/templates/{templateCodePk}/template")
     public TemplateDTO selectTemplateByTemplateCodePk(@PathVariable int templateCodePk) {
         return templateService.selectTemplateByTemplateCodePk(templateCodePk);
