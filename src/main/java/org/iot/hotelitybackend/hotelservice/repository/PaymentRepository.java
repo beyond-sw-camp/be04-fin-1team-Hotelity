@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Integer>
 	Page<PaymentEntity> findAll(Specification<PaymentEntity> spec, Pageable pageable);
 
 	List<PaymentEntity> findByCustomerCodeFkAndPaymentDateBetween(Integer customerCodePk, Date startDate, Date endDate);
+
+	List<PaymentEntity> findAllByPaymentDateBetween(Date startDate, Date endDate);
 }

@@ -22,6 +22,19 @@ public class StayEntity {
 	private Integer stayCodePk;
 
 	private LocalDateTime stayCheckinTime;
+
+	@Override
+	public String toString() {
+		return "StayEntity{" +
+			"stayCodePk=" + stayCodePk +
+			", stayCheckinTime=" + stayCheckinTime +
+			", stayCheckoutTime=" + stayCheckoutTime +
+			", stayPeopleCount=" + stayPeopleCount +
+			", employeeCodeFk=" + employeeCodeFk +
+			", reservationCodeFk=" + reservationCodeFk +
+			'}';
+	}
+
 	private LocalDateTime stayCheckoutTime;
 	private Integer stayPeopleCount;
 
