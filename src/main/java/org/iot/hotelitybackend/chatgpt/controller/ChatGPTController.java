@@ -27,36 +27,38 @@ public class ChatGPTController {
 		this.chatGPTService = chatGPTService;
 	}
 
+	// 오늘 예약, 투숙 데이터 가져와서 분석
 	@GetMapping("/daily")
 	public ResponseEntity<ResponseVO> promptDailyData() {
 		LocalDateTime now = LocalDateTime.now();
 		String promptDataString = chatGPTService.getDataOfToday(now);
 		String chatGPTResponse = chatGPTService.getDailyChatGPTResponse(promptDataString);
 
-		ResponseVO responseVO;
-
-		if (chatGPTResponse != null) {
-			responseVO = ResponseVO.builder()
-				.data(chatGPTResponse)
-				.resultCode(HttpStatus.OK.value())
-				.message("Prompt Success")
-				.build();
-		} else {
-			responseVO = ResponseVO.builder()
-				.data(null)
-				.resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-				.message("Prompt Failed")
-				.build();
-		}
-		return ResponseEntity.status(responseVO.getResultCode()).body(responseVO);
+		return getResponseVOResponseEntity(chatGPTResponse);
 	}
 
+	// 이번달, 지난달, 작년의 이번달의 결제, 예약, 투숙 데이터 가져와서 분석
 	@GetMapping("/monthly")
 	public ResponseEntity<ResponseVO> promptMonthlyData() {
 		LocalDateTime now = LocalDateTime.now();
 		String promptDataString = chatGPTService.getDataMonth(now);
+		System.out.println("promptDataString = " + promptDataString);
 		String chatGPTResponse = chatGPTService.getMonthlyChatGPTResponse(promptDataString);
 
+		return getResponseVOResponseEntity(chatGPTResponse);
+	}
+
+	// 올해, 지난해의 결제, 예약, 투숙 데이터 가져와서 분석
+	@GetMapping("/yearly")
+	public ResponseEntity<ResponseVO> promptYearlyData() {
+		LocalDateTime now = LocalDateTime.now();
+		String promptDataString = chatGPTService.getDataYear(now);
+		String chatGPTResponse = chatGPTService.getYearlyChatGPTResponse(promptDataString);
+
+		return getResponseVOResponseEntity(chatGPTResponse);
+	}
+
+	private ResponseEntity<ResponseVO> getResponseVOResponseEntity(String chatGPTResponse) {
 		ResponseVO responseVO;
 
 		if (chatGPTResponse != null) {

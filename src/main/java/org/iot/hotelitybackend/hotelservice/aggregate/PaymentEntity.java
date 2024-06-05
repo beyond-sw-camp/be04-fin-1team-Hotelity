@@ -25,8 +25,8 @@ public class PaymentEntity {
     private Integer paymentTypeCodeFk;
 
     private String paymentMethod;
-    private Date paymentDate;
 
+    private Date paymentDate;
     @Column(name = "customer_code_fk")
     private Integer customerCodeFk;
 
@@ -60,5 +60,19 @@ public class PaymentEntity {
     @ManyToOne
     @JoinColumn(name = "customer_code_fk", insertable = false, updatable = false)
     private CustomerEntity customer;
+
+    @Override
+    public String toString() {
+        return "PaymentEntity{" +
+            "paymentCodePk=" + paymentCodePk +
+            ", reservationCodeFk=" + reservationCodeFk +
+            ", paymentAmount=" + paymentAmount +
+            ", paymentTypeCodeFk=" + paymentTypeCodeFk +
+            ", paymentMethod='" + paymentMethod + '\'' +
+            ", paymentDate=" + paymentDate +
+            ", customerCodeFk=" + customerCodeFk +
+            ", paymentCancelStatus=" + paymentCancelStatus +
+            '}';
+    }
 }
 

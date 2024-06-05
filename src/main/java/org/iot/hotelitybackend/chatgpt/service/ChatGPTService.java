@@ -10,4 +10,8 @@ public interface ChatGPTService {
 	String getDataMonth(LocalDateTime now);
 
 	String getMonthlyChatGPTResponse(String promptDataString);
+
+	String getDataYear(LocalDateTime now);
+
+	String getYearlyChatGPTResponse(String promptDataString);
 }
