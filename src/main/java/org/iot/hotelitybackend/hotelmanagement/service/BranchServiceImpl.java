@@ -32,7 +32,17 @@ public class BranchServiceImpl implements BranchService{
 	}
 
 	@Override
-	public Map<String, Object> selectAllBranches(int pageNum) {
+	public List<BranchDTO> selectAllBranches() {
+		List<BranchEntity> branchEntityList = branchRepository.findAll();
+
+		return branchEntityList
+				.stream()
+				.map(branchEntity -> mapper.map(branchEntity, BranchDTO.class))
+				.toList();
+	}
+
+	@Override
+	public Map<String, Object> selectAllBranches(Integer pageNum) {
 		Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
 		Page<BranchEntity> branchEntityPage = branchRepository.findAll(pageable);
 		List<BranchDTO> branchDTOList = branchEntityPage
