@@ -115,7 +115,9 @@ public class AncillaryController {
 		@RequestParam(required = false) String ancillaryPhoneNumber,
 		@RequestParam(required = false) Integer ancillaryCategoryCodeFk,
 		@RequestParam(required = false) String branchName,
-		@RequestParam(required = false) String ancillaryCategoryName
+		@RequestParam(required = false) String ancillaryCategoryName,
+		@RequestParam(required = false) String orderBy,
+		@RequestParam(required = false) Integer sortBy
 	) {
 		try {
 

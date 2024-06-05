@@ -7,8 +7,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
+
 @SpringBootApplication
 @EnableScheduling
+@EnableEncryptableProperties
 public class HotelityBackendApplication {
 
 	public static void main(String[] args) {

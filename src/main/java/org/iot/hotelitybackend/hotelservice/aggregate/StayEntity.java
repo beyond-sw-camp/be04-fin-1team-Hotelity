@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.Formula;
 import org.iot.hotelitybackend.employee.aggregate.EmployeeEntity;
 
 @Entity
@@ -59,4 +60,79 @@ public class StayEntity {
 		// reservationCodeFk가 중복되므로 둘 중에 하나의 값만 db에 반영하도록 하는 설정
 		insertable = false, updatable = false)
 	private ReservationEntity reservation;
+	//
+
+	@Formula("(SELECT "
+		+ "c.customer_name "
+		+ "FROM stay_tb a "
+		+ "JOIN reservation_tb b ON (a.reservation_code_fk = b.reservation_code_pk) "
+		+ "JOIN customer_tb c ON (b.customer_code_fk = c.customer_code_pk) "
+		+ "WHERE b.reservation_code_pk = reservation_code_fk)"
+	)
+	private String customerName;
+
+	@Formula("(SELECT "
+		+ "c.room_code_pk "
+		+ "FROM stay_tb a "
+		+ "JOIN reservation_tb b ON (a.reservation_code_fk = b.reservation_code_pk) "
+		+ "JOIN room_tb c ON (b.room_code_fk = c.room_code_pk) "
+		+ "WHERE b.reservation_code_pk = reservation_code_fk)"
+	)
+	private String roomCodeFk;
+
+	@Formula("(SELECT "
+		+ "c.room_number "
+		+ "FROM stay_tb a "
+		+ "JOIN reservation_tb b ON (a.reservation_code_fk = b.reservation_code_pk) "
+		+ "JOIN room_tb c ON (b.room_code_fk = c.room_code_pk) "
+		+ "WHERE b.reservation_code_pk = reservation_code_fk)"
+	)
+	private Integer roomNumber;
+
+	@Formula("(SELECT "
+		+ "d.room_name "
+		+ "FROM stay_tb a "
+		+ "JOIN reservation_tb b ON (a.reservation_code_fk = b.reservation_code_pk) "
+		+ "JOIN room_tb c ON (b.room_code_fk = c.room_code_pk) "
+		+ "JOIN room_category_tb d ON (c.room_category_code_fk = d.room_category_code_pk) "
+		+ "WHERE b.reservation_code_pk = reservation_code_fk)"
+	)
+	private String roomName;
+
+	@Formula("(SELECT "
+		+ "e.room_level_name "
+		+ "FROM stay_tb a "
+		+ "JOIN reservation_tb b ON (a.reservation_code_fk = b.reservation_code_pk) "
+		+ "JOIN room_tb c ON (b.room_code_fk = c.room_code_pk) "
+		+ "JOIN room_category_tb d ON (c.room_category_code_fk = d.room_category_code_pk) "
+		+ "JOIN room_level_tb e ON (d.room_level_code_fk = e.room_level_code_pk) "
+		+ "WHERE b.reservation_code_pk = reservation_code_fk)"
+	)
+	private String roomLevelName;
+
+	@Formula("(SELECT "
+		+ "d.room_capacity "
+		+ "FROM stay_tb a "
+		+ "JOIN reservation_tb b ON (a.reservation_code_fk = b.reservation_code_pk) "
+		+ "JOIN room_tb c ON (b.room_code_fk = c.room_code_pk) "
+		+ "JOIN room_category_tb d ON (c.room_category_code_fk = d.room_category_code_pk) "
+		+ "WHERE b.reservation_code_pk = reservation_code_fk)"
+	)
+	private Integer roomCapacity;
+
+	@Formula("(SELECT "
+		+ "b.branch_code_fk "
+		+ "FROM stay_tb a "
+		+ "JOIN reservation_tb b ON (a.reservation_code_fk = b.reservation_code_pk) "
+		+ "WHERE b.reservation_code_pk = reservation_code_fk)"
+	)
+	private String branchCodeFk;
+
+	// @Formula("(SELECT "
+	// 	+ "b.stay_period "
+	// 	+ "FROM stay_tb a "
+	// 	+ "JOIN reservation_tb b ON (a.reservation_code_fk = b.reservation_code_pk) "
+	// 	+ "WHERE b.reservation_code_pk = reservation_code_fk)"
+	// )
+	// private String stayPeriod;
 }

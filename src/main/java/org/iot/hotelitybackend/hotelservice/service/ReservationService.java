@@ -1,5 +1,6 @@
 package org.iot.hotelitybackend.hotelservice.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -26,4 +27,8 @@ public interface ReservationService {
 	Map<String, Object> selectReseravtionInfoByReservationCodePk(Integer reservationCodePk);
 
 	Map<String, Object> selectReservationListByDay(LocalDateTime reservationCheckDate);
+
+	Map<String, Object> selectReservationsByYear(Integer yearInput);
+
+	Map<String, Object> selectLatestReservationList();
 }

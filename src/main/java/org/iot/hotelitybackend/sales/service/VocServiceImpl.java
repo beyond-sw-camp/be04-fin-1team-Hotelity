@@ -21,6 +21,7 @@ import org.iot.hotelitybackend.sales.dto.VocDTO;
 import org.iot.hotelitybackend.sales.repository.VocRepository;
 import org.iot.hotelitybackend.sales.vo.RequestReplyVoc;
 import org.iot.hotelitybackend.sales.vo.ResponseVoc;
+import org.iot.hotelitybackend.sales.vo.VocDashboardVO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -43,6 +44,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
@@ -238,6 +240,35 @@ public class VocServiceImpl implements VocService {
 			deleteVoc.put(KEY_CONTENT, "Failed to delete content.");
 		}
 		return deleteVoc;
+	}
+
+	@Override
+	public Map<String, Object> selectLatestVocList() {
+		List<VocEntity> vocEntityList = vocRepository.findTop3ByOrderByVocCodePkDesc();
+		List<VocDashboardVO> vocDashboardVOList = vocEntityList
+			.stream()
+			.map(vocEntity -> mapper.map(vocEntity, VocDashboardVO.class))
+			.peek(vocDashboardVO -> vocDashboardVO.setPICEmployeeName(
+				employeeRepository.findById(
+					vocDashboardVO.getEmployeeCodeFk()
+				).get().getEmployeeName()
+			))
+			.collect(Collectors.toList());
+
+		// VOC 개수가 3개보다 부족할 때
+		if (vocDashboardVOList.size() < 3) {
+			int limit = 3 - vocDashboardVOList.size();
+			for (int i = 0; i < limit; i++) {
+				VocDashboardVO vocDashboardVO = new VocDashboardVO();
+				vocDashboardVO.setVocTitle("VOC가 없습니다");
+				vocDashboardVOList.add(vocDashboardVO);
+			}
+		}
+
+		Map<String, Object> latestVocList = new HashMap<>();
+		latestVocList.put(KEY_CONTENT, vocDashboardVOList);
+
+		return latestVocList;
 	}
 
 	@Override

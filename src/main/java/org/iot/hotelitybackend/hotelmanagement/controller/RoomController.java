@@ -45,14 +45,35 @@ public class RoomController {
 		@RequestParam(required = false) String roomCurrentStatus,
 		@RequestParam(required = false) Float roomDiscountRate,
 		@RequestParam(required = false) String roomView,
-		@RequestParam(required = false) Integer roomSubRoomsCount
+		@RequestParam(required = false) Integer roomSubRoomsCount,
+		@RequestParam(required = false) Integer minPrice,
+		@RequestParam(required = false) Integer maxPrice,
+		@RequestParam(required = false) Integer roomPrice,
+		@RequestParam(required = false) Integer roomCapacity,
+		@RequestParam(required = false) Integer roomBathroomCount,
+		@RequestParam(required = false) String roomSpecificInfo,
+		@RequestParam(required = false) String roomLevelName,
+		@RequestParam(required = false) String orderBy,
+		@RequestParam(required = false) Integer sortBy
 	) {
 
 		Map<String, Object> roomListInfo = roomService.selectSearchedRoomsList(
-			pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount);
+			pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount, minPrice, maxPrice, roomPrice, roomCapacity, roomBathroomCount, roomSpecificInfo, roomLevelName, orderBy, sortBy);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(roomListInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	@GetMapping("/rooms/{roomCodePk}")
+	public ResponseEntity<ResponseVO> selectRoomInfo(@PathVariable("roomCodePk") String roomCodePk) {
+		Map<String, Object> roomInfo = roomService.selectRoomInfo(roomCodePk);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(roomInfo)
 			.resultCode(HttpStatus.OK.value())
 			.build();
 
@@ -97,13 +118,22 @@ public class RoomController {
 		@RequestParam(required = false) String roomCurrentStatus,
 		@RequestParam(required = false) Float roomDiscountRate,
 		@RequestParam(required = false) String roomView,
-		@RequestParam(required = false) Integer roomSubRoomsCount
+		@RequestParam(required = false) Integer roomSubRoomsCount,
+		@RequestParam(required = false) Integer minPrice,
+		@RequestParam(required = false) Integer maxPrice,
+		@RequestParam(required = false) Integer roomPrice,
+		@RequestParam(required = false) Integer roomCapacity,
+		@RequestParam(required = false) Integer roomBathroomCount,
+		@RequestParam(required = false) String roomSpecificInfo,
+		@RequestParam(required = false) String roomLevelName,
+		@RequestParam(required = false) String orderBy,
+		@RequestParam(required = false) Integer sortBy
 	) {
 		try {
 
 			// 조회해서 DTO 리스트 가져오기
 			Map<String, Object> roomListInfo = roomService.selectSearchedRoomsList(
-				pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount);
+				pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount, minPrice, maxPrice, roomPrice, roomCapacity, roomBathroomCount, roomSpecificInfo, roomLevelName, orderBy, sortBy);
 
 			// 엑셀 시트와 파일 만들기
 			Map<String, Object> result = createExcelFile(

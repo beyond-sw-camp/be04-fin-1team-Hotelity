@@ -19,11 +19,21 @@ public interface RoomService {
 		String roomCurrentStatus,
 		Float roomDiscountRate,
 		String roomView,
-		Integer roomSubRoomsCount
+		Integer roomSubRoomsCount,
+		Integer minPrice,
+		Integer maxPrice,
+		Integer roomPrice,
+		Integer roomCapacity,
+		Integer roomBathroomCount,
+		String roomSpecificInfo,
+		String roomLevelName,
+		String orderBy,
+		Integer sortBy
 	);
 
 	Map<String, Object> modifyRoomInfo(RequestModifyRoom requestModifyRoom, String roomCodePk);
 
 	Map<String, Object> deleteRoom(String roomCodePk);
 
+	Map<String, Object> selectRoomInfo(String roomCodePk);
 }

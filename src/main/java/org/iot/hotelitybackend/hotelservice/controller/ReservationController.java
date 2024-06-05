@@ -8,11 +8,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +42,7 @@ public class ReservationController {
 	 * 프론트에서 해당 리스트를 받아 날짜를 기준으로 예약 건 수를 카운트 하여 캘린더에 출력 */
 	@GetMapping("/reservations/{reservationCheckinDate}")
 	public ResponseEntity<ResponseVO> selectReservationListByMonth(
-		@PathVariable("reservationCheckinDate") LocalDateTime reservationCheckinDate,
+		@PathVariable("reservationCheckinDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime reservationCheckinDate,
 		@RequestParam(required = false) Integer reservationCodePk,
 		@RequestParam(required = false) Integer customerCodeFk,
 		@RequestParam(required = false) String customerName,
@@ -63,13 +65,39 @@ public class ReservationController {
 			reservationService.selectReservationListByMonth(
 				year, month,
 				reservationCodePk, customerCodeFk,
-				customerName, customerEnglishName,
-				roomCodeFk, roomName,
-				roomLevelName, roomCapacity,
-				branchCodeFk, reservationDate,
+				customerName,customerEnglishName,
+				roomCodeFk,roomName,
+				roomLevelName,roomCapacity,
+				branchCodeFk,reservationDate,
 				reservationCheckInDate, reservationCheckoutDate,
 				reservationCancelStatus, orderBy, sortBy
 			);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(reservationInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	/* 예약 시간 순서대로 최신 3개 조회 (대시보드용) */
+	@GetMapping("/reservations/latest")
+	public ResponseEntity<ResponseVO> selectLatestReservationList() {
+		Map<String, Object> latestReservationInfo = reservationService.selectLatestReservationList();
+
+		ResponseVO response = ResponseVO.builder()
+			.data(latestReservationInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	@GetMapping("/reservations/year/{yearInput}")
+	public ResponseEntity<ResponseVO> selectReservationsByYear(@PathVariable("yearInput") Integer yearInput) {
+
+		Map<String, Object> reservationInfo = reservationService.selectReservationsByYear(yearInput);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(reservationInfo)

@@ -22,5 +22,5 @@ public class CustomerDTO {
 	private String customerGender;
 	private String nationName;
 	private String membershipLevelName;
-	private List<MembershipDTO> memberships;
+
 }

@@ -24,4 +24,6 @@ public interface StayService {
 	Map<String, Object> deleteStay(int stayCodePk);
 
 	Map<String, Object> selectStayByStayCodePk(Integer stayCodePk);
+
+	Map<String, Object> selectStayByReservationCheckinDate(String dateString);
 }
