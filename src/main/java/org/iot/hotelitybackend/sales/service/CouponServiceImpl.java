@@ -7,6 +7,7 @@ import org.iot.hotelitybackend.sales.repository.CouponRepository;
 import org.iot.hotelitybackend.sales.repository.MembershipRepository;
 import org.iot.hotelitybackend.sales.vo.RequestCoupon;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +36,12 @@ public class CouponServiceImpl implements CouponService{
         this.mapper = mapper;
         this.couponRepository = couponRepository;
 		this.membershipRepository = membershipRepository;
+        this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        this.mapper.typeMap(CouponEntity.class, CouponDTO.class)
+                .addMappings(mapperNew -> mapperNew.map(
+                        src -> src.getMembershipLevelName(),
+                        CouponDTO::setMembershipLevelName
+                ));
 	}
 
     @Override

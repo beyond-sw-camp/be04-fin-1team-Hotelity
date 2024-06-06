@@ -32,10 +32,12 @@ import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyFacility;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestRegistFacility;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -57,21 +59,33 @@ public class AncillaryServiceImpl implements AncillaryService{
 		this.ancillaryCategoryRepository = ancillaryCategoryRepository;
 		this.branchRepository = branchRepository;
 		this.mapper = mapper;
+		this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		this.mapper.typeMap(AncillaryEntity.class, AncillaryDTO.class)
+				.addMappings(mapperNew -> mapperNew.map(
+						src -> src.getBranchName(),
+						AncillaryDTO::setBranchName
+				))
+				.addMappings(mapperNew -> mapperNew.map(
+						src -> src.getAncillaryCategoryName(),
+						AncillaryDTO::setAncillaryCategoryName
+				));
 	}
 
 	@Override
 	public Map<String, Object> selectAllFacilities(
-		Integer pageNum,
-		Integer ancillaryCodePk,
-		String ancillaryName,
-		String branchCodeFk,
-		String ancillaryLocation,
-		LocalTime ancillaryOpenTime,
-		LocalTime ancillaryCloseTime,
-		String ancillaryPhoneNumber,
-		Integer ancillaryCategoryCodeFk,
-		String branchName,
-		String ancillaryCategoryName
+			Integer pageNum,
+			Integer ancillaryCodePk,
+			String ancillaryName,
+			String branchCodeFk,
+			String ancillaryLocation,
+			LocalTime ancillaryOpenTime,
+			LocalTime ancillaryCloseTime,
+			String ancillaryPhoneNumber,
+			Integer ancillaryCategoryCodeFk,
+			String branchName,
+			String ancillaryCategoryName,
+			String orderBy,
+			Integer sortBy
 	) {
 
 		Specification<AncillaryEntity> spec = (root, query, criteriaBuilder) -> null;
@@ -133,7 +147,16 @@ public class AncillaryServiceImpl implements AncillaryService{
 
 		// 2-1. 페이징처리 할 때
 		if (pageNum != null) {
-			Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
+			Pageable pageable;
+
+			if (orderBy != null && !orderBy.isEmpty() && sortBy != null) {
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, sortBy == 1
+						? Sort.by(orderBy).ascending()
+						: Sort.by(orderBy).descending());
+			} else {
+				pageable = PageRequest.of(pageNum, PAGE_SIZE);
+			}
+
 			Page<AncillaryEntity> ancillaryEntityList = ancillaryRepository.findAll(spec, pageable);
 
 			ancillaryDTOList = ancillaryEntityList
@@ -164,7 +187,14 @@ public class AncillaryServiceImpl implements AncillaryService{
 
 		// 2-2. 페이징 처리 안할 때
 		} else {
-			List<AncillaryEntity> ancillaryEntityList = ancillaryRepository.findAll(spec);
+			List<AncillaryEntity> ancillaryEntityList;
+
+			if (orderBy != null && !orderBy.isEmpty() && sortBy != null) {
+				ancillaryEntityList = ancillaryRepository.findAll(spec, sortBy == 1 ? Sort.by(orderBy).descending() : Sort.by(orderBy).ascending());
+			} else {
+				ancillaryEntityList = ancillaryRepository.findAll(spec);
+			}
+
 			ancillaryDTOList = ancillaryEntityList
 				.stream()
 				.map(ancillaryEntity -> mapper.map(ancillaryEntity, AncillaryDTO.class))
@@ -188,32 +218,6 @@ public class AncillaryServiceImpl implements AncillaryService{
 		}
 
 		ancillaryListInfo.put(KEY_CONTENT, ancillaryDTOList);
-
-		// List<AncillaryDTO> ancillaryDTOList = ancillaryEntityPage
-		// 	.stream()
-		// 	.map(ancillaryEntity -> mapper.map(ancillaryEntity, AncillaryDTO.class))
-		// 	.peek(ancillaryDTO -> {
-		//
-		// 		// 지점 이름 가져와 붙이기
-		// 		ancillaryDTO.setBranchName(
-		// 			branchRepository.findById(
-		// 				ancillaryDTO.getBranchCodeFk()
-		// 			).orElseThrow(IllegalArgumentException::new).getBranchName()
-		// 		);
-		//
-		// 		// 부대시설 카테고리 이름 가져와 붙이기
-		// 		ancillaryDTO.setAncillaryCategoryName(
-		// 			ancillaryCategoryRepository.findById(
-		// 				ancillaryDTO.getAncillaryCategoryCodeFk()
-		// 			).orElseThrow(IllegalArgumentException::new).getAncillaryCategoryName()
-		// 		);
-		// 	})
-		// 	.toList();
-		//
-		//
-		// Map<String, Object> ancillaryPageInfo = new HashMap<>();
-		//
-		// ancillaryPageInfo.put(KEY_CONTENT, ancillaryDTOList);
 
 		return ancillaryListInfo;
 	}

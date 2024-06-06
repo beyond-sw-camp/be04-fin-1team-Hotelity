@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 
 import java.util.Date;
 
@@ -23,6 +24,15 @@ public class CouponEntity {
     private String couponInfo;
     private Integer membershipLevelCodeFk;
 
+    @Formula(
+            "( SELECT m.membership_level_name " +
+                    "FROM coupon_tb c " +
+                    "JOIN membership_tb m ON m.membership_level_code_pk = c.membership_level_code_fk " +
+                    "WHERE c.coupon_code_pk = coupon_code_pk " +
+                    ")"
+    )
+    private String membershipLevelName;
+
     @Builder
     public CouponEntity(
             Integer couponCodePk,
@@ -31,7 +41,7 @@ public class CouponEntity {
             double couponDiscountRate,
             Date couponLaunchingDate,
             String couponInfo,
-            Integer membershipLevelCodeFk
+            Integer membershipLevelCodeFk, String membershipLevelName
     ) {
         this.couponCodePk = couponCodePk;
         this.couponName = couponName;
@@ -40,5 +50,6 @@ public class CouponEntity {
         this.couponLaunchingDate = couponLaunchingDate;
         this.couponInfo = couponInfo;
         this.membershipLevelCodeFk = membershipLevelCodeFk;
+        this.membershipLevelName = membershipLevelName;
     }
 }

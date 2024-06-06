@@ -21,7 +21,9 @@ public interface AncillaryService {
 		String ancillaryPhoneNumber,
 		Integer ancillaryCategoryCodeFk,
 		String branchName,
-		String ancillaryCategoryName
+		String ancillaryCategoryName,
+		String orderBy,
+		Integer sortBy
 	);
 
     Map<String, Object> registFacility(RequestRegistFacility requestRegistFacility);
