@@ -1,6 +1,7 @@
 package org.iot.hotelitybackend.chatgpt.controller;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import org.iot.hotelitybackend.chatgpt.dto.ChatGPTRequest;
 import org.iot.hotelitybackend.chatgpt.dto.ChatGPTResponse;
@@ -27,33 +28,66 @@ public class ChatGPTController {
 		this.chatGPTService = chatGPTService;
 	}
 
-	// 오늘 예약, 투숙 데이터 가져와서 분석
-	@GetMapping("/daily")
-	public ResponseEntity<ResponseVO> promptDailyData() {
+	// 오늘 예약 데이터 가져와서 분석
+	@GetMapping("/reservations/daily")
+	public ResponseEntity<ResponseVO> promptDailyReservations() {
 		LocalDateTime now = LocalDateTime.now();
-		String promptDataString = chatGPTService.getDataOfToday(now);
-		String chatGPTResponse = chatGPTService.getDailyChatGPTResponse(promptDataString);
+		Map<String, String> promptDataStringMap = chatGPTService.getReservationsDataOfToday(now);
+		String chatGPTResponse = chatGPTService.getDailyChatGPTResponse(promptDataStringMap.get("reservationListData"), promptDataStringMap.get("contentType"));
+
+		return getResponseVOResponseEntity(chatGPTResponse);
+	}
+
+	// 오늘 결제 데이터 가져와서 분석
+	@GetMapping("/payments/daily")
+	public ResponseEntity<ResponseVO> promptDailyPayments() {
+		LocalDateTime now = LocalDateTime.now();
+		Map<String, String> promptDataStringMap = chatGPTService.getPaymentsDataOfToday(now);
+		String chatGPTResponse = chatGPTService.getDailyChatGPTResponse(promptDataStringMap.get("paymentListData"), promptDataStringMap.get("contentType"));
 
 		return getResponseVOResponseEntity(chatGPTResponse);
 	}
 
 	// 이번달, 지난달, 작년의 이번달의 결제, 예약, 투숙 데이터 가져와서 분석
-	@GetMapping("/monthly")
-	public ResponseEntity<ResponseVO> promptMonthlyData() {
+	@GetMapping("reservations/monthly")
+	public ResponseEntity<ResponseVO> promptMonthlyReservations() {
 		LocalDateTime now = LocalDateTime.now();
-		String promptDataString = chatGPTService.getDataMonth(now);
+		String contentType = "예약";
+		String promptDataString = chatGPTService.getDataMonth(now, contentType);
 		System.out.println("promptDataString = " + promptDataString);
-		String chatGPTResponse = chatGPTService.getMonthlyChatGPTResponse(promptDataString);
+		String chatGPTResponse = chatGPTService.getMonthlyChatGPTResponse(promptDataString, contentType);
+
+		return getResponseVOResponseEntity(chatGPTResponse);
+	}
+
+	@GetMapping("payments/monthly")
+	public ResponseEntity<ResponseVO> promptMonthlyPayments() {
+		LocalDateTime now = LocalDateTime.now();
+		String contentType = "결제";
+		String promptDataString = chatGPTService.getDataMonth(now, contentType);
+		System.out.println("promptDataString = " + promptDataString);
+		String chatGPTResponse = chatGPTService.getMonthlyChatGPTResponse(promptDataString, contentType);
 
 		return getResponseVOResponseEntity(chatGPTResponse);
 	}
 
 	// 올해, 지난해의 결제, 예약, 투숙 데이터 가져와서 분석
-	@GetMapping("/yearly")
-	public ResponseEntity<ResponseVO> promptYearlyData() {
+	@GetMapping("/reservations/yearly")
+	public ResponseEntity<ResponseVO> promptYearlyReservations() {
+		String contentType = "예약";
 		LocalDateTime now = LocalDateTime.now();
-		String promptDataString = chatGPTService.getDataYear(now);
-		String chatGPTResponse = chatGPTService.getYearlyChatGPTResponse(promptDataString);
+		String promptDataString = chatGPTService.getDataYear(now, contentType);
+		String chatGPTResponse = chatGPTService.getYearlyChatGPTResponse(promptDataString, contentType);
+
+		return getResponseVOResponseEntity(chatGPTResponse);
+	}
+
+	@GetMapping("/payments/yearly")
+	public ResponseEntity<ResponseVO> promptYearlyPayments() {
+		String contentType = "결제";
+		LocalDateTime now = LocalDateTime.now();
+		String promptDataString = chatGPTService.getDataYear(now, contentType);
+		String chatGPTResponse = chatGPTService.getYearlyChatGPTResponse(promptDataString, contentType);
 
 		return getResponseVOResponseEntity(chatGPTResponse);
 	}
