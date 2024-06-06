@@ -93,7 +93,7 @@ public class StayController {
 		ResponseVO response = ResponseVO.builder()
 			.data(stayListInfo)
 			.resultCode(HttpStatus.OK.value())
-			.message(stayListInfo.get("dateString") + " 투숙 내역 조회 성공")
+			.message("일자별 조회: \n"+ stayListInfo.get("dateString") + " 투숙 내역 조회 성공")
 			.build();
 
 		return ResponseEntity.status(response.getResultCode()).body(response);
