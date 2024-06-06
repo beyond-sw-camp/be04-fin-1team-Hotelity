@@ -48,10 +48,12 @@ public class AncillaryController {
 		@RequestParam(required = false) String ancillaryPhoneNumber,
 		@RequestParam(required = false) Integer ancillaryCategoryCodeFk,
 		@RequestParam(required = false) String branchName,
-		@RequestParam(required = false) String ancillaryCategoryName
+		@RequestParam(required = false) String ancillaryCategoryName,
+		@RequestParam(required = false) String orderBy,
+		@RequestParam(required = false) Integer sortBy
 	) {
 		Map<String, Object> facilityPageInfo = ancillaryService.selectAllFacilities(
-			pageNum, ancillaryCodePk, ancillaryName, branchCodeFk, ancillaryLocation, ancillaryOpenTime, ancillaryCloseTime, ancillaryPhoneNumber, ancillaryCategoryCodeFk, branchName, ancillaryCategoryName
+			pageNum, ancillaryCodePk, ancillaryName, branchCodeFk, ancillaryLocation, ancillaryOpenTime, ancillaryCloseTime, ancillaryPhoneNumber, ancillaryCategoryCodeFk, branchName, ancillaryCategoryName, orderBy, sortBy
 		);
 
 		ResponseVO response = ResponseVO.builder()
@@ -123,7 +125,7 @@ public class AncillaryController {
 
 			// 조회해서 DTO 리스트 가져오기
 			Map<String, Object> facilityListInfo = ancillaryService.selectAllFacilities(
-				pageNum, ancillaryCodePk, ancillaryName, branchCodeFk, ancillaryLocation, ancillaryOpenTime, ancillaryCloseTime, ancillaryPhoneNumber, ancillaryCategoryCodeFk, branchName, ancillaryCategoryName
+				pageNum, ancillaryCodePk, ancillaryName, branchCodeFk, ancillaryLocation, ancillaryOpenTime, ancillaryCloseTime, ancillaryPhoneNumber, ancillaryCategoryCodeFk, branchName, ancillaryCategoryName, orderBy, sortBy
 			);
 
 			// 엑셀 시트와 파일 만들기

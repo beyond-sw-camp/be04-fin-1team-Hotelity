@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 
 @Entity
 @Table(name = "ancillary_tb")
@@ -45,17 +46,39 @@ public class AncillaryEntity {
 	@Column(name = "ancillary_category_code_fk")
 	private Integer ancillaryCategoryCodeFk;
 
+	@Formula(
+		"(" +
+			"SELECT b.branch_name " +
+			"FROM ancillary_tb a " +
+			"JOIN branch_tb b ON a.branch_code_fk = b.branch_code_pk " +
+			"WHERE a.ancillary_code_pk = ancillary_code_pk " +
+			")"
+	)
+	private String branchName;
+
+	@Formula(
+			"(" +
+					"SELECT ac.ancillary_category_name " +
+					"FROM ancillary_tb a " +
+					"JOIN ancillary_category_tb ac ON a.ancillary_category_code_fk = ac.ancillary_category_code_pk " +
+					"WHERE a.ancillary_code_pk = ancillary_code_pk " +
+					")"
+	)
+	private String ancillaryCategoryName;
+
 	@Builder
 	public AncillaryEntity(
-			Integer ancillaryCodePk,
-			String ancillaryName,
-			String branchCodeFk,
-			String ancillaryLocation,
-			LocalTime ancillaryOpenTime,
-			LocalTime ancillaryCloseTime,
-			String ancillaryPhoneNumber,
-			Integer ancillaryCategoryCodeFk
-	) {
+            Integer ancillaryCodePk,
+            String ancillaryName,
+            String branchCodeFk,
+            String ancillaryLocation,
+            LocalTime ancillaryOpenTime,
+            LocalTime ancillaryCloseTime,
+            String ancillaryPhoneNumber,
+            Integer ancillaryCategoryCodeFk,
+            String branchName,
+			String ancillaryCategoryName
+    ) {
 		this.ancillaryCodePk = ancillaryCodePk;
 		this.ancillaryName = ancillaryName;
 		this.branchCodeFk = branchCodeFk;
@@ -64,5 +87,7 @@ public class AncillaryEntity {
 		this.ancillaryCloseTime = ancillaryCloseTime;
 		this.ancillaryPhoneNumber = ancillaryPhoneNumber;
 		this.ancillaryCategoryCodeFk = ancillaryCategoryCodeFk;
-	}
+        this.branchName = branchName;
+        this.ancillaryCategoryName = ancillaryCategoryName;
+    }
 }
