@@ -171,6 +171,7 @@ public class NoticeServiceImpl implements NoticeService {
 			.employeeCodeFk(noticeRepository.findById(noticeCodePk).get().getEmployeeCodeFk())
 			.noticePostedDate(noticeRepository.findById(noticeCodePk).get().getNoticePostedDate())
 			.noticeLastUpdatedDate(LocalDateTime.now())
+			.branchCodeFk(requestModifyNotice.getBranchCodeFk())
 			.build();
 
 		Map<String, Object> modifyNoticeInfo = new HashMap<>();

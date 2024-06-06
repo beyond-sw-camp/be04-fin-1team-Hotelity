@@ -27,12 +27,8 @@ public class RoomEntity {
 	private String roomCodePk;
 	private String branchCodeFk;
 	private Integer roomNumber;
+	@Column(name = "room_category_code_fk")
 	private Integer roomCategoryCodeFk;
-
-	// @ManyToOne
-	// @JoinColumn(name = "room_category_code_fk", insertable = false, updatable = false)
-	// private RoomCategoryEntity roomCategory;
-
 	private String  roomCurrentStatus;
 	private Float roomDiscountRate;
 	private String roomImageLink;
@@ -123,4 +119,9 @@ public class RoomEntity {
 		this.roomSpecificInfo = roomSpecificInfo;
 		this.roomLevelName = roomLevelName;
 	}
+
+	/* StaySpecification 검색 조건에 사용 */
+	@ManyToOne
+	@JoinColumn(name = "room_category_code_fk", insertable = false, updatable = false)
+	private RoomCategoryEntity roomCategory;
 }

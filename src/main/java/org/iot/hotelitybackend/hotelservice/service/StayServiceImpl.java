@@ -210,6 +210,7 @@ public class StayServiceImpl implements StayService {
 		return stayInfo;
 	}
 
+	/* 특정 일자 투숙 정보 조회 */
 	@Override
 	public Map<String, Object> selectStayByReservationCheckinDate(String dateString) {
 		// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
