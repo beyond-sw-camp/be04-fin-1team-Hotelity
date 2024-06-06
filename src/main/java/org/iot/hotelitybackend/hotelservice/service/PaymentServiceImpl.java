@@ -113,7 +113,14 @@ public class PaymentServiceImpl implements PaymentService {
 			Page<PaymentEntity> paymentEntityPage = paymentRepository.findAll(spec, pageable);
 			paymentDTOList = paymentEntityPage
 				.stream()
-				.map(paymentEntity -> mapper.map(paymentEntity, PaymentDTO.class))
+				.map(paymentEntity -> {
+					PaymentDTO paymentDTO = mapper.map(paymentEntity, PaymentDTO.class);
+					String setCustomerName = customerRepository.findById(paymentEntity.getCustomerCodeFk()).get().getCustomerName();
+					String setPaymentTypeName = paymentTypeRepository.findById(paymentEntity.getPaymentTypeCodeFk()).get().getPaymentTypeName();
+					paymentDTO.setCustomerName(setCustomerName);
+					paymentDTO.setPaymentTypeName(setPaymentTypeName);
+					return paymentDTO;
+				})
 				.toList();
 
 			int totalPagesCount = paymentEntityPage.getTotalPages();
@@ -122,12 +129,19 @@ public class PaymentServiceImpl implements PaymentService {
 			roomPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
 			roomPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
 
-		// 2. 페이징 처리 안할 때
+			// 2. 페이징 처리 안할 때
 		} else {
 			List<PaymentEntity> paymentEntityList = paymentRepository.findAll(spec);
 			paymentDTOList = paymentEntityList
 				.stream()
-				.map(paymentEntity -> mapper.map(paymentEntity, PaymentDTO.class))
+				.map(paymentEntity -> {
+					PaymentDTO paymentDTO = mapper.map(paymentEntity, PaymentDTO.class);
+					String setCustomerName = customerRepository.findById(paymentEntity.getCustomerCodeFk()).get().getCustomerName();
+					String setPaymentTypeName = paymentTypeRepository.findById(paymentEntity.getPaymentTypeCodeFk()).get().getPaymentTypeName();
+					paymentDTO.setCustomerName(setCustomerName);
+					paymentDTO.setPaymentTypeName(setPaymentTypeName);
+					return paymentDTO;
+				})
 				.toList();
 		}
 		roomPageInfo.put(KEY_CONTENT, paymentDTOList);
