@@ -63,7 +63,7 @@ public class AncillaryServiceImpl implements AncillaryService{
 		this.mapper.typeMap(AncillaryEntity.class, AncillaryDTO.class)
 				.addMappings(mapperNew -> mapperNew.map(
 						src -> src.getBranchName(),
-						AncillaryDTO::setAncillaryName
+						AncillaryDTO::setBranchName
 				))
 				.addMappings(mapperNew -> mapperNew.map(
 						src -> src.getAncillaryCategoryName(),
