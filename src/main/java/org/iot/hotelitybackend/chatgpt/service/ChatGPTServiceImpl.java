@@ -13,6 +13,10 @@ import org.iot.hotelitybackend.hotelservice.aggregate.StayEntity;
 import org.iot.hotelitybackend.hotelservice.repository.PaymentRepository;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
 import org.iot.hotelitybackend.hotelservice.repository.StayRepository;
+import org.iot.hotelitybackend.sales.aggregate.NoticeEntity;
+import org.iot.hotelitybackend.sales.aggregate.VocEntity;
+import org.iot.hotelitybackend.sales.repository.NoticeRepository;
+import org.iot.hotelitybackend.sales.repository.VocRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,15 +35,19 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 	private final ReservationRepository reservationRepository;
 	private final StayRepository stayRepository;
 	private final PaymentRepository paymentRepository;
+	private final NoticeRepository noticeRepository;
+	private final VocRepository vocRepository;
 
 	@Autowired
 	public ChatGPTServiceImpl(RestTemplate template, ReservationRepository reservationRepository, StayRepository stayRepository,
-		PaymentRepository paymentRepository) {
+                              PaymentRepository paymentRepository, NoticeRepository noticeRepository, VocRepository vocRepository) {
 		this.template = template;
 		this.reservationRepository = reservationRepository;
 		this.stayRepository = stayRepository;
 		this.paymentRepository = paymentRepository;
-	}
+        this.noticeRepository = noticeRepository;
+        this.vocRepository = vocRepository;
+    }
 
 	@Override
 	public String getDataOfToday(LocalDateTime now) {
@@ -115,14 +123,21 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 		String prompt;
 		if (contentType.equals("예약")) {
 			prompt = "금일 예약과 투숙 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
-				+ "금일 체크인 예정인 예약은 ~건이며, 현재 체크인 투숙이 진행된 예약은 ~건입니다. \n"
-				+ "그리고 금일 예약 객실 관련 특이사항으로는 ~가 있습니다. \n";
-		} else {
+				+ "금일 체크인 예정인 예약은 ~건이며, 현재 체크인 투숙이 진행된 예약은 ~건입니다. \n "
+				+ "그리고 금일 예약 객실 관련 특이사항으로는 ~가 있습니다. \n ";
+		} else if (contentType.equals("결제")) {
 			prompt = "금일 결제 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
-				+ "금일 결제 건수는 ~건이며, 결제 금액 총합은 ~원입니다. \n"
-				+ "그리고 금일 결제 관련 특이사항으로는 ~가 있습니다. \n";
+				+ "금일 결제 건수는 ~건이며, 결제 금액 총합은 ~원입니다. \n "
+				+ "그리고 금일 결제 관련 특이사항으로는 ~가 있습니다. \n ";
+		} else if (contentType.equals("공지")) {
+			prompt = "금일 공지사항 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
+				+ "어제 공지사항은 ~건, 금일 공지사항은 ~건이며, 주요 공지사항 내용으로는 ~~, ~~, ~~ 등이 있습니다. \n ";
+		} else {
+			prompt = "금일 VOC 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
+				+ "어제 VOC는 ~건, 금일 VOC는 ~건이며, 주요 VOC 내용으로는 ~~, ~~, ~~ 등이 있습니다. \n ";
 		}
 
+		prompt = promptDataString + " \n " + prompt + " 만약 데이터가 없으면 그냥 없다고 말해.";
 		ChatGPTRequest request = new ChatGPTRequest(model, prompt);
 		ChatGPTResponse chatGPTResponse =  template.postForObject(apiURL, request, ChatGPTResponse.class);
 
@@ -311,5 +326,62 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 			return chatGPTResponse.getChoices().get(0).getMessage().getContent();
 		}
 		return null;
+	}
+
+	@Override
+	public String getDailyData(LocalDateTime now, String contentType) {
+		String todayData = getDailyDataString(now, contentType);
+		String yesterdayData = getDailyDataString(now.minusDays(1), contentType);
+		String data =
+			"금일 " + contentType + " 데이터: \n" + todayData + " \n" +
+				"어제 " + contentType + " 데이터: \n" + yesterdayData + " \n";
+		return data;
+	}
+
+	private String getDailyDataString(LocalDateTime now, String contentType) {
+		StringBuilder listData = new StringBuilder();
+
+		int year = now.getYear();
+		int month = now.getMonthValue();
+		int day = now.getDayOfMonth();
+		LocalDateTime startOfDay =
+				LocalDateTime.of(year, month, day, 0, 0, 0);
+		LocalDateTime endOfDay =
+				LocalDateTime.of(year, month, day, 23, 59, 59);
+
+		String data;
+
+		if (contentType.equals("공지")) {
+			// 해당일자의 공지 데이터 수집
+			List<NoticeEntity> noticeEntityList =
+				noticeRepository.findAllByNoticePostedDateBetween(startOfDay, endOfDay);
+			if (!noticeEntityList.isEmpty()) {
+				for (NoticeEntity noticeEntity : noticeEntityList) {
+					listData.append(noticeEntity.toString()).append("\n");
+				}
+			} else {
+				listData.append("공지 데이터가 없습니다.");
+			}
+			System.out.println("listData = " + listData);
+			data =
+				year + "년 " + month + "월 " + day + "일 공지 건수: " + noticeEntityList.size() + "건, " +
+					year + "년 " + month + "월 " + day + "일 공지내용: " + listData + " \n ";
+		} else {
+			// 해당일자의 VOC 데이터 수집
+			List<VocEntity> vocEntityList =
+				vocRepository.findAllByVocCreatedDateBetween(startOfDay, endOfDay);
+			if (!vocEntityList.isEmpty()) {
+				for (VocEntity vocEntity : vocEntityList) {
+					listData.append(vocEntity.toString()).append("\n");
+				}
+			} else {
+				listData.append("VOC 데이터가 없습니다.");
+			}
+			System.out.println("listData = " + listData);
+			data =
+				year + "년 " + month + "월 " + day + "일 VOC 건수: " + vocEntityList.size() + "건, " +
+					year + "년 " + month + "월 " + day + "일 VOC내용: " + listData + " \n ";
+		}
+		return data;
 	}
 }

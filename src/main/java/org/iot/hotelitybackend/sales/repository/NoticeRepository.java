@@ -1,5 +1,6 @@
 package org.iot.hotelitybackend.sales.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.iot.hotelitybackend.sales.aggregate.NoticeEntity;
@@ -13,4 +14,6 @@ public interface NoticeRepository extends JpaRepository<NoticeEntity, Integer>, 
     Page<NoticeEntity> findAll(Specification<NoticeEntity> spec, Pageable pageable);
 
 	List<NoticeEntity> findTop3ByOrderByNoticeCodePkDesc();
+
+    List<NoticeEntity> findAllByNoticePostedDateBetween(LocalDateTime startOfDay, LocalDateTime endOfDay);
 }

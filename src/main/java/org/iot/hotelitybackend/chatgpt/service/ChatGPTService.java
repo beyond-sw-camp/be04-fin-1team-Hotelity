@@ -19,4 +19,6 @@ public interface ChatGPTService {
 	String getDataYear(LocalDateTime now, String contentType);
 
 	String getYearlyChatGPTResponse(String promptDataString, String contentType);
+
+	String getDailyData(LocalDateTime now, String contentType);
 }
