@@ -110,4 +110,24 @@ public class ChatGPTController {
 		}
 		return ResponseEntity.status(responseVO.getResultCode()).body(responseVO);
 	}
+
+	@GetMapping("/notices/daily")
+	public ResponseEntity<ResponseVO> promptDailyNotices() {
+		LocalDateTime now = LocalDateTime.now();
+		String contentType = "공지";
+		String promptDataString = chatGPTService.getDailyData(now, contentType);
+		String chatGPTResponse = chatGPTService.getDailyChatGPTResponse(promptDataString, contentType);
+
+		return getResponseVOResponseEntity(chatGPTResponse);
+	}
+
+	@GetMapping("vocs/daily")
+	public ResponseEntity<ResponseVO> promptDailyVocs() {
+		LocalDateTime now = LocalDateTime.now();
+		String contentType = "VOC";
+		String promptDataString = chatGPTService.getDailyData(now, contentType);
+		String chatGPTResponse = chatGPTService.getDailyChatGPTResponse(promptDataString, contentType);
+
+		return getResponseVOResponseEntity(chatGPTResponse);
+	}
 }
