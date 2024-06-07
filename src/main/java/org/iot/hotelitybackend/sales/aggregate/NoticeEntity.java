@@ -48,6 +48,19 @@ public class NoticeEntity {
 		this.branchCodeFk = branchCodeFk;
 	}
 
+	@Override
+	public String toString() {
+		return "NoticeEntity{" +
+				"noticeCodePk=" + noticeCodePk +
+				", noticeTitle='" + noticeTitle + '\'' +
+				", noticeContent='" + noticeContent + '\'' +
+				", employeeCodeFk=" + employeeCodeFk +
+				", branchCodeFk='" + branchCodeFk + '\'' +
+				", noticePostedDate=" + noticePostedDate +
+				", noticeLastUpdatedDate=" + noticeLastUpdatedDate +
+				'}';
+	}
+
 	@ManyToOne
 	@JoinColumn(name = "employee_code_fk", insertable = false, updatable = false)
 	private EmployeeEntity employee;

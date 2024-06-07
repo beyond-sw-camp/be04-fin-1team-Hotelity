@@ -33,6 +33,8 @@ public class ChatGPTController {
 	public ResponseEntity<ResponseVO> promptDailyReservations() {
 		LocalDateTime now = LocalDateTime.now();
 		Map<String, String> promptDataStringMap = chatGPTService.getReservationsDataOfToday(now);
+		System.out.println(promptDataStringMap.get("reservationListData"));
+		System.out.println(promptDataStringMap.get("contentType"));
 		String chatGPTResponse = chatGPTService.getDailyChatGPTResponse(promptDataStringMap.get("reservationListData"), promptDataStringMap.get("contentType"));
 
 		return getResponseVOResponseEntity(chatGPTResponse);
