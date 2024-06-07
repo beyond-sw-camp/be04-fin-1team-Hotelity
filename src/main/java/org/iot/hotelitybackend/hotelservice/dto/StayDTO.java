@@ -17,6 +17,7 @@ public class StayDTO {
 	private Integer stayPeopleCount;
 	private LocalDateTime stayCheckinTime;
 	private LocalDateTime stayCheckoutTime;
+	private LocalDateTime reservationCheckoutDate;
 	private Integer employeeCodeFk;
 	private String PICEmployeeName;
 	private String branchCodeFk;

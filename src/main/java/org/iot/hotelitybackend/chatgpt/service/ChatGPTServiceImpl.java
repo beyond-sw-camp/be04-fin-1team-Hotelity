@@ -60,7 +60,7 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 		}
 		System.out.println("reservationListData = " + reservationListData);
 
-		List<StayEntity> stayEntityList = stayRepository.findByStayCheckinTime(now);
+		List<StayEntity> stayEntityList = stayRepository.findByStayCheckoutTime(now);
 		for (StayEntity stayEntity : stayEntityList) {
 			stayListData.append(stayEntity.toString()).append("\n");
 		}

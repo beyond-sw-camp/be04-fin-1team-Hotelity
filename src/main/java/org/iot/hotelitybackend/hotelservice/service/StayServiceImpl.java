@@ -91,7 +91,6 @@ public class StayServiceImpl implements StayService {
 		Integer reservationCodeFk, Integer stayCheckoutStatus,
 		String orderBy, Integer sortBy) {
 
-
 		Specification<StayEntity> spec = Specification.where(null);
 
 		// 투숙코드
@@ -186,7 +185,7 @@ public class StayServiceImpl implements StayService {
 			stayPageInfo.put(KEY_CURRENT_PAGE_INDEX, stayPage.getNumber());
 			stayPageInfo.put(KEY_CONTENT, stayDTOList);
 
-		// 2. 페이징 처리 안할 때
+			// 2. 페이징 처리 안할 때
 		} else {
 			List<StayEntity> stayEntityList = stayRepository.findAll(spec);
 			List<StayDTO> stayDTOList = setDTOField(stayEntityList);
@@ -216,7 +215,7 @@ public class StayServiceImpl implements StayService {
 		// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.parse(dateString + "T00:00:00");
 		LocalDateTime end = LocalDateTime.parse(dateString + "T23:59:59");
-		List<StayEntity> stayEntityList = stayRepository.findAllByStayCheckinTimeBetween(start, end);
+		List<StayEntity> stayEntityList = stayRepository.findAllByStayCheckoutTimeBetween(start, end);
 		List<StayDTO> stayDTOList = stayEntityList
 			.stream()
 			.map(stayEntity -> mapper.map(stayEntity, StayDTO.class))
@@ -269,7 +268,7 @@ public class StayServiceImpl implements StayService {
 				if (roomCapacityCheck < stayPeopleCount) {
 					throw new IllegalArgumentException(
 						"수용 가능 인원 초과! [" +
-						reservationDTO.getRoomCodeFk() + "] 객실 수용 인원: " + roomCapacityCheck + "인");
+							reservationDTO.getRoomCodeFk() + "] 객실 수용 인원: " + roomCapacityCheck + "인");
 				}
 
 				// 예약 정보를 StayEntity에 저장
@@ -308,6 +307,7 @@ public class StayServiceImpl implements StayService {
 		stayDTO.setRoomCapacity(reservationDTO.getRoomCapacity());
 		stayDTO.setStayPeopleCount(reservationDTO.getReservationPersonnel());
 		stayDTO.setStayCheckinTime(LocalDateTime.now());
+		stayDTO.setReservationCheckoutDate(reservationDTO.getReservationCheckoutDate());
 		stayDTO.setEmployeeCodeFk(employeeCodeFk);
 		stayDTO.setPICEmployeeName(employeeRepository.findById(employeeCodeFk).get().getEmployeeName());
 		stayDTO.setBranchCodeFk(reservationDTO.getBranchCodeFk());
@@ -454,6 +454,9 @@ public class StayServiceImpl implements StayService {
 							).get().getRoomCodeFk()
 						).get().getRoomCategoryCodeFk()
 					).get().getRoomName()))
+				.peek(stayDTO -> stayDTO.setReservationCheckoutDate(
+					reservationRepository.findById(stayDTO.getReservationCodeFk()
+					).get().getReservationCheckoutDate()))
 				// 직원명
 				.peek(stayDTO -> stayDTO.setPICEmployeeName(
 					employeeRepository.findById(stayDTO.getEmployeeCodeFk())

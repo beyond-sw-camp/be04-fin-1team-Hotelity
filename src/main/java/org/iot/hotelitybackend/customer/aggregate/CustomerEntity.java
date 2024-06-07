@@ -66,7 +66,8 @@ public class CustomerEntity {
 		Date customerRegisteredDate,
 		String customerType,
 		Integer nationCodeFk,
-		String customerGender
+		String customerGender,
+		String membershipLevelName
 	) {
 		this.customerCodePk = customerCodePk;
 		this.customerName = customerName;
@@ -80,6 +81,7 @@ public class CustomerEntity {
 		this.customerType = customerType;
 		this.nationCodeFk = nationCodeFk;
 		this.customerGender = customerGender;
+		this.membershipLevelName = membershipLevelName;
 	}
 
 	@OneToMany(mappedBy = "customer")
