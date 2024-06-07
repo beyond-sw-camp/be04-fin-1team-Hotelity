@@ -122,6 +122,18 @@ public class StaySpecification {
 			CriteriaBuilder.equal(root.get("stayCheckinTime").as(LocalDate.class), date);
 	}
 
+	// 체크아웃 예정일 (예약 체크아웃 날짜)
+	public static Specification<StayEntity> equalsReservationCheckoutDate(LocalDateTime reservationCheckoutDate) {
+
+		LocalDate date = reservationCheckoutDate.toLocalDate();
+
+		return (root, query, CriteriaBuilder) -> {
+			Join<StayEntity, ReservationEntity> reservationJoin = root.join("reservation");
+
+			return CriteriaBuilder.equal(reservationJoin.get("reservationCheckoutDate").as(LocalDate.class), date);
+		};
+	}
+
 	// 체크아웃 날짜
 	public static Specification<StayEntity> equalsStayCheckoutTime(LocalDateTime stayCheckoutTime) {
 
