@@ -75,7 +75,16 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 	@Override
 	public Map<String, String> getReservationsDataOfToday(LocalDateTime now) {
 		StringBuilder reservationListData = new StringBuilder();
-		List<ReservationEntity> reservationEntityList = reservationRepository.findByReservationCheckinDate(now);
+
+		int year = now.getYear();
+		int month = now.getMonthValue();
+		int day = now.getDayOfMonth();
+		LocalDateTime startOfDay =
+				LocalDateTime.of(year, month, day, 0, 0, 0);
+		LocalDateTime endOfDay =
+				LocalDateTime.of(year, month, day, 23, 59, 59);
+
+		List<ReservationEntity> reservationEntityList = reservationRepository.findAllByReservationCheckinDateBetween(startOfDay, endOfDay);
 		for (ReservationEntity reservationEntity : reservationEntityList) {
 			reservationListData.append(reservationEntity.toString()).append("\n");
 		}
@@ -137,7 +146,7 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 				+ "어제 VOC는 ~건, 금일 VOC는 ~건이며, 주요 VOC 내용으로는 ~~, ~~, ~~ 등이 있습니다. \n ";
 		}
 
-		prompt = promptDataString + " \n " + prompt + " 만약 데이터가 없으면 그냥 없다고 말해.";
+		prompt = promptDataString + " \n " + prompt + " 만약 데이터가 0개이거나 없으면 앞의 내용 다 빼고 그냥 '데이터가 없습니다'라고 말해.";
 		ChatGPTRequest request = new ChatGPTRequest(model, prompt);
 		ChatGPTResponse chatGPTResponse =  template.postForObject(apiURL, request, ChatGPTResponse.class);
 

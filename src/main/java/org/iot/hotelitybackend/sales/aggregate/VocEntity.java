@@ -81,4 +81,22 @@ public class VocEntity {
 	@ManyToOne
 	@JoinColumn(name = "branch_code_fk", insertable = false, updatable = false)
 	private BranchEntity branch;
+
+	@Override
+	public String toString() {
+		return "VocEntity{" +
+				"vocResponse='" + vocResponse + '\'' +
+				", vocImageLink='" + vocImageLink + '\'' +
+				", branchCodeFk='" + branchCodeFk + '\'' +
+				", employeeCodeFk=" + employeeCodeFk +
+				", vocTitle='" + vocTitle + '\'' +
+				", vocCategory='" + vocCategory + '\'' +
+				", vocProcessStatus=" + vocProcessStatus +
+				", customerCodeFk=" + customerCodeFk +
+				", vocLastUpdatedDate=" + vocLastUpdatedDate +
+				", vocCreatedDate=" + vocCreatedDate +
+				", vocContent='" + vocContent + '\'' +
+				", vocCodePk=" + vocCodePk +
+				'}';
+	}
 }
