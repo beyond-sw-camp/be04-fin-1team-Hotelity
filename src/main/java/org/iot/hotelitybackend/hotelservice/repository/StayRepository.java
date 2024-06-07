@@ -11,11 +11,11 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface StayRepository extends JpaRepository<StayEntity, Integer>, JpaSpecificationExecutor<StayEntity> {
 	Optional<StayEntity> findByReservationCodeFk(int reservationCodePk);
 
-	List<StayEntity> findAllByStayCheckinTimeBetween(LocalDateTime start, LocalDateTime end);
+	List<StayEntity> findAllByStayCheckoutTimeBetween(LocalDateTime start, LocalDateTime end);
 
-	default List<StayEntity> findByStayCheckinTime(LocalDateTime stayCheckinTime) {
-		LocalDateTime startOfDay = stayCheckinTime.withHour(0).withMinute(0).withSecond(0);
-		LocalDateTime endOfDay = stayCheckinTime.withHour(23).withMinute(59).withSecond(59);
-		return findAllByStayCheckinTimeBetween(startOfDay, endOfDay);
+	default List<StayEntity> findByStayCheckoutTime(LocalDateTime stayCheckoutTime) {
+		LocalDateTime startOfDay = stayCheckoutTime.withHour(0).withMinute(0).withSecond(0);
+		LocalDateTime endOfDay = stayCheckoutTime.withHour(23).withMinute(59).withSecond(59);
+		return findAllByStayCheckoutTimeBetween(startOfDay, endOfDay);
 	}
 }

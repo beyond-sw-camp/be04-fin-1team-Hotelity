@@ -194,7 +194,14 @@ public class CustomerServiceImpl implements CustomerService {
 				.nationCodeFk((int)row.getCell(9).getNumericCellValue())
 				.customerGender(row.getCell(10).getStringCellValue())
 				.build();
-			customerRepository.save(customerEntity);
+			CustomerEntity savedCustomer = customerRepository.save(customerEntity);
+
+			MembershipIssueEntity membershipIssueEntity = MembershipIssueEntity.builder()
+				.customerCodeFk(savedCustomer.getCustomerCodePk())
+				.membershipLevelCodeFk(1)
+				.membershipIssueDate(new Date())
+				.build();
+			membershipIssueRepository.save(membershipIssueEntity);
 		}
 
 		Map<String, Object> modifiedCustomerInfo = new HashMap<>();
