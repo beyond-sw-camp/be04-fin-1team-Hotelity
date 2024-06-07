@@ -50,6 +50,7 @@ public class StayController {
 		@RequestParam(required = false) Integer roomCapacity,
 		@RequestParam(required = false) Integer stayPeopleCount,
 		@RequestParam(required = false) LocalDateTime stayCheckinTime,
+		@RequestParam(required = false) LocalDateTime reservationCheckoutDate,
 		@RequestParam(required = false) LocalDateTime stayCheckoutTime,
 		@RequestParam(required = false) String branchCodeFk,
 		@RequestParam(required = false) Integer employeeCodeFk,
@@ -62,7 +63,7 @@ public class StayController {
 		Map<String, Object> stayListInfo =
 			stayService.selectStaysList(
 				pageNum, stayCodePk, customerCodeFk, customerName, roomCodeFk,
-				roomName, roomLevelName, roomCapacity, stayPeopleCount, stayCheckinTime,
+				roomName, roomLevelName, roomCapacity, stayPeopleCount, stayCheckinTime, reservationCheckoutDate,
 				stayCheckoutTime, branchCodeFk, employeeCodeFk, employeeName, reservationCodeFk,
 				stayCheckoutStatus, orderBy, sortBy
 			);
@@ -218,6 +219,7 @@ public class StayController {
 		@RequestParam(required = false) Integer roomCapacity,
 		@RequestParam(required = false) Integer stayPeopleCount,
 		@RequestParam(required = false) LocalDateTime stayCheckinTime,
+		@RequestParam(required = false) LocalDateTime reservationCheckoutDate,
 		@RequestParam(required = false) LocalDateTime stayCheckoutTime,
 		@RequestParam(required = false) String branchCodeFk,
 		@RequestParam(required = false) Integer employeeCodeFk,
@@ -233,7 +235,7 @@ public class StayController {
 			stayService.selectStaysList(
 				pageNum, stayCodePk, customerCodeFk, customerName, roomCodeFk,
 				roomName, roomLevelName, roomCapacity, stayPeopleCount, stayCheckinTime,
-				stayCheckoutTime, branchCodeFk, employeeCodeFk, employeeName, reservationCodeFk,
+				stayCheckoutTime, reservationCheckoutDate, branchCodeFk, employeeCodeFk, employeeName, reservationCodeFk,
 				stayCheckoutStatus, orderBy, sortBy
 			);
 

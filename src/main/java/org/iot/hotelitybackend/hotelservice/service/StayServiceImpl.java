@@ -86,7 +86,7 @@ public class StayServiceImpl implements StayService {
 		Integer pageNum, Integer stayCodePk, Integer customerCodeFk,
 		String customerName, String roomCodeFk, String roomName,
 		String roomLevelName, Integer roomCapacity, Integer stayPeopleCount,
-		LocalDateTime stayCheckinTime, LocalDateTime stayCheckoutTime,
+		LocalDateTime stayCheckinTime, LocalDateTime reservationCheckoutDate, LocalDateTime stayCheckoutTime,
 		String branchCodeFk, Integer employeeCodeFk, String employeeName,
 		Integer reservationCodeFk, Integer stayCheckoutStatus,
 		String orderBy, Integer sortBy) {
@@ -136,6 +136,11 @@ public class StayServiceImpl implements StayService {
 		// 체크인 날짜
 		if (stayCheckinTime != null) {
 			spec = spec.and(StaySpecification.equalsStayCheckinTime(stayCheckinTime));
+		}
+
+		// 체크아웃 예정일
+		if (reservationCheckoutDate != null) {
+			spec = spec.and(StaySpecification.equalsReservationCheckoutDate(reservationCheckoutDate));
 		}
 
 		// 체크아웃 날짜
