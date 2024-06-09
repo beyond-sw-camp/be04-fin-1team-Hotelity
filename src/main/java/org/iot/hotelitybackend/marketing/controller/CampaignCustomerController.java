@@ -31,26 +31,8 @@ public class CampaignCustomerController {
     }
 
     @GetMapping("/campaigns/search/page")
-    public ResponseEntity<ResponseVO> selectSearchedCampaignCustomersList(
-        // @RequestParam(required = false) Integer campaignCodeFk,
-        // @RequestParam(required = false) String campaignSendType,
-        // @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime campaignSentDate,
-        // @RequestParam(required = false) String customerName,
-        // @RequestParam(required = false) String campaignTitle,
-        // @RequestParam(required = false) Integer campaignSentStatus,
-        // @RequestParam(required = false) Integer templateCodeFk,
-        // @RequestParam(required = false) String templateName,
-        // @RequestParam(required = false) String orderBy,
-        // @RequestParam(required = false) Integer sortBy,
-        // @RequestParam int pageNum
-        CampaignCustomerSearchCriteria criteria
-    ) {
-        Map<String, Object> campaignPageInfo = campaignCustomerService.selectSearchedCampaignsList(
-            // pageNum, campaignCodeFk, campaignSendType, campaignSentDate
-            // , customerName, campaignTitle, campaignSentStatus,
-            // templateCodeFk, templateName, orderBy, sortBy
-            criteria
-        );
+    public ResponseEntity<ResponseVO> selectSearchedCampaignCustomersList(CampaignCustomerSearchCriteria criteria) {
+        Map<String, Object> campaignPageInfo = campaignCustomerService.selectSearchedCampaignsList(criteria);
 
         ResponseVO response = ResponseVO.builder()
             .data(campaignPageInfo)

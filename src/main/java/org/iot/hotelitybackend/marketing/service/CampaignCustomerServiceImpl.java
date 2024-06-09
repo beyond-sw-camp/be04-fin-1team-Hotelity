@@ -74,12 +74,7 @@ public class CampaignCustomerServiceImpl implements CampaignCustomerService{
     }
 
     @Override
-    public Map<String, Object> selectSearchedCampaignsList(
-        // int pageNum, Integer campaignCodeFk, String campaignSendType,
-        // LocalDateTime campaignSentDate, String customerName, String campaignTitle, Integer campaignSentStatus
-        // , Integer templateCodeFk, String templateName, String orderBy, Integer sortBy
-        CampaignCustomerSearchCriteria criteria
-    ) {
+    public Map<String, Object> selectSearchedCampaignsList(CampaignCustomerSearchCriteria criteria) {
 
         Integer pageNum = criteria.getPageNum();
         String orderBy = criteria.getOrderBy();
@@ -98,32 +93,6 @@ public class CampaignCustomerServiceImpl implements CampaignCustomerService{
         }
 
         Specification<CampaignCustomerEntity> spec = buildSpecification(criteria);
-        // Specification<CampaignCustomerEntity> spec = (root, query, criteriaBuilder) -> null;
-        //
-        // if(campaignCodeFk != null){
-        //     spec = spec.and(CampaignCustomerSpecification.equalsCampaignCodeFk(campaignCodeFk));
-        // }
-        // if (campaignSendType != null) {
-        //     spec = spec.and(CampaignCustomerSpecification.equalsCampaignSendType(campaignSendType));
-        // }
-        // if (campaignSentDate != null) {
-        //     spec = spec.and(CampaignCustomerSpecification.equalsCampaignSentDate(campaignSentDate));
-        // }
-        // if(customerName != null){
-        //     spec = spec.and(CampaignCustomerSpecification.likesCustomerName(customerName));
-        // }
-        // if(campaignSentStatus != null){
-        //     spec = spec.and(CampaignCustomerSpecification.likesCampaignSentStatus(campaignSentStatus));
-        // }
-        // if(templateCodeFk != null){
-        //     spec = spec.and(CampaignCustomerSpecification.likesTemplateFk(templateCodeFk));
-        // }
-        // if(templateName != null){
-        //     spec = spec.and(CampaignCustomerSpecification.likesTemplateName(templateName));
-        // }
-        // if(campaignTitle != null){
-        //     spec = spec.and(CampaignCustomerSpecification.likesCampaignTitle(campaignTitle));
-        // }
 
         Page<CampaignCustomerEntity> campaignCustomerEntityPage = campaignCustomerRepository.findAll(spec, pageable);
         List<CampaignCustomerDTO> campaignCustomerDTOList = campaignCustomerEntityPage
