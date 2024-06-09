@@ -18,6 +18,7 @@ import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.service.PaymentServiceImpl;
 import org.iot.hotelitybackend.hotelservice.service.StayServiceImpl;
 import org.iot.hotelitybackend.hotelservice.vo.PaymentSearchCriteria;
+import org.iot.hotelitybackend.hotelservice.vo.StaySearchCriteria;
 import org.iot.hotelitybackend.sales.aggregate.MembershipEntity;
 import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
 import org.iot.hotelitybackend.sales.dto.CouponIssueDTO;
@@ -142,10 +143,12 @@ public class CustomerServiceImpl implements CustomerService {
         );
         selectCustomerDTO.setStay(
             (List<StayDTO>)stayService.selectStaysList(
-                0, null, customerCodePk, null, null,
-                null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null).get(KEY_CONTENT)
+				new StaySearchCriteria(
+					0, null, customerCodePk, null, null,
+					null, null, null, null,
+					null, null, null, null, null,
+					null, null, null, null, null)
+			).get(KEY_CONTENT)
         );
         selectCustomerDTO.setCouponIssue(
             (List<CouponIssueDTO>)couponIssueService.selectCouponIssueList(

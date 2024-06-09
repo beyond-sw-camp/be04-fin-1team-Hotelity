@@ -25,6 +25,7 @@ import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
 import org.iot.hotelitybackend.hotelservice.repository.StayRepository;
 import org.iot.hotelitybackend.hotelservice.vo.RequestModifyStay;
+import org.iot.hotelitybackend.hotelservice.vo.StaySearchCriteria;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,14 +83,64 @@ public class StayServiceImpl implements StayService {
 
 	/* 투숙 내역 전체 조회(다중 조건 검색) */
 	@Override
-	public Map<String, Object> selectStaysList(
-		Integer pageNum, Integer stayCodePk, Integer customerCodeFk,
-		String customerName, String roomCodeFk, String roomName,
-		String roomLevelName, Integer roomCapacity, Integer stayPeopleCount,
-		LocalDateTime stayCheckinTime, LocalDateTime reservationCheckoutDate, LocalDateTime stayCheckoutTime,
-		String branchCodeFk, Integer employeeCodeFk, String employeeName,
-		Integer reservationCodeFk, Integer stayCheckoutStatus,
-		String orderBy, Integer sortBy) {
+	public Map<String, Object> selectStaysList(StaySearchCriteria criteria) {
+
+		Specification<StayEntity> spec = buildSpecification(criteria);
+
+		Map<String, Object> stayPageInfo = new HashMap<>();
+
+		Integer pageNum = criteria.getPageNum();
+		String orderBy = criteria.getOrderBy();
+		Integer sortBy = criteria.getSortBy();
+
+		// 1. 페이징 처리 할 때
+		if (pageNum != null) {
+			Pageable pageable;
+
+			if (orderBy == null) {
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("stayCheckinTime").descending());
+			} else {
+				if (sortBy == 1) {
+					pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
+				} else {
+					pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
+				}
+			}
+			Page<StayEntity> stayPage = stayRepository.findAll(spec, pageable);
+			List<StayEntity> stayEntityList = stayPage.getContent();
+			List<StayDTO> stayDTOList = setDTOField(stayEntityList);
+			stayPageInfo.put(KEY_TOTAL_PAGES_COUNT, stayPage.getTotalPages());
+			stayPageInfo.put(KEY_CURRENT_PAGE_INDEX, stayPage.getNumber());
+			stayPageInfo.put(KEY_CONTENT, stayDTOList);
+
+			// 2. 페이징 처리 안할 때
+		} else {
+			List<StayEntity> stayEntityList = stayRepository.findAll(spec);
+			List<StayDTO> stayDTOList = setDTOField(stayEntityList);
+			stayPageInfo.put(KEY_CONTENT, stayDTOList);
+		}
+
+		return stayPageInfo;
+	}
+
+	private Specification<StayEntity> buildSpecification(StaySearchCriteria criteria) {
+		Integer pageNum = criteria.getPageNum();
+		Integer stayCodePk = criteria.getStayCodePk();
+		Integer customerCodeFk = criteria.getCustomerCodeFk();
+		String customerName = criteria.getCustomerName();
+		String roomCodeFk = criteria.getRoomCodeFk();
+		String roomName = criteria.getRoomName();
+		String roomLevelName = criteria.getRoomLevelName();
+		Integer roomCapacity = criteria.getRoomCapacity();
+		Integer stayPeopleCount = criteria.getStayPeopleCount();
+		LocalDateTime stayCheckinTime = criteria.getStayCheckinTime();
+		LocalDateTime reservationCheckoutDate = criteria.getReservationCheckoutDate();
+		LocalDateTime stayCheckoutTime = criteria.getStayCheckoutTime();
+		String branchCodeFk = criteria.getBranchCodeFk();
+		Integer employeeCodeFk = criteria.getEmployeeCodeFk();
+		String employeeName = criteria.getEmployeeName();
+		Integer reservationCodeFk = criteria.getReservationCodeFk();
+		Integer stayCheckoutStatus = criteria.getStayCheckoutStatus();
 
 		Specification<StayEntity> spec = Specification.where(null);
 
@@ -167,37 +218,7 @@ public class StayServiceImpl implements StayService {
 		if (reservationCodeFk != null) {
 			spec = spec.and(StaySpecification.equalsReservationCodeFk(reservationCodeFk));
 		}
-
-		Map<String, Object> stayPageInfo = new HashMap<>();
-
-		// 1. 페이징 처리 할 때
-		if (pageNum != null) {
-			Pageable pageable;
-
-			if (orderBy == null) {
-				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by("stayCheckinTime").descending());
-			} else {
-				if (sortBy == 1) {
-					pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy));
-				} else {
-					pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
-				}
-			}
-			Page<StayEntity> stayPage = stayRepository.findAll(spec, pageable);
-			List<StayEntity> stayEntityList = stayPage.getContent();
-			List<StayDTO> stayDTOList = setDTOField(stayEntityList);
-			stayPageInfo.put(KEY_TOTAL_PAGES_COUNT, stayPage.getTotalPages());
-			stayPageInfo.put(KEY_CURRENT_PAGE_INDEX, stayPage.getNumber());
-			stayPageInfo.put(KEY_CONTENT, stayDTOList);
-
-			// 2. 페이징 처리 안할 때
-		} else {
-			List<StayEntity> stayEntityList = stayRepository.findAll(spec);
-			List<StayDTO> stayDTOList = setDTOField(stayEntityList);
-			stayPageInfo.put(KEY_CONTENT, stayDTOList);
-		}
-
-		return stayPageInfo;
+		return spec;
 	}
 
 	/* 투숙 코드로 특정 투숙 조회 */
