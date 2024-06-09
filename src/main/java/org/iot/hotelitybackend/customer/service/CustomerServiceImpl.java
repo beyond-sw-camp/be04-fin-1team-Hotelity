@@ -17,6 +17,7 @@ import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
 import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.service.PaymentServiceImpl;
 import org.iot.hotelitybackend.hotelservice.service.StayServiceImpl;
+import org.iot.hotelitybackend.hotelservice.vo.PaymentSearchCriteria;
 import org.iot.hotelitybackend.sales.aggregate.MembershipEntity;
 import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
 import org.iot.hotelitybackend.sales.dto.CouponIssueDTO;
@@ -130,12 +131,9 @@ public class CustomerServiceImpl implements CustomerService {
             mapper.map(customerRepository.findById(customerCodePk).get(), SelectCustomerDTO.class);
 
         selectCustomerDTO.setPayment(
-            (List<PaymentDTO>)paymentService.selectPaymentLogList(0,
-                customerCodePk, null,
-                null, null,
-                null, null,
-                null, null,
-                null, null).get(KEY_CONTENT)
+            (List<PaymentDTO>)paymentService.selectPaymentLogList(
+				new PaymentSearchCriteria(0, customerCodePk, null, null, null, null, null, null, null, null, null)
+				).get(KEY_CONTENT)
         );
         selectCustomerDTO.setVoc(
             (List<VocDTO>)vocService.selectVocsList(0, null, null,
