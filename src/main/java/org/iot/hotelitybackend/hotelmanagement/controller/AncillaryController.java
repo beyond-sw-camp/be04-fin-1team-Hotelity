@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.hotelmanagement.dto.AncillaryDTO;
 import org.iot.hotelitybackend.hotelmanagement.service.AncillaryService;
+import org.iot.hotelitybackend.hotelmanagement.vo.AncillarySearchCriteria;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyFacility;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestRegistFacility;
 import org.modelmapper.ModelMapper;
@@ -37,24 +38,8 @@ public class AncillaryController {
 	}
 
 	@GetMapping("/facilities")
-	public ResponseEntity<ResponseVO> selectAllFacilities(
-		@RequestParam(required = false) Integer pageNum,
-		@RequestParam(required = false) Integer ancillaryCodePk,
-		@RequestParam(required = false) String ancillaryName,
-		@RequestParam(required = false) String branchCodeFk,
-		@RequestParam(required = false) String ancillaryLocation,
-		@RequestParam(required = false) LocalTime ancillaryOpenTime,
-		@RequestParam(required = false) LocalTime ancillaryCloseTime,
-		@RequestParam(required = false) String ancillaryPhoneNumber,
-		@RequestParam(required = false) Integer ancillaryCategoryCodeFk,
-		@RequestParam(required = false) String branchName,
-		@RequestParam(required = false) String ancillaryCategoryName,
-		@RequestParam(required = false) String orderBy,
-		@RequestParam(required = false) Integer sortBy
-	) {
-		Map<String, Object> facilityPageInfo = ancillaryService.selectAllFacilities(
-			pageNum, ancillaryCodePk, ancillaryName, branchCodeFk, ancillaryLocation, ancillaryOpenTime, ancillaryCloseTime, ancillaryPhoneNumber, ancillaryCategoryCodeFk, branchName, ancillaryCategoryName, orderBy, sortBy
-		);
+	public ResponseEntity<ResponseVO> selectAllFacilities(@ModelAttribute AncillarySearchCriteria criteria) {
+		Map<String, Object> facilityPageInfo = ancillaryService.selectAllFacilities(criteria);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(facilityPageInfo)
@@ -106,27 +91,11 @@ public class AncillaryController {
 	}
 
 	@GetMapping("facilities/excel/download")
-	public ResponseEntity<InputStreamResource> downloadAllFacilitiesExcel(
-		@RequestParam(required = false) Integer pageNum,
-		@RequestParam(required = false) Integer ancillaryCodePk,
-		@RequestParam(required = false) String ancillaryName,
-		@RequestParam(required = false) String branchCodeFk,
-		@RequestParam(required = false) String ancillaryLocation,
-		@RequestParam(required = false) LocalTime ancillaryOpenTime,
-		@RequestParam(required = false) LocalTime ancillaryCloseTime,
-		@RequestParam(required = false) String ancillaryPhoneNumber,
-		@RequestParam(required = false) Integer ancillaryCategoryCodeFk,
-		@RequestParam(required = false) String branchName,
-		@RequestParam(required = false) String ancillaryCategoryName,
-		@RequestParam(required = false) String orderBy,
-		@RequestParam(required = false) Integer sortBy
-	) {
+	public ResponseEntity<InputStreamResource> downloadAllFacilitiesExcel(@ModelAttribute AncillarySearchCriteria criteria) {
 		try {
 
 			// 조회해서 DTO 리스트 가져오기
-			Map<String, Object> facilityListInfo = ancillaryService.selectAllFacilities(
-				pageNum, ancillaryCodePk, ancillaryName, branchCodeFk, ancillaryLocation, ancillaryOpenTime, ancillaryCloseTime, ancillaryPhoneNumber, ancillaryCategoryCodeFk, branchName, ancillaryCategoryName, orderBy, sortBy
-			);
+			Map<String, Object> facilityListInfo = ancillaryService.selectAllFacilities(criteria);
 
 			// 엑셀 시트와 파일 만들기
 			Map<String, Object> result = createExcelFile(

@@ -1,6 +1,7 @@
 package org.iot.hotelitybackend.hotelmanagement.service;
 
 import org.iot.hotelitybackend.hotelmanagement.dto.AncillaryDTO;
+import org.iot.hotelitybackend.hotelmanagement.vo.AncillarySearchCriteria;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyFacility;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestRegistFacility;
 
@@ -10,21 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface AncillaryService {
-	Map<String, Object> selectAllFacilities(
-		Integer pageNum,
-		Integer ancillaryCodePk,
-		String ancillaryName,
-		String branchCodeFk,
-		String ancillaryLocation,
-		LocalTime ancillaryOpenTime,
-		LocalTime ancillaryCloseTime,
-		String ancillaryPhoneNumber,
-		Integer ancillaryCategoryCodeFk,
-		String branchName,
-		String ancillaryCategoryName,
-		String orderBy,
-		Integer sortBy
-	);
+	Map<String, Object> selectAllFacilities(AncillarySearchCriteria criteria);
 
     Map<String, Object> registFacility(RequestRegistFacility requestRegistFacility);
 
