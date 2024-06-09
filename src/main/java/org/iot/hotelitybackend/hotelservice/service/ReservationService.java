@@ -5,23 +5,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import org.iot.hotelitybackend.hotelservice.vo.ReservationSearchCriteria;
+
 public interface ReservationService {
 	Map<String, Object> selectReservationListByMonth(
-		int year, int month,
-		Integer reservationCodePk,
-		Integer customerCodeFk,
-		String customerName,
-		String customerEnglishName,
-		String roomCodeFk,
-		String roomName,
-		String roomLevelName,
-		Integer roomCapacity,
-		String branchCodeFk,
-		LocalDateTime reservationDate,
-		LocalDateTime reservationCheckinDate,
-		LocalDateTime reservationCheckoutDate,
-		Integer reservationCancelStatus,
-		String orderBy, Integer sortBy
+		int year,
+		int month,
+		ReservationSearchCriteria criteria
 	);
 
 	Map<String, Object> selectReseravtionInfoByReservationCodePk(Integer reservationCodePk);
