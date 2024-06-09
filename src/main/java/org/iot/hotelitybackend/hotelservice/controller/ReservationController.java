@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.service.ReservationService;
+import org.iot.hotelitybackend.hotelservice.vo.ReservationSearchCriteria;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -43,35 +44,13 @@ public class ReservationController {
 	@GetMapping("/reservations/{reservationCheckinDate}")
 	public ResponseEntity<ResponseVO> selectReservationListByMonth(
 		@PathVariable("reservationCheckinDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime reservationCheckinDate,
-		@RequestParam(required = false) Integer reservationCodePk,
-		@RequestParam(required = false) Integer customerCodeFk,
-		@RequestParam(required = false) String customerName,
-		@RequestParam(required = false) String customerEnglishName,
-		@RequestParam(required = false) String roomCodeFk,
-		@RequestParam(required = false) String roomName,
-		@RequestParam(required = false) String roomLevelName,
-		@RequestParam(required = false) Integer roomCapacity,
-		@RequestParam(required = false) String branchCodeFk,
-		@RequestParam(required = false) LocalDateTime reservationDate,
-		@RequestParam(required = false) LocalDateTime reservationCheckInDate,
-		@RequestParam(required = false) LocalDateTime reservationCheckoutDate,
-		@RequestParam(required = false) Integer reservationCancelStatus,
-		@RequestParam(required = false) String orderBy,
-		@RequestParam(required = false) Integer sortBy) {
+		@ModelAttribute ReservationSearchCriteria criteria
+	) {
 		int year = reservationCheckinDate.getYear();
 		int month = reservationCheckinDate.getMonthValue();
 
 		Map<String, Object> reservationInfo =
-			reservationService.selectReservationListByMonth(
-				year, month,
-				reservationCodePk, customerCodeFk,
-				customerName,customerEnglishName,
-				roomCodeFk,roomName,
-				roomLevelName,roomCapacity,
-				branchCodeFk,reservationDate,
-				reservationCheckInDate, reservationCheckoutDate,
-				reservationCancelStatus, orderBy, sortBy
-			);
+			reservationService.selectReservationListByMonth(year, month, criteria);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(reservationInfo)
@@ -148,37 +127,14 @@ public class ReservationController {
 	@GetMapping("/reservations/{reservationCheckinDate}/excel/download")
 	public ResponseEntity<InputStreamResource> downloadReservationListByMonth(
 		@PathVariable("reservationCheckinDate") LocalDateTime reservationCheckinDate,
-		@RequestParam(required = false) Integer reservationCodePk,
-		@RequestParam(required = false) Integer customerCodeFk,
-		@RequestParam(required = false) String customerName,
-		@RequestParam(required = false) String customerEnglishName,
-		@RequestParam(required = false) String roomCodeFk,
-		@RequestParam(required = false) String roomName,
-		@RequestParam(required = false) String roomLevelName,
-		@RequestParam(required = false) Integer roomCapacity,
-		@RequestParam(required = false) String branchCodeFk,
-		@RequestParam(required = false) LocalDateTime reservationDate,
-		@RequestParam(required = false) LocalDateTime reservationCheckInDate,
-		@RequestParam(required = false) LocalDateTime reservationCheckoutDate,
-		@RequestParam(required = false) Integer reservationCancelStatus,
-		@RequestParam(required = false) String orderBy,
-		@RequestParam(required = false) Integer sortBy
+		@ModelAttribute ReservationSearchCriteria criteria
 	) {
 		int year = reservationCheckinDate.getYear();
 		int month = reservationCheckinDate.getMonthValue();
 
 		// 조회해서 DTO 리스트 가져오기
 		Map<String, Object> reservationInfo =
-			reservationService.selectReservationListByMonth(
-				year, month,
-				reservationCodePk, customerCodeFk,
-				customerName, customerEnglishName,
-				roomCodeFk, roomName,
-				roomLevelName, roomCapacity,
-				branchCodeFk, reservationDate,
-				reservationCheckInDate, reservationCheckoutDate,
-				reservationCancelStatus, orderBy, sortBy
-			);
+			reservationService.selectReservationListByMonth(year, month, criteria);
 
 		try {
 

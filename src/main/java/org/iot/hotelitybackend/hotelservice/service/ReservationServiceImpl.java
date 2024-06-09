@@ -28,6 +28,7 @@ import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.repository.ReservationRepository;
 import org.iot.hotelitybackend.hotelservice.repository.StayRepository;
 import org.iot.hotelitybackend.hotelservice.vo.ReservationDashboardVO;
+import org.iot.hotelitybackend.hotelservice.vo.ReservationSearchCriteria;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,16 +76,10 @@ public class ReservationServiceImpl implements ReservationService {
 	/* 월별 예약 리스트 전체 조회 */
 	@Override
 	public Map<String, Object> selectReservationListByMonth(
-		int year, int month, Integer reservationCodePk,
-		Integer customerCodeFk, String customerName,
-		String customerEnglishName, String roomCodeFk,
-		String roomName, String roomLevelName,
-		Integer roomCapacity, String branchCodeFk,
-		LocalDateTime reservationDate,
-		LocalDateTime reservationCheckinDate,
-		LocalDateTime reservationCheckoutDate,
-		Integer reservationCancelStatus,
-		String orderBy, Integer sortBy) {
+		int year,
+		int month,
+		ReservationSearchCriteria criteria
+	) {
 
 		// 특정 월의 예약 내역을 조회하기 위해 월의 시작일과 종료일을 지정
 		LocalDateTime startOfMonth =
@@ -95,6 +90,54 @@ public class ReservationServiceImpl implements ReservationService {
 			LocalDateTime.of(year, month, startOfMonth.getMonth().length(startOfMonth.toLocalDate().isLeapYear()),
 				23, 59, 59);
 		System.out.println("해당 월의 마지막 일자: " + endOfMonth);
+
+		// Specification 생성
+		Specification<ReservationEntity> spec = buildSpecification(criteria, startOfMonth, endOfMonth);
+
+		String orderBy = criteria.getOrderBy();
+		Integer sortBy = criteria.getSortBy();
+
+		// 특정 월에 해당하는 예약 내역 리스트 조회
+		List<ReservationEntity> reservationEntityList =
+			reservationRepository.findAll(spec);
+		// reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
+
+		List<ReservationDTO> reservationDTOList = setDTOField(reservationEntityList);
+
+		// Pageable 쓰지않는 List 정렬
+		if (orderBy == null) {
+			reservationDTOList.stream().sorted(
+					Comparator.comparing(ReservationDTO::getReservationCheckinDate).reversed())
+				.collect(toList());
+		} else {
+			reservationDTOList = sortList(reservationDTOList, orderBy, sortBy);
+		}
+
+		Map<String, Object> reservationListInfo = new HashMap<>();
+
+		reservationListInfo.put(KEY_CONTENT, reservationDTOList);
+
+		return reservationListInfo;
+	}
+
+	private Specification<ReservationEntity> buildSpecification(
+		ReservationSearchCriteria criteria,
+		LocalDateTime startOfMonth,
+		LocalDateTime endOfMonth
+	) {
+		Integer reservationCodePk = criteria.getReservationCodePk();
+		Integer customerCodeFk = criteria.getCustomerCodeFk();
+		String customerName = criteria.getCustomerName();
+		String customerEnglishName = criteria.getCustomerEnglishName();
+		String roomCodeFk = criteria.getRoomCodeFk();
+		String roomName = criteria.getRoomName();
+		String roomLevelName = criteria.getRoomLevelName();
+		Integer roomCapacity = criteria.getRoomCapacity();
+		String branchCodeFk = criteria.getBranchCodeFk();
+		LocalDateTime reservationDate = criteria.getReservationDate();
+		LocalDateTime reservationCheckinDate = criteria.getReservationCheckinDate();
+		LocalDateTime reservationCheckoutDate = criteria.getReservationCheckoutDate();
+		Integer reservationCancelStatus = criteria.getReservationCancelStatus();
 
 		Specification<ReservationEntity> spec =
 			Specification.where(ReservationSpecification.betweenDate(startOfMonth, endOfMonth));
@@ -151,28 +194,7 @@ public class ReservationServiceImpl implements ReservationService {
 		if (reservationCancelStatus != null) {
 			spec = spec.and(ReservationSpecification.equalsReservationCancleStatus(reservationCancelStatus));
 		}
-
-		// 특정 월에 해당하는 예약 내역 리스트 조회
-		List<ReservationEntity> reservationEntityList =
-			reservationRepository.findAll(spec);
-		// reservationRepository.findByReservationCheckinDateBetween(startOfMonth, endOfMonth);
-
-		List<ReservationDTO> reservationDTOList = setDTOField(reservationEntityList);
-
-		// Pageable 쓰지않는 List 정렬
-		if (orderBy == null) {
-			reservationDTOList.stream().sorted(
-					Comparator.comparing(ReservationDTO::getReservationCheckinDate).reversed())
-				.collect(toList());
-		} else {
-			reservationDTOList = sortList(reservationDTOList, orderBy, sortBy);
-		}
-
-		Map<String, Object> reservationListInfo = new HashMap<>();
-
-		reservationListInfo.put(KEY_CONTENT, reservationDTOList);
-
-		return reservationListInfo;
+		return spec;
 	}
 
 	private List<ReservationDTO> sortList(List<ReservationDTO> list, String orderBy, Integer sortBy) {
