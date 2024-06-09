@@ -146,7 +146,7 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 				+ "어제 VOC는 ~건, 금일 VOC는 ~건이며, 주요 VOC 내용으로는 ~~, ~~, ~~ 등이 있습니다. \n ";
 		}
 
-		prompt = promptDataString + " \n " + prompt + " 만약 데이터가 0개이거나 없으면 앞의 내용 다 빼고 그냥 '데이터가 없습니다'라고 말해.";
+		prompt = promptDataString + " \n " + prompt + " 만약 데이터가 0개이거나 없으면 앞의 내용 다 빼고 그냥 '데이터가 없습니다'라고 말해. 변수 이름은 제외하고 말해.";
 		ChatGPTRequest request = new ChatGPTRequest(model, prompt);
 		ChatGPTResponse chatGPTResponse =  template.postForObject(apiURL, request, ChatGPTResponse.class);
 
