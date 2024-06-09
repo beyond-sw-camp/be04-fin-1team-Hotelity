@@ -237,8 +237,13 @@ public class CustomerServiceImpl implements CustomerService {
             .nationCodeFk(customerDTO.getNationCodeFk())
             .customerGender(customerDTO.getCustomerGender())
             .build();
-
-        customerRepository.save(customerEntity);
+        CustomerEntity savedCustomer = customerRepository.save(customerEntity);
+		MembershipIssueEntity membershipIssueEntity = MembershipIssueEntity.builder()
+			.customerCodeFk(savedCustomer.getCustomerCodePk())
+			.membershipLevelCodeFk(1)
+			.membershipIssueDate(new Date())
+			.build();
+		membershipIssueRepository.save(membershipIssueEntity);
 
         Map<String, Object> modifiedCustomerInfo = new HashMap<>();
         if (customerRepository.findById(customerEntity.getCustomerCodePk()).isPresent()) {

@@ -5,4 +5,4 @@ resources:
 - itty-project-service.yml
 images:
 - name: eodud3196/backend-test
-  newTag: v1.0.24
+  newTag: v1.0.25
