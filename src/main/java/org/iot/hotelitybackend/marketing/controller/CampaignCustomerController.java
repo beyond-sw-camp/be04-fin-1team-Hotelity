@@ -3,6 +3,7 @@ package org.iot.hotelitybackend.marketing.controller;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.marketing.dto.CampaignCustomerDTO;
 import org.iot.hotelitybackend.marketing.service.CampaignCustomerService;
+import org.iot.hotelitybackend.marketing.vo.CampaignCustomerSearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -31,22 +32,24 @@ public class CampaignCustomerController {
 
     @GetMapping("/campaigns/search/page")
     public ResponseEntity<ResponseVO> selectSearchedCampaignCustomersList(
-        @RequestParam(required = false) Integer campaignCodeFk,
-        @RequestParam(required = false) String campaignSendType,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime campaignSentDate,
-        @RequestParam(required = false) String customerName,
-        @RequestParam(required = false) String campaignTitle,
-        @RequestParam(required = false) Integer campaignSentStatus,
-        @RequestParam(required = false) Integer templateCodeFk,
-        @RequestParam(required = false) String templateName,
-        @RequestParam(required = false) String orderBy,
-        @RequestParam(required = false) Integer sortBy,
-        @RequestParam int pageNum
+        // @RequestParam(required = false) Integer campaignCodeFk,
+        // @RequestParam(required = false) String campaignSendType,
+        // @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime campaignSentDate,
+        // @RequestParam(required = false) String customerName,
+        // @RequestParam(required = false) String campaignTitle,
+        // @RequestParam(required = false) Integer campaignSentStatus,
+        // @RequestParam(required = false) Integer templateCodeFk,
+        // @RequestParam(required = false) String templateName,
+        // @RequestParam(required = false) String orderBy,
+        // @RequestParam(required = false) Integer sortBy,
+        // @RequestParam int pageNum
+        CampaignCustomerSearchCriteria criteria
     ) {
         Map<String, Object> campaignPageInfo = campaignCustomerService.selectSearchedCampaignsList(
-            pageNum, campaignCodeFk, campaignSendType, campaignSentDate
-            , customerName, campaignTitle, campaignSentStatus,
-            templateCodeFk, templateName, orderBy, sortBy
+            // pageNum, campaignCodeFk, campaignSendType, campaignSentDate
+            // , customerName, campaignTitle, campaignSentStatus,
+            // templateCodeFk, templateName, orderBy, sortBy
+            criteria
         );
 
         ResponseVO response = ResponseVO.builder()

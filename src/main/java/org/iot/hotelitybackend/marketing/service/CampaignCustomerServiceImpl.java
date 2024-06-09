@@ -16,6 +16,7 @@ import org.iot.hotelitybackend.marketing.dto.CampaignCustomerDTO;
 import org.iot.hotelitybackend.marketing.repository.CampaignCustomerRepository;
 import org.iot.hotelitybackend.marketing.repository.CampaignRepository;
 import org.iot.hotelitybackend.marketing.repository.TemplateRepository;
+import org.iot.hotelitybackend.marketing.vo.CampaignCustomerSearchCriteria;
 import org.iot.hotelitybackend.sales.repository.MembershipIssueRepository;
 import org.iot.hotelitybackend.sales.repository.MembershipRepository;
 import org.modelmapper.ModelMapper;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -72,9 +74,16 @@ public class CampaignCustomerServiceImpl implements CampaignCustomerService{
     }
 
     @Override
-    public Map<String, Object> selectSearchedCampaignsList(int pageNum, Integer campaignCodeFk, String campaignSendType,
-        LocalDateTime campaignSentDate, String customerName, String campaignTitle, Integer campaignSentStatus
-        , Integer templateCodeFk, String templateName, String orderBy, Integer sortBy) {
+    public Map<String, Object> selectSearchedCampaignsList(
+        // int pageNum, Integer campaignCodeFk, String campaignSendType,
+        // LocalDateTime campaignSentDate, String customerName, String campaignTitle, Integer campaignSentStatus
+        // , Integer templateCodeFk, String templateName, String orderBy, Integer sortBy
+        CampaignCustomerSearchCriteria criteria
+    ) {
+
+        Integer pageNum = criteria.getPageNum();
+        String orderBy = criteria.getOrderBy();
+        Integer sortBy = criteria.getSortBy();
 
         Pageable pageable;
         if(orderBy == null){
@@ -88,32 +97,33 @@ public class CampaignCustomerServiceImpl implements CampaignCustomerService{
             }
         }
 
-        Specification<CampaignCustomerEntity> spec = (root, query, criteriaBuilder) -> null;
-
-        if(campaignCodeFk != null){
-            spec = spec.and(CampaignCustomerSpecification.equalsCampaignCodeFk(campaignCodeFk));
-        }
-        if (campaignSendType != null) {
-            spec = spec.and(CampaignCustomerSpecification.equalsCampaignSendType(campaignSendType));
-        }
-        if (campaignSentDate != null) {
-            spec = spec.and(CampaignCustomerSpecification.equalsCampaignSentDate(campaignSentDate));
-        }
-        if(customerName != null){
-            spec = spec.and(CampaignCustomerSpecification.likesCustomerName(customerName));
-        }
-        if(campaignSentStatus != null){
-            spec = spec.and(CampaignCustomerSpecification.likesCampaignSentStatus(campaignSentStatus));
-        }
-        if(templateCodeFk != null){
-            spec = spec.and(CampaignCustomerSpecification.likesTemplateFk(templateCodeFk));
-        }
-        if(templateName != null){
-            spec = spec.and(CampaignCustomerSpecification.likesTemplateName(templateName));
-        }
-        if(campaignTitle != null){
-            spec = spec.and(CampaignCustomerSpecification.likesCampaignTitle(campaignTitle));
-        }
+        Specification<CampaignCustomerEntity> spec = buildSpecification(criteria);
+        // Specification<CampaignCustomerEntity> spec = (root, query, criteriaBuilder) -> null;
+        //
+        // if(campaignCodeFk != null){
+        //     spec = spec.and(CampaignCustomerSpecification.equalsCampaignCodeFk(campaignCodeFk));
+        // }
+        // if (campaignSendType != null) {
+        //     spec = spec.and(CampaignCustomerSpecification.equalsCampaignSendType(campaignSendType));
+        // }
+        // if (campaignSentDate != null) {
+        //     spec = spec.and(CampaignCustomerSpecification.equalsCampaignSentDate(campaignSentDate));
+        // }
+        // if(customerName != null){
+        //     spec = spec.and(CampaignCustomerSpecification.likesCustomerName(customerName));
+        // }
+        // if(campaignSentStatus != null){
+        //     spec = spec.and(CampaignCustomerSpecification.likesCampaignSentStatus(campaignSentStatus));
+        // }
+        // if(templateCodeFk != null){
+        //     spec = spec.and(CampaignCustomerSpecification.likesTemplateFk(templateCodeFk));
+        // }
+        // if(templateName != null){
+        //     spec = spec.and(CampaignCustomerSpecification.likesTemplateName(templateName));
+        // }
+        // if(campaignTitle != null){
+        //     spec = spec.and(CampaignCustomerSpecification.likesCampaignTitle(campaignTitle));
+        // }
 
         Page<CampaignCustomerEntity> campaignCustomerEntityPage = campaignCustomerRepository.findAll(spec, pageable);
         List<CampaignCustomerDTO> campaignCustomerDTOList = campaignCustomerEntityPage
@@ -171,5 +181,45 @@ public class CampaignCustomerServiceImpl implements CampaignCustomerService{
         campaignCustomerPageInfo.put(KEY_CONTENT, campaignCustomerDTOList);
 
         return campaignCustomerPageInfo;
+    }
+
+    private Specification<CampaignCustomerEntity> buildSpecification(CampaignCustomerSearchCriteria criteria) {
+        Integer pageNum = criteria.getPageNum();
+        Integer campaignCodeFk = criteria.getCampaignCodeFk();
+        String campaignSendType = criteria.getCampaignSendType();
+        LocalDateTime campaignSentDate = criteria.getCampaignSentDate();
+        String customerName = criteria.getCustomerName();
+        String campaignTitle = criteria.getCampaignTitle();
+        Integer campaignSentStatus = criteria.getCampaignSentStatus();
+        Integer templateCodeFk = criteria.getTemplateCodeFk();
+        String templateName = criteria.getTemplateName();
+
+        Specification<CampaignCustomerEntity> spec = (root, query, criteriaBuilder) -> null;
+
+        if(campaignCodeFk != null){
+            spec = spec.and(CampaignCustomerSpecification.equalsCampaignCodeFk(campaignCodeFk));
+        }
+        if (campaignSendType != null) {
+            spec = spec.and(CampaignCustomerSpecification.equalsCampaignSendType(campaignSendType));
+        }
+        if (campaignSentDate != null) {
+            spec = spec.and(CampaignCustomerSpecification.equalsCampaignSentDate(campaignSentDate));
+        }
+        if(customerName != null){
+            spec = spec.and(CampaignCustomerSpecification.likesCustomerName(customerName));
+        }
+        if(campaignSentStatus != null){
+            spec = spec.and(CampaignCustomerSpecification.likesCampaignSentStatus(campaignSentStatus));
+        }
+        if(templateCodeFk != null){
+            spec = spec.and(CampaignCustomerSpecification.likesTemplateFk(templateCodeFk));
+        }
+        if(templateName != null){
+            spec = spec.and(CampaignCustomerSpecification.likesTemplateName(templateName));
+        }
+        if(campaignTitle != null){
+            spec = spec.and(CampaignCustomerSpecification.likesCampaignTitle(campaignTitle));
+        }
+        return spec;
     }
 }
