@@ -123,103 +123,103 @@ public class CustomerServiceImpl implements CustomerService {
         return customerPageInfo;
     }
 
-	@Override
-	public SelectCustomerDTO selectCustomerByCustomerCodePk(Integer customerCodePk) {
+    @Override
+    public SelectCustomerDTO selectCustomerByCustomerCodePk(Integer customerCodePk) {
 
-		SelectCustomerDTO selectCustomerDTO = mapper.map(customerRepository.findById(customerCodePk).get(),
-			SelectCustomerDTO.class);
+        SelectCustomerDTO selectCustomerDTO =
+            mapper.map(customerRepository.findById(customerCodePk).get(), SelectCustomerDTO.class);
 
-		selectCustomerDTO.setPayment(
-			(List<PaymentDTO>)paymentService.selectPaymentLogList(0,
-				customerCodePk, null,
-				null, null,
-				null, null,
-				null, null,
-				null, null).get(KEY_CONTENT)
-		);
-		selectCustomerDTO.setVoc(
-			(List<VocDTO>)vocService.selectVocsList(0, null, null,
-				null, customerCodePk, null, null, null, null, null, null
-				, null, null, null).get(KEY_CONTENT)
-		);
-		selectCustomerDTO.setStay(
-			(List<StayDTO>)stayService.selectStaysList(
-				0, null, customerCodePk, null, null,
-				null, null, null, null,
-				null, null, null, null, null,
-				null, null, null, null, null).get(KEY_CONTENT)
-		);
-		selectCustomerDTO.setCouponIssue(
-			(List<CouponIssueDTO>)couponIssueService.selectCouponIssueList(
-				0, null, null, customerCodePk, null
-				, null, null, null, null, null, null
-			).get(KEY_CONTENT)
-		);
+        selectCustomerDTO.setPayment(
+            (List<PaymentDTO>)paymentService.selectPaymentLogList(0,
+                customerCodePk, null,
+                null, null,
+                null, null,
+                null, null,
+                null, null).get(KEY_CONTENT)
+        );
+        selectCustomerDTO.setVoc(
+            (List<VocDTO>)vocService.selectVocsList(0, null, null,
+                null, customerCodePk, null, null, null, null, null, null
+                , null, null, null).get(KEY_CONTENT)
+        );
+        selectCustomerDTO.setStay(
+            (List<StayDTO>)stayService.selectStaysList(
+                0, null, customerCodePk, null, null,
+                null, null, null, null,
+                null, null, null, null, null,
+                null, null, null, null, null).get(KEY_CONTENT)
+        );
+        selectCustomerDTO.setCouponIssue(
+            (List<CouponIssueDTO>)couponIssueService.selectCouponIssueList(
+                0, null, null, customerCodePk, null
+                , null, null, null, null, null, null
+            ).get(KEY_CONTENT)
+        );
 
-		return selectCustomerDTO;
+        return selectCustomerDTO;
 
-	}
+    }
 
-	@Override
-	public Map<String, Object> readExcel(Workbook workbook) {
-		Sheet worksheet = workbook.getSheetAt(0);
+    @Override
+    public Map<String, Object> readExcel(Workbook workbook) {
+        Sheet worksheet = workbook.getSheetAt(0);
 
-		for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
-			Row row = worksheet.getRow(i);
+        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
+            Row row = worksheet.getRow(i);
 
-			CustomerEntity customerEntity = CustomerEntity.builder()
-				.customerName(row.getCell(0).getStringCellValue())
-				.customerEmail(row.getCell(1).getStringCellValue())
-				.customerPhoneNumber(row.getCell(2).getStringCellValue())
-				.customerEnglishName(row.getCell(3).getStringCellValue())
-				.customerAddress(row.getCell(4).getStringCellValue())
-				.customerInfoAgreement((int)row.getCell(5).getNumericCellValue())
-				.customerStatus((int)row.getCell(6).getNumericCellValue())
-				.customerRegisteredDate(new Date())
-				.customerType(row.getCell(8).getStringCellValue())
-				.nationCodeFk((int)row.getCell(9).getNumericCellValue())
-				.customerGender(row.getCell(10).getStringCellValue())
-				.build();
-			CustomerEntity savedCustomer = customerRepository.save(customerEntity);
+            CustomerEntity customerEntity = CustomerEntity.builder()
+                .customerName(row.getCell(0).getStringCellValue())
+                .customerEmail(row.getCell(1).getStringCellValue())
+                .customerPhoneNumber(row.getCell(2).getStringCellValue())
+                .customerEnglishName(row.getCell(3).getStringCellValue())
+                .customerAddress(row.getCell(4).getStringCellValue())
+                .customerInfoAgreement((int)row.getCell(5).getNumericCellValue())
+                .customerStatus((int)row.getCell(6).getNumericCellValue())
+                .customerRegisteredDate(new Date())
+                .customerType(row.getCell(8).getStringCellValue())
+                .nationCodeFk((int)row.getCell(9).getNumericCellValue())
+                .customerGender(row.getCell(10).getStringCellValue())
+                .build();
+            CustomerEntity savedCustomer = customerRepository.save(customerEntity);
 
-			MembershipIssueEntity membershipIssueEntity = MembershipIssueEntity.builder()
-				.customerCodeFk(savedCustomer.getCustomerCodePk())
-				.membershipLevelCodeFk(1)
-				.membershipIssueDate(new Date())
-				.build();
-			membershipIssueRepository.save(membershipIssueEntity);
-		}
+            MembershipIssueEntity membershipIssueEntity = MembershipIssueEntity.builder()
+                .customerCodeFk(savedCustomer.getCustomerCodePk())
+                .membershipLevelCodeFk(1)
+                .membershipIssueDate(new Date())
+                .build();
+            membershipIssueRepository.save(membershipIssueEntity);
+        }
 
-		Map<String, Object> modifiedCustomerInfo = new HashMap<>();
-		modifiedCustomerInfo.put(KEY_CONTENT, "success");
-		return modifiedCustomerInfo;
-	}
+        Map<String, Object> modifiedCustomerInfo = new HashMap<>();
+        modifiedCustomerInfo.put(KEY_CONTENT, "success");
+        return modifiedCustomerInfo;
+    }
 
-	@Override
-	@Transactional
-	public Map<String, Object> deleteCustomerByCustomerCodePk(int customerCodePk) {
+    @Override
+    @Transactional
+    public Map<String, Object> deleteCustomerByCustomerCodePk(int customerCodePk) {
 
-		CustomerEntity customerEntity = customerRepository.findById(customerCodePk).get();
-		CustomerEntity customer = CustomerEntity.builder()
-			.customerCodePk(customerCodePk)
-			.customerName(customerEntity.getCustomerName())
-			.customerEmail(customerEntity.getCustomerEmail())
-			.customerPhoneNumber(customerEntity.getCustomerPhoneNumber())
-			.customerEnglishName(customerEntity.getCustomerEnglishName())
-			.customerAddress(customerEntity.customerAddress)
-			.customerInfoAgreement(customerEntity.getCustomerInfoAgreement())
-			.customerStatus(0)
-			.customerRegisteredDate(customerEntity.getCustomerRegisteredDate())
-			.customerType(customerEntity.getCustomerType())
-			.nationCodeFk(customerEntity.getNationCodeFk())
-			.customerGender(customerEntity.getCustomerGender())
-			.build();
-		customerRepository.save(customer);
+        CustomerEntity customerEntity = customerRepository.findById(customerCodePk).get();
+        CustomerEntity customer = CustomerEntity.builder()
+            .customerCodePk(customerCodePk)
+            .customerName(customerEntity.getCustomerName())
+            .customerEmail(customerEntity.getCustomerEmail())
+            .customerPhoneNumber(customerEntity.getCustomerPhoneNumber())
+            .customerEnglishName(customerEntity.getCustomerEnglishName())
+            .customerAddress(customerEntity.customerAddress)
+            .customerInfoAgreement(customerEntity.getCustomerInfoAgreement())
+            .customerStatus(0)
+            .customerRegisteredDate(customerEntity.getCustomerRegisteredDate())
+            .customerType(customerEntity.getCustomerType())
+            .nationCodeFk(customerEntity.getNationCodeFk())
+            .customerGender(customerEntity.getCustomerGender())
+            .build();
+        customerRepository.save(customer);
 
-		Map<String, Object> modifiedCustomerInfo = new HashMap<>();
-		modifiedCustomerInfo.put(KEY_CONTENT, "success");
-		return modifiedCustomerInfo;
-	}
+        Map<String, Object> modifiedCustomerInfo = new HashMap<>();
+        modifiedCustomerInfo.put(KEY_CONTENT, "success");
+        return modifiedCustomerInfo;
+    }
 
     @Override
     public Map<String, Object> insertCustomer(CustomerDTO customerDTO) {
@@ -360,142 +360,143 @@ public class CustomerServiceImpl implements CustomerService {
 
 	}
 
-	private Specification<CustomerEntity> spec(CustomerCriteria criteria) {
-		Specification<CustomerEntity> spec = Specification.where(null);
+    private Specification<CustomerEntity> spec(CustomerCriteria criteria) {
+        Specification<CustomerEntity> spec = Specification.where(null);
 
-		Integer customerCodePk = criteria.getCustomerCodePk();
-		String customerName = criteria.getCustomerName();
-		String customerEmail = criteria.getCustomerEmail();
-		String customerPhoneNumber = criteria.getCustomerPhoneNumber();
-		String customerEnglishName = criteria.getCustomerEnglishName();
-		String customerAddress = criteria.getCustomerAddress();
-		Integer customerInfoAgreement = criteria.getCustomerInfoAgreement();
-		Integer customerStatus = criteria.getCustomerStatus();
-		Date customerRegisteredDate = criteria.getCustomerRegisteredDate();
-		Integer nationCodeFk = criteria.getNationCodeFk();
-		String customerGender = criteria.getCustomerGender();
-		String nationName = criteria.getNationName();
-		String customerType = criteria.getCustomerType();
-		String membershipLevelName = criteria.getMembershipLevelName();
+        Integer customerCodePk = criteria.getCustomerCodePk();
+        String customerName = criteria.getCustomerName();
+        String customerEmail = criteria.getCustomerEmail();
+        String customerPhoneNumber = criteria.getCustomerPhoneNumber();
+        String customerEnglishName = criteria.getCustomerEnglishName();
+        String customerAddress = criteria.getCustomerAddress();
+        Integer customerInfoAgreement = criteria.getCustomerInfoAgreement();
+        Integer customerStatus = criteria.getCustomerStatus();
+        Date customerRegisteredDate = criteria.getCustomerRegisteredDate();
+        Integer nationCodeFk = criteria.getNationCodeFk();
+        String customerGender = criteria.getCustomerGender();
+        String nationName = criteria.getNationName();
+        String customerType = criteria.getCustomerType();
+        String membershipLevelName = criteria.getMembershipLevelName();
 
-		if (customerCodePk != null) {
-			spec = spec.and(CustomerSpecification.equalsCustomerCodePk(customerCodePk));
-		}
-		if (customerName != null && !customerName.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerName(customerName));
-		}
-		if (customerEmail != null && !customerEmail.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerEmail(customerEmail));
-		}
-		if (customerPhoneNumber != null && !customerPhoneNumber.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerPhoneNumber(customerPhoneNumber));
-		}
-		if (customerEnglishName != null && !customerEnglishName.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerEnglishName(customerEnglishName));
-		}
-		if (customerAddress != null && !customerAddress.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerAddress(customerAddress));
-		}
-		if (customerInfoAgreement != null) {
-			spec = spec.and(CustomerSpecification.equalsCustomerInfoAgreement(customerInfoAgreement));
-		}
-		if (customerStatus != null) {
-			spec = spec.and(CustomerSpecification.equalsCustomerStatus(customerStatus));
-		}
-		if (customerRegisteredDate != null) {
-			spec = spec.and(CustomerSpecification.equalsCustomerRegisteredDate(customerRegisteredDate));
-		}
-		if (nationCodeFk != null) {
-			spec = spec.and(CustomerSpecification.equalsNationCodeFk(nationCodeFk));
-		}
-		if (customerGender != null && !customerGender.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerGender(customerGender));
-		}
-		if (nationName != null && !nationName.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsNationName(nationName));
-		}
-		// 멤버십 레벨 이름으로 필터링
-		if (membershipLevelName != null && !membershipLevelName.isEmpty()) {
-			MembershipEntity membership = membershipRepository.findByMembershipLevelName(membershipLevelName);
-			if (membership != null) {
-				spec = spec.and(CustomerSpecification.equalsMembershipLevelName(membershipLevelName));
-			}
-		}
-		// 고객 유형으로 필터링
-		if (customerType != null && !customerType.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerType(customerType));
-		}
+        if (customerCodePk != null) {
+            spec = spec.and(CustomerSpecification.equalsCustomerCodePk(customerCodePk));
+        }
+        if (customerName != null && !customerName.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerName(customerName));
+        }
+        if (customerEmail != null && !customerEmail.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerEmail(customerEmail));
+        }
+        if (customerPhoneNumber != null && !customerPhoneNumber.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerPhoneNumber(customerPhoneNumber));
+        }
+        if (customerEnglishName != null && !customerEnglishName.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerEnglishName(customerEnglishName));
+        }
+        if (customerAddress != null && !customerAddress.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerAddress(customerAddress));
+        }
+        if (customerInfoAgreement != null) {
+            spec = spec.and(CustomerSpecification.equalsCustomerInfoAgreement(customerInfoAgreement));
+        }
+        if (customerStatus != null) {
+            spec = spec.and(CustomerSpecification.equalsCustomerStatus(customerStatus));
+        }
+        if (customerRegisteredDate != null) {
+            spec = spec.and(CustomerSpecification.equalsCustomerRegisteredDate(customerRegisteredDate));
+        }
+        if (nationCodeFk != null) {
+            spec = spec.and(CustomerSpecification.equalsNationCodeFk(nationCodeFk));
+        }
+        if (customerGender != null && !customerGender.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerGender(customerGender));
+        }
+        if (nationName != null && !nationName.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsNationName(nationName));
+        }
+        // 멤버십 레벨 이름으로 필터링
+        if (membershipLevelName != null && !membershipLevelName.isEmpty()) {
+            MembershipEntity membership = membershipRepository.findByMembershipLevelName(membershipLevelName);
+            if (membership != null) {
+                spec = spec.and(CustomerSpecification.equalsMembershipLevelName(membershipLevelName));
+            }
+        }
+        // 고객 유형으로 필터링
+        if (customerType != null && !customerType.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerType(customerType));
+        }
 
-		return spec;
-	}
+        return spec;
+    }
 
-	private Specification<CustomerEntity> spec(
-		Integer customerCodePk,
-		String customerName,
-		String customerEmail,
-		String customerPhoneNumber,
-		String customerEnglishName,
-		String customerAddress,
-		Integer customerInfoAgreement,
-		Integer customerStatus,
-		Date customerRegisteredDate,
-		Integer nationCodeFk,
-		String customerGender,
-		String nationName,
-		String customerType,
-		String membershipLevelName
-	) {
+    private Specification<CustomerEntity> spec(
+        Integer customerCodePk,
+        String customerName,
+        String customerEmail,
+        String customerPhoneNumber,
+        String customerEnglishName,
+        String customerAddress,
+        Integer customerInfoAgreement,
+        Integer customerStatus,
+        Date customerRegisteredDate,
+        Integer nationCodeFk,
+        String customerGender,
+        String nationName,
+        String customerType,
+        String membershipLevelName
+    ) {
 
-		Specification<CustomerEntity> spec = Specification.where(null);
+        Specification<CustomerEntity> spec = Specification.where(null);
 
-		if (customerCodePk != null) {
-			spec = spec.and(CustomerSpecification.equalsCustomerCodePk(customerCodePk));
-		}
-		if (customerName != null && !customerName.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerName(customerName));
-		}
-		if (customerEmail != null && !customerEmail.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerEmail(customerEmail));
-		}
-		if (customerPhoneNumber != null && !customerPhoneNumber.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerPhoneNumber(customerPhoneNumber));
-		}
-		if (customerEnglishName != null && !customerEnglishName.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerEnglishName(customerEnglishName));
-		}
-		if (customerAddress != null && !customerAddress.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerAddress(customerAddress));
-		}
-		if (customerInfoAgreement != null) {
-			spec = spec.and(CustomerSpecification.equalsCustomerInfoAgreement(customerInfoAgreement));
-		}
-		if (customerStatus != null) {
-			spec = spec.and(CustomerSpecification.equalsCustomerStatus(customerStatus));
-		}
-		if (customerRegisteredDate != null) {
-			spec = spec.and(CustomerSpecification.equalsCustomerRegisteredDate(customerRegisteredDate));
-		}
-		if (nationCodeFk != null) {
-			spec = spec.and(CustomerSpecification.equalsNationCodeFk(nationCodeFk));
-		}
-		if (customerGender != null && !customerGender.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerGender(customerGender));
-		}
-		if (nationName != null && !nationName.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsNationName(nationName));
-		}
-		// 멤버십 레벨 이름으로 필터링
-		if (membershipLevelName != null && !membershipLevelName.isEmpty()) {
-			MembershipEntity membership = membershipRepository.findByMembershipLevelName(membershipLevelName);
-			if (membership != null) {
-				spec = spec.and(CustomerSpecification.equalsMembershipLevelName(membershipLevelName));
-			}
-		}
-		// 고객 유형으로 필터링
-		if (customerType != null && !customerType.isEmpty()) {
-			spec = spec.and(CustomerSpecification.equalsCustomerType(customerType));
-		}
+        if (customerCodePk != null) {
+            spec = spec.and(CustomerSpecification.equalsCustomerCodePk(customerCodePk));
+        }
+        if (customerName != null && !customerName.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerName(customerName));
+        }
+        if (customerEmail != null && !customerEmail.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerEmail(customerEmail));
+        }
+        if (customerPhoneNumber != null && !customerPhoneNumber.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerPhoneNumber(customerPhoneNumber));
+        }
+        if (customerEnglishName != null && !customerEnglishName.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerEnglishName(customerEnglishName));
+        }
+        if (customerAddress != null && !customerAddress.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerAddress(customerAddress));
+        }
+        if (customerInfoAgreement != null) {
+            spec = spec.and(CustomerSpecification.equalsCustomerInfoAgreement(customerInfoAgreement));
+        }
+        if (customerStatus != null) {
+            spec = spec.and(CustomerSpecification.equalsCustomerStatus(customerStatus));
+        }
+        if (customerRegisteredDate != null) {
+            spec = spec.and(CustomerSpecification.equalsCustomerRegisteredDate(customerRegisteredDate));
+        }
+        if (nationCodeFk != null) {
+            spec = spec.and(CustomerSpecification.equalsNationCodeFk(nationCodeFk));
+        }
+        if (customerGender != null && !customerGender.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerGender(customerGender));
+        }
+        if (nationName != null && !nationName.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsNationName(nationName));
+        }
 
-		return spec;
-	}
+        // 멤버십 레벨 이름으로 필터링
+        if (membershipLevelName != null && !membershipLevelName.isEmpty()) {
+            MembershipEntity membership = membershipRepository.findByMembershipLevelName(membershipLevelName);
+            if (membership != null) {
+                spec = spec.and(CustomerSpecification.equalsMembershipLevelName(membershipLevelName));
+            }
+        }
+        // 고객 유형으로 필터링
+        if (customerType != null && !customerType.isEmpty()) {
+            spec = spec.and(CustomerSpecification.equalsCustomerType(customerType));
+        }
+
+        return spec;
+    }
 }

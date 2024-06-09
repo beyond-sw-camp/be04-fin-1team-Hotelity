@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.employee.aggregate.*;
 import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 import org.iot.hotelitybackend.employee.repository.*;
+import org.iot.hotelitybackend.employee.vo.EmployeeSearchCriteria;
 import org.iot.hotelitybackend.employee.vo.RequestEmployee;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.BranchEntity;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
@@ -73,24 +74,62 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Map<String, Object> selectEmployeesList(
-            Integer pageNum,
-            Integer employeeCode,
-            String employeeName,
-            String employeeAddress,
-            String employeePhoneNumber,
-            String employeeOfficePhoneNumber,
-            String employeeEmail,
-            String employeeResignStatus,
-            Integer permissionCode,
-            Integer positionCode,
-            Integer rankCode,
-            Integer departmentCode,
-            String branchCode,
-            String orderBy,
-            Integer sortBy
-    ) {
+    public Map<String, Object> selectEmployeesList(EmployeeSearchCriteria criteria) {
+        Specification<EmployeeEntity> spec = buildSpecification(criteria);
+
+        Map<String, Object> employeePageInfo = new HashMap<>();
+        List<EmployeeDTO> employeeDTOList;
+
+        if (criteria.getPageNum() != null) {
+            Pageable pageable;
+
+            if (criteria.getOrderBy() != null && !criteria.getOrderBy().isEmpty() && criteria.getSortBy() != null) {
+                pageable = PageRequest.of(criteria.getPageNum(), PAGE_SIZE, criteria.getSortBy() == 1
+                        ? Sort.by(criteria.getOrderBy()).ascending()
+                        : Sort.by(criteria.getOrderBy()).descending());
+            } else {
+                pageable = PageRequest.of(criteria.getPageNum(), PAGE_SIZE);
+            }
+            Page<EmployeeEntity> employeePage = employeeRepository.findAll(spec, pageable);
+
+            employeeDTOList = employeePage
+                    .stream()
+                    .map(employeeEntity -> mapper.map(employeeEntity, EmployeeDTO.class))
+                    .toList();
+
+            int totalPagesCount = employeePage.getTotalPages();
+            int currentPageIndex = employeePage.getNumber();
+
+            employeePageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+            employeePageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+        } else {
+            List<EmployeeEntity> employeeEntityList = employeeRepository.findAll(spec);
+            employeeDTOList = employeeEntityList
+                    .stream()
+                    .map(employeeEntity -> mapper.map(employeeEntity, EmployeeDTO.class))
+                    .toList();
+        }
+
+        employeePageInfo.put(KEY_CONTENT, employeeDTOList);
+
+        return employeePageInfo;
+    }
+
+    private Specification<EmployeeEntity> buildSpecification(EmployeeSearchCriteria criteria) {
         Specification<EmployeeEntity> spec = (root, query, criteriaBuilder) -> null;
+
+        Integer employeeCode = criteria.getEmployeeCode();
+        String employeeName = criteria.getEmployeeName();
+        String employeeAddress = criteria.getEmployeeAddress();
+        String employeePhoneNumber = criteria.getEmployeePhoneNumber();
+        String employeeOfficePhoneNumber = criteria.getEmployeeOfficePhoneNumber();
+        String employeeEmail = criteria.getEmployeeEmail();
+        String employeeResignStatus = criteria.getEmployeeResignStatus();
+        Integer permissionCode = criteria.getPermissionCode();
+        Integer positionCode = criteria.getPositionCode();
+        Integer rankCode = criteria.getRankCode();
+        Integer departmentCode = criteria.getDepartmentCode();
+        String branchCode = criteria.getBranchCode();
 
         if (employeeCode != null) {
             spec = spec.and(EmployeeSpecification.equalsEmployeeCodePk(employeeCode));
@@ -139,43 +178,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (branchCode != null && !branchCode.isEmpty()) {
             spec = spec.and(EmployeeSpecification.equalsBranch(branchCode));
         }
-
-        Map<String, Object> employeePageInfo = new HashMap<>();
-        List<EmployeeDTO> employeeDTOList;
-
-        if (pageNum != null) {
-            Pageable pageable;
-
-            if (orderBy != null && !orderBy.isEmpty() && sortBy != null) {
-                pageable = PageRequest.of(pageNum, PAGE_SIZE, sortBy == 1
-                        ? Sort.by(orderBy).ascending()
-                        : Sort.by(orderBy).descending());
-            } else {
-                pageable = PageRequest.of(pageNum, PAGE_SIZE);
-            }
-            Page<EmployeeEntity> employeePage = employeeRepository.findAll(spec, pageable);
-
-            employeeDTOList = employeePage
-                    .stream()
-                    .map(employeeEntity -> mapper.map(employeeEntity, EmployeeDTO.class))
-                    .toList();
-
-            int totalPagesCount = employeePage.getTotalPages();
-            int currentPageIndex = employeePage.getNumber();
-
-            employeePageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-            employeePageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-        } else {
-            List<EmployeeEntity> employeeEntityList = employeeRepository.findAll(spec);
-            employeeDTOList = employeeEntityList
-                    .stream()
-                    .map(employeeEntity -> mapper.map(employeeEntity, EmployeeDTO.class))
-                    .toList();
-        }
-
-        employeePageInfo.put(KEY_CONTENT, employeeDTOList);
-
-        return employeePageInfo;
+        return spec;
     }
 
     @Override
