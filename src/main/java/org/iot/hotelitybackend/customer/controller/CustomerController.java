@@ -5,6 +5,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.iot.hotelitybackend.common.vo.CustomerCriteria;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.dto.SelectCustomerDTO;
@@ -44,28 +45,8 @@ public class CustomerController {
     }
 
     @GetMapping("/page")
-    public ResponseEntity<ResponseVO> selectCustomersList(
-        @RequestParam(required = false) Integer customerCodePk,
-        @RequestParam(required = false) String customerName,
-        @RequestParam(required = false) String customerEmail,
-        @RequestParam(required = false) String customerPhoneNumber,
-        @RequestParam(required = false) String customerEnglishName,
-        @RequestParam(required = false) String customerAddress,
-        @RequestParam(required = false) Integer customerInfoAgreement,
-        @RequestParam(required = false) Integer customerStatus,
-        @RequestParam(required = false) Date customerRegisteredDate,
-        @RequestParam(required = false) Integer nationCodeFk,
-        @RequestParam(required = false) String customerGender,
-        @RequestParam(required = false) String nationName,
-        @RequestParam(required = false) String customerType,
-        @RequestParam(required = false) String membershipLevelName,
-        @RequestParam(required = false) String orderBy,
-        @RequestParam(required = false) Integer sortBy,
-        @RequestParam Integer pageNum) {
-        Map<String, Object> customerPageInfo = customerService.selectCustomersList(
-            customerCodePk, customerName, customerEmail, customerPhoneNumber, customerEnglishName,
-            customerAddress, customerInfoAgreement, customerStatus, customerRegisteredDate, nationCodeFk,
-            customerGender, nationName, customerType, membershipLevelName, orderBy, sortBy, pageNum);
+    public ResponseEntity<ResponseVO> selectCustomersList(@ModelAttribute CustomerCriteria criteria) {
+        Map<String, Object> customerPageInfo = customerService.selectCustomersList(criteria);
 
         ResponseVO response = ResponseVO.builder()
                 .data(customerPageInfo)

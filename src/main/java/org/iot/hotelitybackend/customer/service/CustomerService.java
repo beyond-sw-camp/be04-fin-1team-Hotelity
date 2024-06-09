@@ -6,19 +6,11 @@ import java.util.Date;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Workbook;
+import org.iot.hotelitybackend.common.vo.CustomerCriteria;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.dto.SelectCustomerDTO;
 
 public interface CustomerService {
-    Map<String, Object> selectCustomersList(Integer customerCodePk, String customerName, String customerEmail,
-		String customerPhoneNumber, String customerEnglishName, String customerAddress, Integer customerInfoAgreement, Integer customerStatus,
-		Date customerRegisteredDate, Integer nationCodeFk, String customerGender, String nationName, String customerType,
-		String membershipLevelName, String orderBy, Integer sortBy, Integer pageNum);
-
-	// Map<String, Object> selectCustomersListTest(Integer customerCodePk, String customerName, String customerEmail,
-	// 	String customerPhoneNumber, String customerEnglishName, String customerAddress, Integer customerInfoAgreement, Integer customerStatus,
-	// 	Date customerRegisteredDate, Integer nationCodeFk, String customerGender, String nationName, String customerType,
-	// 	String membershipLevelName, String orderBy, Integer sortBy, Integer pageNum);
 
     SelectCustomerDTO selectCustomerByCustomerCodePk(Integer customerCodePk);
 
@@ -32,4 +24,7 @@ public interface CustomerService {
 	Map<String, Object> deleteCustomerByCustomerCodePk(int customerCodePk);
 
 	Map<String, Object> insertCustomer(CustomerDTO customerDTO);
+
+	Map<String, Object> selectCustomersList(CustomerCriteria criteria);
+
 }
