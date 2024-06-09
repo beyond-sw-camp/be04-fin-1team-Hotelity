@@ -29,6 +29,7 @@ import org.iot.hotelitybackend.hotelmanagement.dto.AncillaryDTO;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryCategoryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
+import org.iot.hotelitybackend.hotelmanagement.vo.AncillarySearchCriteria;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyFacility;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestRegistFacility;
 import org.modelmapper.ModelMapper;
@@ -72,78 +73,16 @@ public class AncillaryServiceImpl implements AncillaryService{
 	}
 
 	@Override
-	public Map<String, Object> selectAllFacilities(
-			Integer pageNum,
-			Integer ancillaryCodePk,
-			String ancillaryName,
-			String branchCodeFk,
-			String ancillaryLocation,
-			LocalTime ancillaryOpenTime,
-			LocalTime ancillaryCloseTime,
-			String ancillaryPhoneNumber,
-			Integer ancillaryCategoryCodeFk,
-			String branchName,
-			String ancillaryCategoryName,
-			String orderBy,
-			Integer sortBy
-	) {
+	public Map<String, Object> selectAllFacilities(AncillarySearchCriteria criteria) {
 
-		Specification<AncillaryEntity> spec = (root, query, criteriaBuilder) -> null;
+		Specification<AncillaryEntity> spec = buildSpecification(criteria);
 
-
-		// 1-1. 부대시설코드 기준으로 필터링
-		if (ancillaryCodePk != null) {
-			spec = spec.and(AncillarySpecification.equalsAncillaryCodePk(ancillaryCodePk));
-		}
-
-		// 1-2. 부대시설이름 기준으로 검색
-		if (ancillaryName != null) {
-			spec = spec.and(AncillarySpecification.likeAncillaryName(ancillaryName));
-		}
-
-		// 1-3. 지점이름 기준으로 검색
-		if (branchName != null) {
-			spec = spec.and(
-				AncillarySpecification.equalsBranchCodeFk(
-					branchRepository.findByBranchName(branchName)
-						.getBranchCodePk()
-				)
-			);
-		}
-
-		// 1-4. 부대시설위치 기준으로 검색 (like)
-		if (ancillaryLocation != null) {
-			spec = spec.and(AncillarySpecification.likeAncillaryLocation(ancillaryLocation));
-		}
-
-		// 1-5. 검색할 운영시작시간보다 큰 기준으로 검색
-		if (ancillaryOpenTime != null) {
-			spec = spec.and(AncillarySpecification.byOpenTimeGreaterThenOrEqual(ancillaryOpenTime));
-		}
-
-		// 1-6. 검색할 운영종료시간보다 작은 기준으로 검색
-		if (ancillaryCloseTime != null) {
-			spec = spec.and(AncillarySpecification.byCloseTimeLessThenOrEqual(ancillaryCloseTime));
-		}
-
-		// 1-7. 부대시설전화번호 기준으로 검색 (like)
-		if (ancillaryPhoneNumber != null) {
-			spec = spec.and(AncillarySpecification.likeAncillaryPhoneNumber(ancillaryPhoneNumber));
-		}
-
-		// 1-8. 부대시설카테고리이름 기준으로 검색
-		if (ancillaryCategoryName != null) {
-			spec = spec.and(
-				AncillarySpecification.equalsAncillaryCategoryCodeFk(
-					ancillaryCategoryRepository.findByAncillaryCategoryName(ancillaryCategoryName)
-						.getAncillaryCategoryCodePk()
-				)
-			);
-		}
-
-		// 2. 위에서 구성한 Specification 을 적용하여 findAll
 		List<AncillaryDTO> ancillaryDTOList;
 		Map<String, Object> ancillaryListInfo = new HashMap<>();
+
+		Integer pageNum = criteria.getPageNum();
+		String orderBy = criteria.getOrderBy();
+		Integer sortBy = criteria.getSortBy();
 
 		// 2-1. 페이징처리 할 때
 		if (pageNum != null) {
@@ -220,6 +159,74 @@ public class AncillaryServiceImpl implements AncillaryService{
 		ancillaryListInfo.put(KEY_CONTENT, ancillaryDTOList);
 
 		return ancillaryListInfo;
+	}
+
+	private Specification<AncillaryEntity> buildSpecification(AncillarySearchCriteria criteria) {
+		Integer pageNum = criteria.getPageNum();
+		Integer ancillaryCodePk = criteria.getAncillaryCodePk();
+		String ancillaryName = criteria.getAncillaryName();
+		String branchCodeFk = criteria.getBranchCodeFk();
+		String ancillaryLocation = criteria.getAncillaryLocation();
+		LocalTime ancillaryOpenTime = criteria.getAncillaryOpenTime();
+		LocalTime ancillaryCloseTime = criteria.getAncillaryCloseTime();
+		String ancillaryPhoneNumber = criteria.getAncillaryPhoneNumber();
+		Integer ancillaryCategoryCodeFk = criteria.getAncillaryCategoryCodeFk();
+		String branchName = criteria.getBranchName();
+		String ancillaryCategoryName = criteria.getAncillaryCategoryName();
+
+		Specification<AncillaryEntity> spec = (root, query, criteriaBuilder) -> null;
+
+		// 1-1. 부대시설코드 기준으로 필터링
+		if (ancillaryCodePk != null) {
+			spec = spec.and(AncillarySpecification.equalsAncillaryCodePk(ancillaryCodePk));
+		}
+
+		// 1-2. 부대시설이름 기준으로 검색
+		if (ancillaryName != null) {
+			spec = spec.and(AncillarySpecification.likeAncillaryName(ancillaryName));
+		}
+
+		// 1-3. 지점이름 기준으로 검색
+		if (branchName != null) {
+			spec = spec.and(
+				AncillarySpecification.equalsBranchCodeFk(
+					branchRepository.findByBranchName(branchName)
+						.getBranchCodePk()
+				)
+			);
+		}
+
+		// 1-4. 부대시설위치 기준으로 검색 (like)
+		if (ancillaryLocation != null) {
+			spec = spec.and(AncillarySpecification.likeAncillaryLocation(ancillaryLocation));
+		}
+
+		// 1-5. 검색할 운영시작시간보다 큰 기준으로 검색
+		if (ancillaryOpenTime != null) {
+			spec = spec.and(AncillarySpecification.byOpenTimeGreaterThenOrEqual(ancillaryOpenTime));
+		}
+
+		// 1-6. 검색할 운영종료시간보다 작은 기준으로 검색
+		if (ancillaryCloseTime != null) {
+			spec = spec.and(AncillarySpecification.byCloseTimeLessThenOrEqual(ancillaryCloseTime));
+		}
+
+		// 1-7. 부대시설전화번호 기준으로 검색 (like)
+		if (ancillaryPhoneNumber != null) {
+			spec = spec.and(AncillarySpecification.likeAncillaryPhoneNumber(ancillaryPhoneNumber));
+		}
+
+		// 1-8. 부대시설카테고리이름 기준으로 검색
+		if (ancillaryCategoryName != null) {
+			spec = spec.and(
+				AncillarySpecification.equalsAncillaryCategoryCodeFk(
+					ancillaryCategoryRepository.findByAncillaryCategoryName(ancillaryCategoryName)
+						.getAncillaryCategoryCodePk()
+				)
+			);
+		}
+
+		return spec;
 	}
 
 	@Override
