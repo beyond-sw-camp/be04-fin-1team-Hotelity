@@ -47,6 +47,7 @@ public class CouponIssueServiceImpl implements CouponIssueService{
             modelMapper.map(CouponIssueEntity::getCouponName, CouponIssueDTO::setCustomerName);
             modelMapper.map(CouponIssueEntity::getCustomerName, CouponIssueDTO::setCouponDiscountRate);
             modelMapper.map(CouponIssueEntity::getCouponDiscountRate, CouponIssueDTO::setCouponDiscountRate);
+            modelMapper.map(CouponIssueEntity::getMembershipLevelName, CouponIssueDTO::setMembershipLevelName);
         });
     }
 

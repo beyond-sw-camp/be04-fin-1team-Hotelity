@@ -49,6 +49,15 @@ public class CouponIssueEntity {
         + ")")
     private Double couponDiscountRate;
 
+    @Formula("("
+        + "SELECT m.membership_level_name "
+        + "FROM coupon_issue_tb ci "
+        + "JOIN coupon_tb c ON ci.coupon_code_fk = c.coupon_code_pk "
+        + "JOIN membership_tb m ON c.membership_level_code_fk = m.membership_level_code_pk "
+        + "WHERE ci.coupon_issue_code_pk = coupon_issue_code_pk "
+        + ")")
+    private String membershipLevelName;
+
     @Builder
     public CouponIssueEntity(
         Integer couponIssueCodePk,
@@ -58,7 +67,7 @@ public class CouponIssueEntity {
         Date couponIssueDate,
         Date couponExpireDate,
         Date couponUseDate,
-        String couponName, String customerName, Double couponDiscountRate
+        String couponName, String customerName, Double couponDiscountRate, String membershipLevelName
 	) {
         this.couponIssueCodePk = couponIssueCodePk;
         this.customerCodeFk = customerCodeFk;
@@ -70,5 +79,6 @@ public class CouponIssueEntity {
 		this.couponName = couponName;
 		this.customerName = customerName;
 		this.couponDiscountRate = couponDiscountRate;
+		this.membershipLevelName = membershipLevelName;
 	}
 }
