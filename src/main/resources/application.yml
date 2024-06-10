@@ -7,10 +7,14 @@ spring:
   profiles:
     active: dev
   datasource:
+#    driver-class-name: org.mariadb.jdbc.Driver
+#    url: ENC(otztEs5aKXne8m58InHx6eDrOsCGK64i7ZLJUho6/K+yRK/rp5xTA6RruJUx9/GVEbjmMKmiYmYLC6RKPnadzbNsnno0uNLLzNUOMQ+B0kauAyDbD/anZAv06GyjmCdyfm05VWIOF2g=)
+#    username: ENC(LwXqcdnmfm/JKkHwzvaVpA==)
+#    password: ENC(iMwe5lEyyaFkIqpSxsGwrzAs4YOJlsBY)
     driver-class-name: org.mariadb.jdbc.Driver
-    url: ENC(otztEs5aKXne8m58InHx6eDrOsCGK64i7ZLJUho6/K+yRK/rp5xTA6RruJUx9/GVEbjmMKmiYmYLC6RKPnadzbNsnno0uNLLzNUOMQ+B0kauAyDbD/anZAv06GyjmCdyfm05VWIOF2g=)
-    username: ENC(LwXqcdnmfm/JKkHwzvaVpA==)
-    password: ENC(iMwe5lEyyaFkIqpSxsGwrzAs4YOJlsBY)
+    url: jdbc:mariadb://localhost:3306/hotelity
+    username: swcamp
+    password: swcamp
     hikari:
       maximumPoolSize: 15
       minimumIdle: 5
