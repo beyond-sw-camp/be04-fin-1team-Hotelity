@@ -41,16 +41,16 @@ public class ReservationController {
 	/* 월별 예약 리스트 전체 조회 */
 	/* 해당 월에 예약된 전체 리스트(페이징 처리 x)를 프론트로 넘겨주면
 	 * 프론트에서 해당 리스트를 받아 날짜를 기준으로 예약 건 수를 카운트 하여 캘린더에 출력 */
-	@GetMapping("/reservations/{reservationCheckinDate}")
+	@GetMapping("/reservations/{reservationCheckinDatePathVariable}")
 	public ResponseEntity<ResponseVO> selectReservationListByMonth(
-		@PathVariable("reservationCheckinDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime reservationCheckinDate,
+		@PathVariable("reservationCheckinDatePathVariable") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime reservationCheckinDatePathVariable,
 		@ModelAttribute ReservationSearchCriteria criteria
 	) {
-		int year = reservationCheckinDate.getYear();
-		int month = reservationCheckinDate.getMonthValue();
+		int year = reservationCheckinDatePathVariable.getYear();
+		int month = reservationCheckinDatePathVariable.getMonthValue();
 
 		Map<String, Object> reservationInfo =
-			reservationService.selectReservationListByMonth(year, month, criteria);
+			reservationService.selectReservationListByMonth(reservationCheckinDatePathVariable, year, month, criteria);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(reservationInfo)
@@ -134,7 +134,7 @@ public class ReservationController {
 
 		// 조회해서 DTO 리스트 가져오기
 		Map<String, Object> reservationInfo =
-			reservationService.selectReservationListByMonth(year, month, criteria);
+			reservationService.selectReservationListByMonth(reservationCheckinDate, year, month, criteria);
 
 		try {
 

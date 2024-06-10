@@ -76,6 +76,7 @@ public class ReservationServiceImpl implements ReservationService {
 	/* 월별 예약 리스트 전체 조회 */
 	@Override
 	public Map<String, Object> selectReservationListByMonth(
+		LocalDateTime reservationCheckinDatePathVariable,
 		int year,
 		int month,
 		ReservationSearchCriteria criteria
@@ -92,7 +93,11 @@ public class ReservationServiceImpl implements ReservationService {
 		System.out.println("해당 월의 마지막 일자: " + endOfMonth);
 
 		// Specification 생성
-		Specification<ReservationEntity> spec = buildSpecification(criteria, startOfMonth, endOfMonth);
+		Specification<ReservationEntity> specInit =
+			Specification.where(ReservationSpecification.betweenDate(startOfMonth, endOfMonth));
+
+		System.out.println("criteria.getReservationCheckinDate(): " + criteria.getReservationCheckinDate());
+		Specification<ReservationEntity> spec = buildSpecification(specInit, criteria);
 
 		String orderBy = criteria.getOrderBy();
 		Integer sortBy = criteria.getSortBy();
@@ -121,9 +126,8 @@ public class ReservationServiceImpl implements ReservationService {
 	}
 
 	private Specification<ReservationEntity> buildSpecification(
-		ReservationSearchCriteria criteria,
-		LocalDateTime startOfMonth,
-		LocalDateTime endOfMonth
+		Specification<ReservationEntity> specInit,
+		ReservationSearchCriteria criteria
 	) {
 		Integer reservationCodePk = criteria.getReservationCodePk();
 		Integer customerCodeFk = criteria.getCustomerCodeFk();
@@ -139,60 +143,59 @@ public class ReservationServiceImpl implements ReservationService {
 		LocalDateTime reservationCheckoutDate = criteria.getReservationCheckoutDate();
 		Integer reservationCancelStatus = criteria.getReservationCancelStatus();
 
-		Specification<ReservationEntity> spec =
-			Specification.where(ReservationSpecification.betweenDate(startOfMonth, endOfMonth));
+		Specification<ReservationEntity> spec = specInit;
 
 		// 예약코드
 		if (reservationCodePk != null) {
-			spec = spec.and(ReservationSpecification.equalsReservationCodePk(reservationCodePk));
+			spec = specInit.and(ReservationSpecification.equalsReservationCodePk(reservationCodePk));
 		}
 		// 고객코드
 		if (customerCodeFk != null) {
-			spec = spec.and(ReservationSpecification.equalsCustomerCodeFk(customerCodeFk));
+			spec = specInit.and(ReservationSpecification.equalsCustomerCodeFk(customerCodeFk));
 		}
 		// 한글이름
 		if (customerName != null) {
-			spec = spec.and(ReservationSpecification.likeCustomerName(customerName));
+			spec = specInit.and(ReservationSpecification.likeCustomerName(customerName));
 		}
 		// 영어이름
 		if (customerEnglishName != null) {
-			spec = spec.and(ReservationSpecification.likeCustomerEnglishName(customerEnglishName));
+			spec = specInit.and(ReservationSpecification.likeCustomerEnglishName(customerEnglishName));
 		}
 		// 객실 코드
 		if (roomCodeFk != null) {
-			spec = spec.and(ReservationSpecification.likeRoomCodeFk(roomCodeFk));
+			spec = specInit.and(ReservationSpecification.likeRoomCodeFk(roomCodeFk));
 		}
 		// 객실명
 		if (roomName != null) {
-			spec = spec.and(ReservationSpecification.likeRoomName(roomName));
+			spec = specInit.and(ReservationSpecification.likeRoomName(roomName));
 		}
 		// 객실등급명
 		if (roomLevelName != null) {
-			spec = spec.and(ReservationSpecification.likeRoomLevelName(roomLevelName));
+			spec = specInit.and(ReservationSpecification.likeRoomLevelName(roomLevelName));
 		}
 		// 객실수용인원
 		if (roomCapacity != null) {
-			spec = spec.and(ReservationSpecification.equalsRoomCapacity(roomCapacity));
+			spec = specInit.and(ReservationSpecification.equalsRoomCapacity(roomCapacity));
 		}
 		// 지점코드
 		if (branchCodeFk != null) {
-			spec = spec.and(ReservationSpecification.equalsBranchCodeFk(branchCodeFk));
+			spec = specInit.and(ReservationSpecification.equalsBranchCodeFk(branchCodeFk));
 		}
 		// 예약일자
 		if (reservationDate != null) {
-			spec = spec.and(ReservationSpecification.equalsReservationDate(reservationDate));
+			spec = specInit.and(ReservationSpecification.equalsReservationDate(reservationDate));
 		}
 		// 체크인일자
 		if (reservationCheckinDate != null) {
-			spec = spec.and(ReservationSpecification.equalsCheckinDate(reservationCheckinDate));
+			spec = specInit.and(ReservationSpecification.equalsCheckinDate(reservationCheckinDate));
 		}
 		// 체크아웃일자
 		if (reservationCheckoutDate != null) {
-			spec = spec.and(ReservationSpecification.equalsCheckoutDate(reservationCheckoutDate));
+			spec = specInit.and(ReservationSpecification.equalsCheckoutDate(reservationCheckoutDate));
 		}
 		// 예약취소여부
 		if (reservationCancelStatus != null) {
-			spec = spec.and(ReservationSpecification.equalsReservationCancleStatus(reservationCancelStatus));
+			spec = specInit.and(ReservationSpecification.equalsReservationCancleStatus(reservationCancelStatus));
 		}
 		return spec;
 	}

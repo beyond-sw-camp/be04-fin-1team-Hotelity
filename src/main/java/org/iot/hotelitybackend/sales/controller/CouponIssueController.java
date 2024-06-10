@@ -36,17 +36,6 @@ public class CouponIssueController {
 
     @GetMapping("/coupons/issue/page")
     public ResponseEntity<ResponseVO> selectCouponIssueList(
-        // @RequestParam(required = false) Integer pageNum,
-        // @RequestParam(required = false) Integer couponIssueCodePk,
-        // @RequestParam(required = false) String couponName,
-        // @RequestParam(required = false) String customerName,
-        // @RequestParam(required = false) Integer customerCodePk,
-        // @RequestParam(required = false) Double couponDiscountRate,
-        // @RequestParam(required = false) LocalDateTime couponIssueDate,
-        // @RequestParam(required = false) LocalDateTime couponExpireDate,
-        // @RequestParam(required = false) LocalDateTime couponUseDate,
-        // @RequestParam(required = false) String orderBy,
-        // @RequestParam(required = false) Integer sortBy
         @ModelAttribute CouponIssueSearchCriteria criteria
     ) {
         Map<String, Object> couponIssuePageInfo = couponIssueService.selectCouponIssueList(
@@ -77,17 +66,6 @@ public class CouponIssueController {
 
     @GetMapping("/coupons/issue/page/excel/download")
     public ResponseEntity<InputStreamResource> downloadCouponIssueList(
-        // @RequestParam(required = false) Integer pageNum,
-        // @RequestParam(required = false) Integer couponIssueCodePk,
-        // @RequestParam(required = false) String couponName,
-        // @RequestParam(required = false) String customerName,
-        // @RequestParam(required = false) Integer customerCodePk,
-        // @RequestParam(required = false) Double couponDiscountRate,
-        // @RequestParam(required = false) LocalDateTime couponIssueDate,
-        // @RequestParam(required = false) LocalDateTime couponExpireDate,
-        // @RequestParam(required = false) LocalDateTime couponUseDate,
-        // @RequestParam(required = false) String orderBy,
-        // @RequestParam(required = false) Integer sortBy
         @ModelAttribute CouponIssueSearchCriteria criteria
     ) {
 

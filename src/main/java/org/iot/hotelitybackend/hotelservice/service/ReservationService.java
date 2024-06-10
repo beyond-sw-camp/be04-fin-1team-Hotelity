@@ -9,6 +9,7 @@ import org.iot.hotelitybackend.hotelservice.vo.ReservationSearchCriteria;
 
 public interface ReservationService {
 	Map<String, Object> selectReservationListByMonth(
+		LocalDateTime reservationCheckinDate,
 		int year,
 		int month,
 		ReservationSearchCriteria criteria
