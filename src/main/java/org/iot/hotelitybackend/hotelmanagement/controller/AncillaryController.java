@@ -49,6 +49,18 @@ public class AncillaryController {
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
+	@GetMapping("/facilities/{ancillaryCodePk}")
+	public ResponseEntity<ResponseVO> selectFacility(@PathVariable("ancillaryCodePk") int ancillaryCodePk) {
+		Map<String, Object> facilityInfo = ancillaryService.selectFacility(ancillaryCodePk);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(facilityInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
 	@PostMapping("/facilities")
 	public ResponseEntity<ResponseVO> registFacility(RequestRegistFacility requestRegistFacility) {
 		Map<String, Object> registFacilityInfo = ancillaryService.registFacility(requestRegistFacility);

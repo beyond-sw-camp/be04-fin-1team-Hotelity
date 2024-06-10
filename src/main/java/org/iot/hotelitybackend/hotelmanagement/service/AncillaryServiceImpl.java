@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -26,7 +27,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.AncillaryEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.AncillarySpecification;
 import org.iot.hotelitybackend.hotelmanagement.dto.AncillaryDTO;
+import org.iot.hotelitybackend.hotelmanagement.dto.AncillaryImageDTO;
+import org.iot.hotelitybackend.hotelmanagement.dto.SelectAncillaryDTO;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryCategoryRepository;
+import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryImageRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
 import org.iot.hotelitybackend.hotelmanagement.vo.AncillarySearchCriteria;
@@ -52,13 +56,16 @@ public class AncillaryServiceImpl implements AncillaryService{
 	private final AncillaryRepository ancillaryRepository;
 	private final AncillaryCategoryRepository ancillaryCategoryRepository;
 	private final BranchRepository branchRepository;
+	private final AncillaryImageRepository ancillaryImageRepository;
 	private final ModelMapper mapper;
 
 	@Autowired
-	public AncillaryServiceImpl(AncillaryRepository ancillaryRepository, AncillaryCategoryRepository ancillaryCategoryRepository, BranchRepository branchRepository, ModelMapper mapper) {
+	public AncillaryServiceImpl(AncillaryRepository ancillaryRepository, AncillaryCategoryRepository ancillaryCategoryRepository, BranchRepository branchRepository,
+		AncillaryImageRepository ancillaryImageRepository, ModelMapper mapper) {
 		this.ancillaryRepository = ancillaryRepository;
 		this.ancillaryCategoryRepository = ancillaryCategoryRepository;
 		this.branchRepository = branchRepository;
+		this.ancillaryImageRepository = ancillaryImageRepository;
 		this.mapper = mapper;
 		this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 		this.mapper.typeMap(AncillaryEntity.class, AncillaryDTO.class)
@@ -343,6 +350,33 @@ public class AncillaryServiceImpl implements AncillaryService{
 		result.put("fileName", fileName);
 		result.put("headers", headers);
 		return result;
+	}
+
+	@Override
+	public Map<String, Object> selectFacility(int ancillaryCodePk) {
+		Map<String, Object> facilityInfo = new HashMap<>();
+		SelectAncillaryDTO selectAncillaryDTO = mapper.map(
+			ancillaryRepository.findById(ancillaryCodePk).orElseThrow(IllegalArgumentException::new),
+			SelectAncillaryDTO.class
+		);
+		selectAncillaryDTO.setBranchName(
+			branchRepository.findById(selectAncillaryDTO.getBranchCodeFk())
+				.orElseThrow(IllegalArgumentException::new)
+				.getBranchName()
+		);
+		selectAncillaryDTO.setAncillaryCategoryName(
+			ancillaryCategoryRepository.findById(selectAncillaryDTO.getAncillaryCategoryCodeFk())
+				.orElseThrow(IllegalArgumentException::new)
+				.getAncillaryCategoryName()
+		);
+		selectAncillaryDTO.setAncillaryImageDTOList(
+			ancillaryImageRepository.findAllByAncillaryCodeFk(ancillaryCodePk)
+				.stream()
+				.map(ancillaryImageEntity -> mapper.map(ancillaryImageEntity, AncillaryImageDTO.class))
+				.collect(Collectors.toList())
+		);
+		facilityInfo.put(KEY_CONTENT, selectAncillaryDTO);
+		return facilityInfo;
 	}
 
 	// 첫번째 인자인 List<RoomDTO> 만 바꿔서 쓰면 됨
