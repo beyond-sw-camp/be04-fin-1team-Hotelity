@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import org.hibernate.annotations.Formula;
 import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
 import org.iot.hotelitybackend.employee.aggregate.EmployeeEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.BranchEntity;
@@ -41,6 +42,14 @@ public class VocEntity {
 	private String vocImageLink;
 	private String vocResponse;
 
+	@Formula("("
+		+ "SELECT e.employee_name "
+		+ "FROM voc_tb v "
+		+ "JOIN employee_tb e ON v.employee_code_fk = e.employee_code_pk "
+		+ "WHERE v.voc_code_pk = voc_code_pk"
+		+ ")")
+	private String picEmployeeName;
+
 	@Builder
 	public VocEntity(
 		Integer vocCodePk,
@@ -54,7 +63,8 @@ public class VocEntity {
 		Integer employeeCodeFk,
 		String branchCodeFk,
 		String vocImageLink,
-		String vocResponse
+		String vocResponse,
+		String picEmployeeName
 	) {
 		this.vocCodePk = vocCodePk;
 		this.vocContent = vocContent;
@@ -68,6 +78,7 @@ public class VocEntity {
 		this.branchCodeFk = branchCodeFk;
 		this.vocImageLink = vocImageLink;
 		this.vocResponse = vocResponse;
+		this.picEmployeeName = picEmployeeName;
 	}
 
 	@ManyToOne

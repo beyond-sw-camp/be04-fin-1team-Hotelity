@@ -16,12 +16,14 @@ public class VocSearchCriteria {
 	private LocalDateTime vocLastUpdatedDate;
 	private String branchCodeFk;
 	private Integer employeeCodeFk;
-	private String employeeName;
+	private String picEmployeeName;
 	private Integer vocProcessStatus;
+	private String orderBy;
+	private Integer sortBy;
 
 	public VocSearchCriteria(Integer pageNum, Integer vocCodePk, String vocTitle, String vocCategory,
 		Integer customerCodeFk, String customerName, LocalDateTime vocCreatedDate, LocalDateTime vocLastUpdatedDate,
-		String branchCodeFk, Integer employeeCodeFk, String employeeName, Integer vocProcessStatus, String orderBy,
+		String branchCodeFk, Integer employeeCodeFk, String picEmployeeName, Integer vocProcessStatus, String orderBy,
 		Integer sortBy) {
 		this.pageNum = pageNum;
 		this.vocCodePk = vocCodePk;
@@ -33,12 +35,9 @@ public class VocSearchCriteria {
 		this.vocLastUpdatedDate = vocLastUpdatedDate;
 		this.branchCodeFk = branchCodeFk;
 		this.employeeCodeFk = employeeCodeFk;
-		this.employeeName = employeeName;
+		this.picEmployeeName = picEmployeeName;
 		this.vocProcessStatus = vocProcessStatus;
 		this.orderBy = orderBy;
 		this.sortBy = sortBy;
 	}
-
-	private String orderBy;
-	private Integer sortBy;
 }

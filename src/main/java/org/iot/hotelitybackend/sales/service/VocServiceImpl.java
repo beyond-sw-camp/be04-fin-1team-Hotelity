@@ -24,6 +24,7 @@ import org.iot.hotelitybackend.sales.vo.ResponseVoc;
 import org.iot.hotelitybackend.sales.vo.VocDashboardVO;
 import org.iot.hotelitybackend.sales.vo.VocSearchCriteria;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -69,16 +70,14 @@ public class VocServiceImpl implements VocService {
 		this.vocRepository = vocRepository;
 		this.customerRepository = customerRepository;
 		this.employeeRepository = employeeRepository;
+		this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		this.mapper.typeMap(VocEntity.class, VocDTO.class).addMappings(modelMapper -> {
+			modelMapper.map(VocEntity::getPicEmployeeName, VocDTO::setPICEmployeeName);
+		});
 	}
 
 	@Override
-	public Map<String, Object> selectVocsList(
-		// int pageNum, Integer vocCodePk, String vocTitle, String vocCategory,
-		// Integer customerCodeFk, String customerName, LocalDateTime vocCreatedDate, LocalDateTime vocLastUpdatedDate,
-		// String branchCodeFk,
-		// Integer employeeCodeFk, String PICEmployeeName, Integer vocProcessStatus, String orderBy, Integer sortBy
-		VocSearchCriteria criteria
-	) {
+	public Map<String, Object> selectVocsList(VocSearchCriteria criteria) {
 
 		Integer pageNum = criteria.getPageNum();
 		String orderBy = criteria.getOrderBy();
@@ -97,62 +96,6 @@ public class VocServiceImpl implements VocService {
 		}
 
 		Specification<VocEntity> spec = buildSpecification(criteria);
-		// Specification<VocEntity> spec = (root, query, criteriaBuilder) -> null;
-		//
-		// // voc코드
-		// if (vocCodePk != null) {
-		// 	spec = spec.and(VocSpecification.equalsVocCodePk(vocCodePk));
-		// }
-		//
-		// // voc 제목
-		// if (vocTitle != null) {
-		// 	spec = spec.and(VocSpecification.likeVocTitle(vocTitle));
-		// }
-		//
-		// // voc 카테고리
-		// if (vocCategory != null) {
-		// 	spec = spec.and(VocSpecification.likeVocCategory(vocCategory));
-		// }
-		//
-		// // 고객코드
-		// if (customerCodeFk != null) {
-		// 	spec = spec.and(VocSpecification.equalsCustomerCode(customerCodeFk));
-		// }
-		//
-		// // 고객명
-		// if (customerName != null) {
-		// 	spec = spec.and(VocSpecification.likeCustomerName(customerName));
-		// }
-		//
-		// // voc 작성일자
-		// if (vocCreatedDate != null) {
-		// 	spec = spec.and(VocSpecification.equalsVocCreatedDate(vocCreatedDate));
-		// }
-		//
-		// // voc 업데이트 일자
-		// if (vocLastUpdatedDate != null) {
-		// 	spec = spec.and(VocSpecification.equalsVocLastUpdatedDate(vocLastUpdatedDate));
-		// }
-		//
-		// // 지점코드
-		// if (branchCodeFk != null) {
-		// 	spec = spec.and(VocSpecification.equalsBranchCode(branchCodeFk));
-		// }
-		//
-		// // 직원코드
-		// if (employeeCodeFk != null) {
-		// 	spec = spec.and(VocSpecification.equalsEmployeeCodeFk(employeeCodeFk));
-		// }
-		//
-		// // 직원명
-		// if (PICEmployeeName != null) {
-		// 	spec = spec.and(VocSpecification.likeEmployeeName(PICEmployeeName));
-		// }
-		//
-		// // voc 처리상태
-		// if (vocProcessStatus != null) {
-		// 	spec = spec.and(VocSpecification.equalsVocProcessStatus(vocProcessStatus));
-		// }
 
 		Page<VocEntity> vocEntityPage = vocRepository.findAll(spec, pageable);
 		List<VocDTO> vocDTOList = vocEntityPage.stream()
@@ -189,7 +132,7 @@ public class VocServiceImpl implements VocService {
 		LocalDateTime vocLastUpdatedDate = criteria.getVocLastUpdatedDate();
 		String branchCodeFk = criteria.getBranchCodeFk();
 		Integer employeeCodeFk = criteria.getEmployeeCodeFk();
-		String employeeName = criteria.getEmployeeName();
+		String picEmployeeName = criteria.getPicEmployeeName();
 		Integer vocProcessStatus = criteria.getVocProcessStatus();
 
 		Specification<VocEntity> spec = (root, query, criteriaBuilder) -> null;
@@ -240,8 +183,8 @@ public class VocServiceImpl implements VocService {
 		}
 
 		// 직원명
-		if (employeeName != null) {
-			spec = spec.and(VocSpecification.likeEmployeeName(employeeName));
+		if (picEmployeeName != null) {
+			spec = spec.and(VocSpecification.likeEmployeeName(picEmployeeName));
 		}
 
 		// voc 처리상태
