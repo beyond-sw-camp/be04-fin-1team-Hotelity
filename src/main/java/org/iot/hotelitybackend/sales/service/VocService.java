@@ -2,6 +2,7 @@ package org.iot.hotelitybackend.sales.service;
 
 import org.iot.hotelitybackend.sales.dto.VocDTO;
 import org.iot.hotelitybackend.sales.vo.RequestReplyVoc;
+import org.iot.hotelitybackend.sales.vo.VocSearchCriteria;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -11,9 +12,10 @@ import java.util.Map;
 
 public interface VocService {
     Map<String, Object> selectVocsList(
-		int pageNum, Integer vocCodePk, String vocTitle, String vocCategory,
-		Integer customerCodeFk, String customerName, LocalDateTime vocCreatedDate, LocalDateTime vocLastUpdatedDate, String branchCodeFk,
-		Integer employeeCodeFk, String PICEmployeeName, Integer vocProcessStatus, String orderBy, Integer sortBy
+		// int pageNum, Integer vocCodePk, String vocTitle, String vocCategory,
+		// Integer customerCodeFk, String customerName, LocalDateTime vocCreatedDate, LocalDateTime vocLastUpdatedDate, String branchCodeFk,
+		// Integer employeeCodeFk, String PICEmployeeName, Integer vocProcessStatus, String orderBy, Integer sortBy
+		VocSearchCriteria criteria
 	);
 
     VocDTO selectVocByVocCodePk(int vocCodePk);

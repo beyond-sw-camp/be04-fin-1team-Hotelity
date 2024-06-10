@@ -5,6 +5,7 @@ import org.iot.hotelitybackend.sales.dto.VocDTO;
 import org.iot.hotelitybackend.sales.service.VocService;
 import org.iot.hotelitybackend.sales.vo.RequestReplyVoc;
 import org.iot.hotelitybackend.sales.vo.ResponseVoc;
+import org.iot.hotelitybackend.sales.vo.VocSearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -35,25 +36,29 @@ public class VocController {
 
 	@GetMapping("/vocs/page")
 	public ResponseEntity<ResponseVO> selectVocsList(
-		@RequestParam int pageNum,
-		@RequestParam(required = false) Integer vocCodePk,
-		@RequestParam(required = false) String vocTitle,
-		@RequestParam(required = false) String vocCategory,
-		@RequestParam(required = false) Integer customerCodeFk,
-		@RequestParam(required = false) String customerName,
-		@RequestParam(required = false) LocalDateTime vocCreatedDate,
-		@RequestParam(required = false) LocalDateTime vocLastUpdatedDate,
-		@RequestParam(required = false) String branchCodeFk,
-		@RequestParam(required = false) Integer employeeCodeFk,
-		@RequestParam(required = false) String employeeName,
-		@RequestParam(required = false) Integer vocProcessStatus,
-		@RequestParam(required = false) String orderBy,
-		@RequestParam(required = false) Integer sortBy)
+		// @RequestParam int pageNum,
+		// @RequestParam(required = false) Integer vocCodePk,
+		// @RequestParam(required = false) String vocTitle,
+		// @RequestParam(required = false) String vocCategory,
+		// @RequestParam(required = false) Integer customerCodeFk,
+		// @RequestParam(required = false) String customerName,
+		// @RequestParam(required = false) LocalDateTime vocCreatedDate,
+		// @RequestParam(required = false) LocalDateTime vocLastUpdatedDate,
+		// @RequestParam(required = false) String branchCodeFk,
+		// @RequestParam(required = false) Integer employeeCodeFk,
+		// @RequestParam(required = false) String employeeName,
+		// @RequestParam(required = false) Integer vocProcessStatus,
+		// @RequestParam(required = false) String orderBy,
+		// @RequestParam(required = false) Integer sortBy
+		@ModelAttribute VocSearchCriteria criteria
+	)
 	{
 
 		Map<String, Object> vocPageInfo = vocService.selectVocsList(
-			pageNum, vocCodePk, vocTitle, vocCategory, customerCodeFk, customerName, vocCreatedDate,
-			vocLastUpdatedDate, branchCodeFk, employeeCodeFk, employeeName, vocProcessStatus, orderBy, sortBy);
+			// pageNum, vocCodePk, vocTitle, vocCategory, customerCodeFk, customerName, vocCreatedDate,
+			// vocLastUpdatedDate, branchCodeFk, employeeCodeFk, employeeName, vocProcessStatus, orderBy, sortBy
+			criteria
+		);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(vocPageInfo)
