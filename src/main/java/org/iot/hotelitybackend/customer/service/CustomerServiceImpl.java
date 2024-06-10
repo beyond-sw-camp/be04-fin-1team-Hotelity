@@ -28,6 +28,7 @@ import org.iot.hotelitybackend.sales.repository.MembershipRepository;
 import org.iot.hotelitybackend.sales.service.CouponIssueServiceImpl;
 import org.iot.hotelitybackend.sales.service.VocServiceImpl;
 import org.iot.hotelitybackend.sales.vo.CouponIssueSearchCriteria;
+import org.iot.hotelitybackend.sales.vo.VocSearchCriteria;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -138,9 +139,14 @@ public class CustomerServiceImpl implements CustomerService {
 				).get(KEY_CONTENT)
         );
         selectCustomerDTO.setVoc(
-            (List<VocDTO>)vocService.selectVocsList(0, null, null,
-                null, customerCodePk, null, null, null, null, null, null
-                , null, null, null).get(KEY_CONTENT)
+            (List<VocDTO>)vocService.selectVocsList(
+				// 0, null, null, null, customerCodePk,
+				// null, null, null, null, null,
+				// null, null, null, null
+				new VocSearchCriteria(0, null, null, null, customerCodePk,
+					null, null, null, null, null,
+					null, null, null, null)
+			).get(KEY_CONTENT)
         );
         selectCustomerDTO.setStay(
             (List<StayDTO>)stayService.selectStaysList(
