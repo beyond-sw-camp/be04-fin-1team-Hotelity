@@ -23,4 +23,6 @@ public interface AncillaryService {
 
 	Map<String, Object> createFacilitiesExcelFile(List<AncillaryDTO> ancillaryDTOList) throws IOException,
 		NoSuchFieldException, IllegalAccessException;
+
+	Map<String, Object> selectFacility(int ancillaryCodePk);
 }
