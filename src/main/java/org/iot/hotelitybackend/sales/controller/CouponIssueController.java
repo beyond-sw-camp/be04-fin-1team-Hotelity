@@ -39,8 +39,6 @@ public class CouponIssueController {
         @ModelAttribute CouponIssueSearchCriteria criteria
     ) {
         Map<String, Object> couponIssuePageInfo = couponIssueService.selectCouponIssueList(
-            // pageNum, couponIssueCodePk, couponName, customerCodePk, customerName, couponDiscountRate, couponIssueDate,
-            // couponExpireDate, couponUseDate, orderBy, sortBy
             criteria
         );
 

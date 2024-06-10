@@ -11,6 +11,7 @@ import org.iot.hotelitybackend.sales.repository.CouponRepository;
 import org.iot.hotelitybackend.sales.vo.CouponIssueSearchCriteria;
 import org.iot.hotelitybackend.sales.vo.RequestCouponIssue;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +41,13 @@ public class CouponIssueServiceImpl implements CouponIssueService{
         this.couponIssueRepository = couponIssueRepository;
         this.customerRepository = customerRepository;
         this.couponRepository = couponRepository;
+
+        this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        this.mapper.typeMap(CouponIssueEntity.class, CouponIssueDTO.class).addMappings(modelMapper -> {
+            modelMapper.map(CouponIssueEntity::getCouponName, CouponIssueDTO::setCustomerName);
+            modelMapper.map(CouponIssueEntity::getCustomerName, CouponIssueDTO::setCouponDiscountRate);
+            modelMapper.map(CouponIssueEntity::getCouponDiscountRate, CouponIssueDTO::setCouponDiscountRate);
+        });
     }
 
     @Override
