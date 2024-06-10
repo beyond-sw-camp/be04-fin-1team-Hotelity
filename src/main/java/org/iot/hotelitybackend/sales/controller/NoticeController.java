@@ -3,6 +3,7 @@ package org.iot.hotelitybackend.sales.controller;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.sales.dto.NoticeDTO;
 import org.iot.hotelitybackend.sales.service.NoticeService;
+import org.iot.hotelitybackend.sales.vo.NoticeSearchCriteria;
 import org.iot.hotelitybackend.sales.vo.RequestModifyNotice;
 import org.iot.hotelitybackend.sales.vo.RequestNotice;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,22 +27,9 @@ public class NoticeController {
 
     @GetMapping("/notices/page")
     public ResponseEntity<ResponseVO> selectNoticesList(
-        @RequestParam int pageNum,
-        @RequestParam(required = false) Integer noticeCodePk,
-        @RequestParam(required = false) String noticeTitle,
-        @RequestParam(required = false) String noticeContent,
-        @RequestParam(required = false) Integer employeeCodeFk,
-        @RequestParam(required = false) String employeeName,
-        @RequestParam(required = false) String branchCodeFk,
-        @RequestParam(required = false) LocalDateTime noticePostedDate,
-        @RequestParam(required = false) LocalDateTime noticeLastUpdatedDate,
-        @RequestParam(required = false) String orderBy,
-        @RequestParam(required = false) Integer sortBy
+        @ModelAttribute NoticeSearchCriteria criteria
     ) {
-        Map<String, Object> noticePageInfo = noticeService.selectNoticesList(
-            pageNum, noticeCodePk, noticeTitle, noticeContent, employeeCodeFk,
-            employeeName, branchCodeFk, noticePostedDate, noticeLastUpdatedDate,
-            orderBy, sortBy);
+        Map<String, Object> noticePageInfo = noticeService.selectNoticesList(criteria);
 
         ResponseVO response = ResponseVO.builder()
             .data(noticePageInfo)

@@ -7,6 +7,7 @@ import org.iot.hotelitybackend.sales.aggregate.NoticeSpecification;
 import org.iot.hotelitybackend.sales.dto.NoticeDTO;
 import org.iot.hotelitybackend.sales.repository.NoticeRepository;
 import org.iot.hotelitybackend.sales.vo.NoticeDashboardVO;
+import org.iot.hotelitybackend.sales.vo.NoticeSearchCriteria;
 import org.iot.hotelitybackend.sales.vo.RequestModifyNotice;
 import org.iot.hotelitybackend.sales.vo.RequestNotice;
 import org.modelmapper.ModelMapper;
@@ -42,11 +43,11 @@ public class NoticeServiceImpl implements NoticeService {
 	}
 
 	@Override
-	public Map<String, Object> selectNoticesList(
-		int pageNum, Integer noticeCodePk, String noticeTitle, String noticeContent,
-		Integer employeeCodeFk, String employeeName, String branchCodeFk,
-		LocalDateTime noticePostedDate, LocalDateTime noticeLastUpdatedDate,
-		String orderBy, Integer sortBy) {
+	public Map<String, Object> selectNoticesList(NoticeSearchCriteria criteria) {
+
+		Integer pageNum = criteria.getPageNum();
+		Integer sortBy = criteria.getSortBy();
+		String orderBy = criteria.getOrderBy();
 
 		Pageable pageable;
 
@@ -59,6 +60,39 @@ public class NoticeServiceImpl implements NoticeService {
 				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
 			}
 		}
+
+		Specification<NoticeEntity> spec = buildSpecification(criteria);
+
+		Page<NoticeEntity> noticeEntityPage = noticeRepository.findAll(spec, pageable);
+
+		List<NoticeDTO> noticeDTOList = noticeEntityPage
+			.stream()
+			.map(noticeEntity -> mapper.map(noticeEntity, NoticeDTO.class))
+			.peek(noticeDTO -> noticeDTO.setPICEmployeeName(getEmployeeName(noticeDTO)))
+			.toList();
+
+		int totalPagesCount = noticeEntityPage.getTotalPages();
+		int currentPageIndex = noticeEntityPage.getNumber();
+
+		Map<String, Object> noticePageInfo = new HashMap<>();
+
+		noticePageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+		noticePageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+		noticePageInfo.put(KEY_CONTENT, noticeDTOList);
+
+		return noticePageInfo;
+	}
+
+	private Specification<NoticeEntity> buildSpecification(NoticeSearchCriteria criteria) {
+
+		Integer noticeCodePk = criteria.getNoticeCodePk();
+		String noticeTitle = criteria.getNoticeTitle();
+		String noticeContent = criteria.getNoticeContent();
+		Integer employeeCodeFk = criteria.getEmployeeCodeFk();
+		String employeeName = criteria.getEmployeeName();
+		String branchCodeFk = criteria.getBranchCodeFk();
+		LocalDateTime noticePostedDate = criteria.getNoticePostedDate();
+		LocalDateTime noticeLastUpdatedDate = criteria.getNoticeLastUpdatedDate();
 
 		Specification<NoticeEntity> spec = (root, query, criteriaBuilder) -> null;
 
@@ -102,24 +136,7 @@ public class NoticeServiceImpl implements NoticeService {
 			spec = spec.and(NoticeSpecification.equalsNoticeLastUpdatedDate(noticeLastUpdatedDate));
 		}
 
-		Page<NoticeEntity> noticeEntityPage = noticeRepository.findAll(spec, pageable);
-
-		List<NoticeDTO> noticeDTOList = noticeEntityPage
-			.stream()
-			.map(noticeEntity -> mapper.map(noticeEntity, NoticeDTO.class))
-			.peek(noticeDTO -> noticeDTO.setPICEmployeeName(getEmployeeName(noticeDTO)))
-			.toList();
-
-		int totalPagesCount = noticeEntityPage.getTotalPages();
-		int currentPageIndex = noticeEntityPage.getNumber();
-
-		Map<String, Object> noticePageInfo = new HashMap<>();
-
-		noticePageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-		noticePageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-		noticePageInfo.put(KEY_CONTENT, noticeDTOList);
-
-		return noticePageInfo;
+		return spec;
 	}
 
 	@Override

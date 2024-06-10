@@ -1,6 +1,7 @@
 package org.iot.hotelitybackend.sales.service;
 
 import org.iot.hotelitybackend.sales.dto.NoticeDTO;
+import org.iot.hotelitybackend.sales.vo.NoticeSearchCriteria;
 import org.iot.hotelitybackend.sales.vo.RequestModifyNotice;
 import org.iot.hotelitybackend.sales.vo.RequestNotice;
 
@@ -8,11 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 public interface NoticeService {
-    Map<String, Object> selectNoticesList(
-        int pageNum, Integer noticeCodePk, String noticeTitle, String noticeContent,
-        Integer employeeCodeFk, String employeeName, String branchCodeFk,
-        LocalDateTime noticePostedDate, LocalDateTime noticeLastUpdatedDate,
-        String orderBy, Integer sortBy);
+    Map<String, Object> selectNoticesList(NoticeSearchCriteria criteria);
 
     NoticeDTO selectNoticeByNoticeCodePk(int noticeCodePk);
 
