@@ -242,10 +242,11 @@ public class StayServiceImpl implements StayService {
 		LocalDateTime start = LocalDateTime.parse(dateString + "T00:00:00");
 		LocalDateTime end = LocalDateTime.parse(dateString + "T23:59:59");
 		List<StayEntity> stayEntityList = stayRepository.findAllByStayCheckoutTimeBetween(start, end);
-		List<StayDTO> stayDTOList = stayEntityList
-			.stream()
-			.map(stayEntity -> mapper.map(stayEntity, StayDTO.class))
-			.toList();
+		List<StayDTO> stayDTOList = setDTOField(stayEntityList);
+		// List<StayDTO> stayDTOList = stayEntityList
+		// 	.stream()
+		// 	.map(stayEntity -> mapper.map(stayEntity, StayDTO.class))
+		// 	.toList();
 
 		Map<String, Object> stayInfo = new HashMap<>();
 		int stayYear = start.getYear();
@@ -384,9 +385,8 @@ public class StayServiceImpl implements StayService {
 	@Override
 	public Map<String, Object> modifyStayInfo(RequestModifyStay requestModifyStay, Integer stayCodePk) {
 
-		Integer reservationCodeFk = requestModifyStay.getReservationCodeFk();
 		List<StayEntity> stayEntityList =
-			stayRepository.findByReservationCodeFk(reservationCodeFk).stream().toList();
+			stayRepository.findById(stayCodePk).stream().toList();
 
 		StayEntity stayEntity = StayEntity.builder()
 			.stayCodePk(stayCodePk)
