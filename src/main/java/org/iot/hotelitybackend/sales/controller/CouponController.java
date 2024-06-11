@@ -35,25 +35,8 @@ public class CouponController {
     }
 
     @GetMapping("/coupons/page")
-    public ResponseEntity<ResponseVO> selectAllCouponsType(
-        // @RequestParam(required = false) Integer pageNum,
-        // @RequestParam(required = false) Integer couponCodePk,
-        // @RequestParam(required = false) String couponName,
-        // @RequestParam(required = false) String couponType,
-        // @RequestParam(required = false) Double couponDiscountRate,
-        // @RequestParam(required = false) Date couponLaunchingDate,
-        // @RequestParam(required = false) String couponInfo,
-        // @RequestParam(required = false) Integer membershipLevelCodeFk,
-        // @RequestParam(required = false) String orderBy,
-        // @RequestParam(required = false) Integer sortBy
-        @ModelAttribute CouponSearchCriteria criteria
-    ) {
-        Map<String, Object> couponPageInfo = couponService.selectAllCouponsType(
-            // pageNum, couponCodePk
-            // , couponName, couponType, couponDiscountRate, couponLaunchingDate, couponInfo, membershipLevelCodeFk,
-            // orderBy, sortBy
-            criteria
-        );
+    public ResponseEntity<ResponseVO> selectAllCouponsType(@ModelAttribute CouponSearchCriteria criteria) {
+        Map<String, Object> couponPageInfo = couponService.selectAllCouponsType(criteria);
 
         ResponseVO response = ResponseVO.builder()
             .data(couponPageInfo)

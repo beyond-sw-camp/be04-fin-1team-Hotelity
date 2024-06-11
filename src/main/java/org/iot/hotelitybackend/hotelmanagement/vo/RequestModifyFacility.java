@@ -12,5 +12,5 @@ public class RequestModifyFacility {
     private LocalTime ancillaryOpenTime;
     private LocalTime ancillaryCloseTime;
     private String ancillaryPhoneNumber;
-    private int ancillaryCategoryCodeFk;
+    private String ancillaryCategoryName;
 }

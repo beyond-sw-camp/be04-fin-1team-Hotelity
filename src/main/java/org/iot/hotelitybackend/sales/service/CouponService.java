@@ -7,12 +7,7 @@ import java.util.Date;
 import java.util.Map;
 
 public interface CouponService {
-    Map<String, Object> selectAllCouponsType(
-		// Integer pageNum, Integer couponCodePk, String couponName, String couponType,
-		// Double couponDiscountRate, Date couponLaunchingDate, String couponInfo, Integer membershipLevelCodeFk,
-        // String orderBy, Integer sortBy
-		CouponSearchCriteria criteria
-	);
+    Map<String, Object> selectAllCouponsType(CouponSearchCriteria criteria);
 
     Map<String, Object> registCoupon(RequestCoupon requestCoupon);
 
