@@ -20,47 +20,61 @@ public class EmployeeEntity {
 	private String employeeEmail;
 	private String employeeSystemPassword;
 	private String employeeResignStatus;
+	@Column(name = "permission_code_fk", insertable=false, updatable=false)
+	private Integer permissionCodeFk;
+	@Column(name = "position_code_fk", insertable=false, updatable=false)
+	private Integer positionCodeFk;
+	@Column(name = "rank_code_fk", insertable=false, updatable=false)
+	private Integer rankCodeFk;
+	@Column(name = "department_code_fk", insertable=false, updatable=false)
+	private Integer departmentCodeFk;
+	@Column(name = "branch_code_fk", insertable=false, updatable=false)
+	private String branchCodeFk;
 
 	@Setter
 	private String employeeProfileImageLink;
 
 	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
-	@JoinColumn(name = "permission_code_fk", nullable = false)
+	@JoinColumn(name = "permission_code_fk", referencedColumnName = "permission_code_pk", nullable = false)
 	private PermissionEntity permission;
 
 	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
-	@JoinColumn(name = "position_code_fk", nullable = false)
+	@JoinColumn(name = "position_code_fk", referencedColumnName = "position_code_pk", nullable = false)
 	private PositionEntity position;
 
 	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
-	@JoinColumn(name = "rank_code_fk", nullable = false)
+	@JoinColumn(name = "rank_code_fk", referencedColumnName = "rank_code_pk", nullable = false)
 	private RankEntity rank;
 
 	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
-	@JoinColumn(name = "department_code_fk", nullable = false)
+	@JoinColumn(name = "department_code_fk", referencedColumnName = "department_code_pk", nullable = false)
 	private DepartmentEntity department;
 
 	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
-	@JoinColumn(name = "branch_code_fk", nullable = false)
+	@JoinColumn(name = "branch_code_fk", referencedColumnName = "branch_code_pk", nullable = false)
 	private BranchEntity branch;
 
 	@Builder
 	public EmployeeEntity(
-            Integer employeeCodePk,
-            String employeeName,
-            String employeeAddress,
-            String employeePhoneNumber,
-            String employeeOfficePhoneNumber,
-            String employeeEmail,
-            String employeeSystemPassword,
-            String employeeResignStatus,
-            String employeeProfileImageLink,
-
-			PermissionEntity employeePermission,
-			PositionEntity employeePosition,
-			RankEntity employeeRank,
-			DepartmentEntity employeeDepartment,
-			BranchEntity employeeBranch
+		Integer employeeCodePk,
+		String employeeName,
+		String employeeAddress,
+		String employeePhoneNumber,
+		String employeeOfficePhoneNumber,
+		String employeeEmail,
+		String employeeSystemPassword,
+		String employeeResignStatus,
+		Integer permissionCodeFk,
+		Integer positionCodeFk,
+		Integer rankCodeFk,
+		Integer departmentCodeFk,
+		String branchCodeFk,
+		String employeeProfileImageLink,
+		PermissionEntity employeePermission,
+		PositionEntity employeePosition,
+		RankEntity employeeRank,
+		DepartmentEntity employeeDepartment,
+		BranchEntity employeeBranch
     ) {
 		this.employeeCodePk = employeeCodePk;
 		this.employeeName = employeeName;
@@ -70,6 +84,11 @@ public class EmployeeEntity {
 		this.employeeEmail = employeeEmail;
 		this.employeeSystemPassword = employeeSystemPassword;
 		this.employeeResignStatus = employeeResignStatus;
+		this.permissionCodeFk = permissionCodeFk;
+		this.positionCodeFk = positionCodeFk;
+		this.rankCodeFk = rankCodeFk;
+		this.departmentCodeFk = departmentCodeFk;
+		this.branchCodeFk = branchCodeFk;
 		this.employeeProfileImageLink = employeeProfileImageLink;
 
 		this.permission = employeePermission;
