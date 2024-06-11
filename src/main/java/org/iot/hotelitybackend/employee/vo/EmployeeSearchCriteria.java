@@ -12,11 +12,11 @@ public class EmployeeSearchCriteria {
 	private String employeeOfficePhoneNumber;
 	private String employeeEmail;
 	private String employeeResignStatus;
-	private Integer permissionCode;
-	private Integer positionCode;
-	private Integer rankCode;
-	private Integer departmentCode;
-	private String branchCode;
+	private Integer permissionCodeFk;
+	private Integer positionCodeFk;
+	private Integer rankCodeFk;
+	private Integer departmentCodeFk;
+	private String branchCodeFk;
 	private String orderBy;
 	private Integer sortBy;
 }

@@ -125,11 +125,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         String employeeOfficePhoneNumber = criteria.getEmployeeOfficePhoneNumber();
         String employeeEmail = criteria.getEmployeeEmail();
         String employeeResignStatus = criteria.getEmployeeResignStatus();
-        Integer permissionCode = criteria.getPermissionCode();
-        Integer positionCode = criteria.getPositionCode();
-        Integer rankCode = criteria.getRankCode();
-        Integer departmentCode = criteria.getDepartmentCode();
-        String branchCode = criteria.getBranchCode();
+        Integer permissionCode = criteria.getPermissionCodeFk();
+        Integer positionCode = criteria.getPositionCodeFk();
+        Integer rankCode = criteria.getRankCodeFk();
+        Integer departmentCode = criteria.getDepartmentCodeFk();
+        String branchCode = criteria.getBranchCodeFk();
 
         if (employeeCode != null) {
             spec = spec.and(EmployeeSpecification.equalsEmployeeCodePk(employeeCode));
