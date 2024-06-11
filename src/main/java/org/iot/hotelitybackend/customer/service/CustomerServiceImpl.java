@@ -255,7 +255,7 @@ public class CustomerServiceImpl implements CustomerService {
 		membershipIssueRepository.save(membershipIssueEntity);
 
         Map<String, Object> modifiedCustomerInfo = new HashMap<>();
-        if (customerRepository.findById(customerEntity.getCustomerCodePk()).isPresent()) {
+        if (customerRepository.findById(savedCustomer.getCustomerCodePk()).isPresent()) {
             modifiedCustomerInfo.put(KEY_CONTENT, customerEntity.getCustomerName() + "님의 정보가 성공적으로 등록되었습니다.");
         } else {
             modifiedCustomerInfo.put(KEY_CONTENT, "등록에 실패하였습니다.");
