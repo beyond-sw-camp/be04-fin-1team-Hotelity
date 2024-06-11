@@ -148,4 +148,20 @@ public class StayEntity {
 	// 	+ "WHERE b.reservation_code_pk = reservation_code_fk)"
 	// )
 	// private String stayPeriod;
+
+	@Formula("("
+		+ "SELECT DATEDIFF(r.reservation_checkout_date, r.reservation_checkin_date) "
+		+ "FROM stay_tb s "
+		+ "JOIN reservation_tb r ON (s.reservation_code_fk = r.reservation_code_pk) "
+		+ "WHERE s.stay_code_pk = stay_code_pk "
+		+ ")")
+	private String stayPeriod;
+
+	@Formula("("
+		+ "SELECT r.reservation_checkout_date "
+		+ "FROM stay_tb s "
+		+ "JOIN reservation_tb r ON (s.reservation_code_fk = r.reservation_code_pk) "
+		+ "WHERE s.stay_code_pk = stay_code_pk "
+		+ ")")
+	private LocalDateTime reservationCheckoutDate;
 }
