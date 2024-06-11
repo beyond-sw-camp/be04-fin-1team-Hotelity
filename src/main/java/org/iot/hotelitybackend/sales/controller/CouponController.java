@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.sales.dto.CouponDTO;
 import org.iot.hotelitybackend.sales.service.CouponService;
+import org.iot.hotelitybackend.sales.vo.CouponSearchCriteria;
 import org.iot.hotelitybackend.sales.vo.RequestCoupon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -34,21 +35,8 @@ public class CouponController {
     }
 
     @GetMapping("/coupons/page")
-    public ResponseEntity<ResponseVO> selectAllCouponsType(
-        @RequestParam(required = false) Integer pageNum,
-        @RequestParam(required = false) Integer couponCodePk,
-        @RequestParam(required = false) String couponName,
-        @RequestParam(required = false) String couponType,
-        @RequestParam(required = false) Double couponDiscountRate,
-        @RequestParam(required = false) Date couponLaunchingDate,
-        @RequestParam(required = false) String couponInfo,
-        @RequestParam(required = false) Integer membershipLevelCodeFk,
-        @RequestParam(required = false) String orderBy,
-        @RequestParam(required = false) Integer sortBy
-    ) {
-        Map<String, Object> couponPageInfo = couponService.selectAllCouponsType(pageNum, couponCodePk
-            , couponName, couponType, couponDiscountRate, couponLaunchingDate, couponInfo, membershipLevelCodeFk,
-            orderBy, sortBy);
+    public ResponseEntity<ResponseVO> selectAllCouponsType(@ModelAttribute CouponSearchCriteria criteria) {
+        Map<String, Object> couponPageInfo = couponService.selectAllCouponsType(criteria);
 
         ResponseVO response = ResponseVO.builder()
             .data(couponPageInfo)
@@ -87,22 +75,26 @@ public class CouponController {
 
     @GetMapping("/coupons/page/excel/download")
     public ResponseEntity<InputStreamResource> downloadAllCouponsType(
-        @RequestParam(required = false) Integer pageNum,
-        @RequestParam(required = false) Integer couponCodePk,
-        @RequestParam(required = false) String couponName,
-        @RequestParam(required = false) String couponType,
-        @RequestParam(required = false) Double couponDiscountRate,
-        @RequestParam(required = false) Date couponLaunchingDate,
-        @RequestParam(required = false) String couponInfo,
-        @RequestParam(required = false) Integer membershipLevelCodeFk,
-        @RequestParam(required = false) String orderBy,
-        @RequestParam(required = false) Integer sortBy
+        // @RequestParam(required = false) Integer pageNum,
+        // @RequestParam(required = false) Integer couponCodePk,
+        // @RequestParam(required = false) String couponName,
+        // @RequestParam(required = false) String couponType,
+        // @RequestParam(required = false) Double couponDiscountRate,
+        // @RequestParam(required = false) Date couponLaunchingDate,
+        // @RequestParam(required = false) String couponInfo,
+        // @RequestParam(required = false) Integer membershipLevelCodeFk,
+        // @RequestParam(required = false) String orderBy,
+        // @RequestParam(required = false) Integer sortBy
+        @ModelAttribute CouponSearchCriteria criteria
     ) {
 
         // 조회해서 DTO 리스트 가져오기
-        Map<String, Object> couponPageInfo = couponService.selectAllCouponsType(pageNum, couponCodePk
-            , couponName, couponType, couponDiscountRate, couponLaunchingDate, couponInfo, membershipLevelCodeFk,
-            orderBy, sortBy);
+        Map<String, Object> couponPageInfo = couponService.selectAllCouponsType(
+            // pageNum, couponCodePk
+            // , couponName, couponType, couponDiscountRate, couponLaunchingDate, couponInfo, membershipLevelCodeFk,
+            // orderBy, sortBy
+            criteria
+        );
 
         try {
             // 엑셀 시트와 파일 만들기

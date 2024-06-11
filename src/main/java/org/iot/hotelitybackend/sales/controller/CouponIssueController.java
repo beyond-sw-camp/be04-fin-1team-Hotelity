@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.sales.dto.CouponIssueDTO;
 import org.iot.hotelitybackend.sales.service.CouponIssueService;
+import org.iot.hotelitybackend.sales.vo.CouponIssueSearchCriteria;
 import org.iot.hotelitybackend.sales.vo.RequestCouponIssue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -35,21 +36,10 @@ public class CouponIssueController {
 
     @GetMapping("/coupons/issue/page")
     public ResponseEntity<ResponseVO> selectCouponIssueList(
-        @RequestParam(required = false) Integer pageNum,
-        @RequestParam(required = false) Integer couponIssueCodePk,
-        @RequestParam(required = false) String couponName,
-        @RequestParam(required = false) String customerName,
-        @RequestParam(required = false) Integer customerCodePk,
-        @RequestParam(required = false) Double couponDiscountRate,
-        @RequestParam(required = false) LocalDateTime couponIssueDate,
-        @RequestParam(required = false) LocalDateTime couponExpireDate,
-        @RequestParam(required = false) LocalDateTime couponUseDate,
-        @RequestParam(required = false) String orderBy,
-        @RequestParam(required = false) Integer sortBy
+        @ModelAttribute CouponIssueSearchCriteria criteria
     ) {
         Map<String, Object> couponIssuePageInfo = couponIssueService.selectCouponIssueList(
-            pageNum, couponIssueCodePk, couponName, customerCodePk, customerName, couponDiscountRate, couponIssueDate,
-            couponExpireDate, couponUseDate, orderBy, sortBy
+            criteria
         );
 
         ResponseVO response = ResponseVO.builder()
@@ -74,23 +64,14 @@ public class CouponIssueController {
 
     @GetMapping("/coupons/issue/page/excel/download")
     public ResponseEntity<InputStreamResource> downloadCouponIssueList(
-        @RequestParam(required = false) Integer pageNum,
-        @RequestParam(required = false) Integer couponIssueCodePk,
-        @RequestParam(required = false) String couponName,
-        @RequestParam(required = false) String customerName,
-        @RequestParam(required = false) Integer customerCodePk,
-        @RequestParam(required = false) Double couponDiscountRate,
-        @RequestParam(required = false) LocalDateTime couponIssueDate,
-        @RequestParam(required = false) LocalDateTime couponExpireDate,
-        @RequestParam(required = false) LocalDateTime couponUseDate,
-        @RequestParam(required = false) String orderBy,
-        @RequestParam(required = false) Integer sortBy
+        @ModelAttribute CouponIssueSearchCriteria criteria
     ) {
 
         // 조회해서 DTO 리스트 가져오기
         Map<String, Object> couponIssueListInfo = couponIssueService.selectCouponIssueList(
-            pageNum, couponIssueCodePk, couponName, customerCodePk, customerName, couponDiscountRate, couponIssueDate,
-            couponExpireDate, couponUseDate, orderBy, sortBy
+            // pageNum, couponIssueCodePk, couponName, customerCodePk, customerName, couponDiscountRate, couponIssueDate,
+            // couponExpireDate, couponUseDate, orderBy, sortBy
+            criteria
         );
 
         try {

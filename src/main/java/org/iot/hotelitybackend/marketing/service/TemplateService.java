@@ -15,4 +15,6 @@ public interface TemplateService {
     Map<String, Object> modifyTemplate(RequestTemplate requestTemplate, int templateCodePk);
 
     Map<String, Object> deleteTemplate(int templateCodePk);
+
+	Map<String, Object> selectAllTemplates();
 }

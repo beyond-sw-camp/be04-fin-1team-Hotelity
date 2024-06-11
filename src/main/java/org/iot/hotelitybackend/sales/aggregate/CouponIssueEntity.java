@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+import org.hibernate.annotations.Formula;
+
 @Entity
 @Table(name = "coupon_issue_tb")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,16 +25,50 @@ public class CouponIssueEntity {
     private Date couponExpireDate;
     private Date couponUseDate;
 
+    @Formula("("
+        + "SELECT c.coupon_name "
+        + "FROM coupon_issue_tb ci "
+        + "JOIN coupon_tb c ON ci.coupon_code_fk = c.coupon_code_pk "
+        + "WHERE ci.coupon_issue_code_pk = coupon_issue_code_pk "
+        + ")")
+    private String couponName;
+
+    @Formula("("
+        + "SELECT cu.customer_name "
+        + "FROM coupon_issue_tb ci "
+        + "JOIN customer_tb cu ON ci.customer_code_fk = cu.customer_code_pk "
+        + "WHERE ci.coupon_issue_code_pk = coupon_issue_code_pk "
+        + ")")
+    private String customerName;
+
+    @Formula("("
+        + "SELECT c.coupon_discount_rate "
+        + "FROM coupon_issue_tb ci "
+        + "JOIN coupon_tb c ON ci.coupon_code_fk = c.coupon_code_pk "
+        + "WHERE ci.coupon_issue_code_pk = coupon_issue_code_pk "
+        + ")")
+    private Double couponDiscountRate;
+
+    @Formula("("
+        + "SELECT m.membership_level_name "
+        + "FROM coupon_issue_tb ci "
+        + "JOIN coupon_tb c ON ci.coupon_code_fk = c.coupon_code_pk "
+        + "JOIN membership_tb m ON c.membership_level_code_fk = m.membership_level_code_pk "
+        + "WHERE ci.coupon_issue_code_pk = coupon_issue_code_pk "
+        + ")")
+    private String membershipLevelName;
+
     @Builder
     public CouponIssueEntity(
-            Integer couponIssueCodePk,
-            Integer customerCodeFk,
-            Integer couponCodeFk,
-            String couponIssueBarcode,
-            Date couponIssueDate,
-            Date couponExpireDate,
-            Date couponUseDate
-    ) {
+        Integer couponIssueCodePk,
+        Integer customerCodeFk,
+        Integer couponCodeFk,
+        String couponIssueBarcode,
+        Date couponIssueDate,
+        Date couponExpireDate,
+        Date couponUseDate,
+        String couponName, String customerName, Double couponDiscountRate, String membershipLevelName
+	) {
         this.couponIssueCodePk = couponIssueCodePk;
         this.customerCodeFk = customerCodeFk;
         this.couponCodeFk = couponCodeFk;
@@ -40,5 +76,9 @@ public class CouponIssueEntity {
         this.couponIssueDate = couponIssueDate;
         this.couponExpireDate = couponExpireDate;
         this.couponUseDate = couponUseDate;
-    }
+		this.couponName = couponName;
+		this.customerName = customerName;
+		this.couponDiscountRate = couponDiscountRate;
+		this.membershipLevelName = membershipLevelName;
+	}
 }

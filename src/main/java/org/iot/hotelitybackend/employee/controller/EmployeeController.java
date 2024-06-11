@@ -5,6 +5,7 @@ import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.employee.dto.EmployeeDTO;
 import org.iot.hotelitybackend.employee.service.AwsS3Service;
 import org.iot.hotelitybackend.employee.service.EmployeeService;
+import org.iot.hotelitybackend.employee.vo.EmployeeSearchCriteria;
 import org.iot.hotelitybackend.employee.vo.RequestEmployee;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,28 +42,8 @@ public class EmployeeController {
 
     /* 조건별 전체 직원 페이지 리스트 조회 */
     @GetMapping("/page")
-    public ResponseEntity<ResponseVO> selectEmployeesList(
-            @RequestParam(required = false) Integer pageNum,
-            @RequestParam(required = false) Integer employeeCode,
-            @RequestParam(required = false) String employeeName,
-            @RequestParam(required = false) String employeeAddress,
-            @RequestParam(required = false) String employeePhoneNumber,
-            @RequestParam(required = false) String employeeOfficePhoneNumber,
-            @RequestParam(required = false) String employeeEmail,
-            @RequestParam(required = false) String employeeResignStatus,
-            @RequestParam(required = false) Integer permissionCode,
-            @RequestParam(required = false) Integer positionCode,
-            @RequestParam(required = false) Integer rankCode,
-            @RequestParam(required = false) Integer departmentCode,
-            @RequestParam(required = false) String branchCode,
-            @RequestParam(required = false) String orderBy,
-            @RequestParam(required = false) Integer sortBy
-    ) {
-        Map<String, Object> employPageInfo = employeeService.selectEmployeesList(
-                pageNum, employeeCode, employeeName, employeeAddress, employeePhoneNumber,
-                employeeOfficePhoneNumber, employeeEmail, employeeResignStatus,
-                permissionCode, positionCode, rankCode, departmentCode, branchCode,
-                orderBy, sortBy);
+    public ResponseEntity<ResponseVO> selectEmployeesList(@ModelAttribute EmployeeSearchCriteria criteria) {
+        Map<String, Object> employPageInfo = employeeService.selectEmployeesList(criteria);
 
         ResponseVO response;
 
@@ -162,28 +143,9 @@ public class EmployeeController {
 
     /* 직원 리스트 엑셀 파일 다운로드 */
     @GetMapping("/excel")
-    public ResponseEntity<InputStreamResource> downloadEmployeeList(
-            @RequestParam(required = false) Integer pageNum,
-            @RequestParam(required = false) Integer employeeCode,
-            @RequestParam(required = false) String employeeName,
-            @RequestParam(required = false) String employeeAddress,
-            @RequestParam(required = false) String employeePhoneNumber,
-            @RequestParam(required = false) String employeeOfficePhoneNumber,
-            @RequestParam(required = false) String employeeEmail,
-            @RequestParam(required = false) String employeeResignStatus,
-            @RequestParam(required = false) Integer permissionCode,
-            @RequestParam(required = false) Integer positionCode,
-            @RequestParam(required = false) Integer rankCode,
-            @RequestParam(required = false) Integer departmentCode,
-            @RequestParam(required = false) String branchCode,
-            @RequestParam(required = false) String orderBy,
-            @RequestParam(required = false) Integer sortBy
-    ) {
+    public ResponseEntity<InputStreamResource> downloadEmployeeList(@ModelAttribute EmployeeSearchCriteria criteria) {
         Map<String, Object> employeeList = employeeService.selectEmployeesList(
-                pageNum, employeeCode, employeeName, employeeAddress, employeePhoneNumber,
-                employeeOfficePhoneNumber, employeeEmail, employeeResignStatus,
-                permissionCode, positionCode, rankCode, departmentCode, branchCode,
-                orderBy, sortBy);
+                criteria);
 
         try {
             Map<String, Object> result = createExcelFile(

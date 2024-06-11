@@ -5,8 +5,10 @@ import org.iot.hotelitybackend.sales.aggregate.CouponSpecification;
 import org.iot.hotelitybackend.sales.dto.CouponDTO;
 import org.iot.hotelitybackend.sales.repository.CouponRepository;
 import org.iot.hotelitybackend.sales.repository.MembershipRepository;
+import org.iot.hotelitybackend.sales.vo.CouponSearchCriteria;
 import org.iot.hotelitybackend.sales.vo.RequestCoupon;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,33 +37,23 @@ public class CouponServiceImpl implements CouponService{
         this.mapper = mapper;
         this.couponRepository = couponRepository;
 		this.membershipRepository = membershipRepository;
+        this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        this.mapper.typeMap(CouponEntity.class, CouponDTO.class)
+                .addMappings(mapperNew -> mapperNew.map(
+                        src -> src.getMembershipLevelName(),
+                        CouponDTO::setMembershipLevelName
+                ));
 	}
 
     @Override
-    public Map<String, Object> selectAllCouponsType(Integer pageNum, Integer couponCodePk, String couponName,
-        String couponType, Double couponDiscountRate, Date couponLaunchingDate, String couponInfo,
-        Integer membershipLevelCodeFk, String orderBy, Integer sortBy) {
+    public Map<String, Object> selectAllCouponsType(CouponSearchCriteria criteria) {
 
-        Specification<CouponEntity> specification = (root, query, criteriaBuilder) -> null;
+        Specification<CouponEntity> specification = buildSpecification(criteria);
 
-        if(couponCodePk != null){
-            specification = specification.and(CouponSpecification.equalsCouponCodePk(couponCodePk));
-        }
-        if(couponName != null){
-            specification = specification.and(CouponSpecification.likesCouponName(couponName));
-        }
-        if(couponType != null){
-            specification = specification.and(CouponSpecification.likesCouponType(couponType));
-        }
-        if(couponDiscountRate != null){
-            specification = specification.and(CouponSpecification.equalsCouponDiscountRate(couponDiscountRate));
-        }
-        if(couponLaunchingDate != null){
-            specification = specification.and(CouponSpecification.equalsCouponLaunchingDate(couponLaunchingDate));
-        }
-        if(couponInfo != null){
-            specification = specification.and(CouponSpecification.likesCouponInfo(couponInfo));
-        }
+
+        Integer pageNum = criteria.getPageNum();
+        String orderBy = criteria.getOrderBy();
+        Integer sortBy = criteria.getSortBy();
 
         Map<String, Object> couponPageInfo = new HashMap<>();
 
@@ -121,6 +113,39 @@ public class CouponServiceImpl implements CouponService{
         }
 
         return couponPageInfo;
+    }
+
+    private Specification<CouponEntity> buildSpecification(CouponSearchCriteria criteria) {
+        Integer pageNum = criteria.getPageNum();
+        Integer couponCodePk = criteria.getCouponCodePk();
+        String couponName = criteria.getCouponName();
+        String couponType = criteria.getCouponType();
+        Double couponDiscountRate = criteria.getCouponDiscountRate();
+        Date couponLaunchingDate = criteria.getCouponLaunchingDate();
+        String couponInfo = criteria.getCouponInfo();
+        Integer membershipLevelCodeFk = criteria.getMembershipLevelCodeFk();
+
+        Specification<CouponEntity> specification = (root, query, criteriaBuilder) -> null;
+
+        if(couponCodePk != null){
+            specification = specification.and(CouponSpecification.equalsCouponCodePk(couponCodePk));
+        }
+        if(couponName != null){
+            specification = specification.and(CouponSpecification.likesCouponName(couponName));
+        }
+        if(couponType != null){
+            specification = specification.and(CouponSpecification.likesCouponType(couponType));
+        }
+        if(couponDiscountRate != null){
+            specification = specification.and(CouponSpecification.equalsCouponDiscountRate(couponDiscountRate));
+        }
+        if(couponLaunchingDate != null){
+            specification = specification.and(CouponSpecification.equalsCouponLaunchingDate(couponLaunchingDate));
+        }
+        if(couponInfo != null){
+            specification = specification.and(CouponSpecification.likesCouponInfo(couponInfo));
+        }
+        return specification;
     }
 
     @Override

@@ -6,6 +6,7 @@ import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.service.StayService;
 import org.iot.hotelitybackend.hotelservice.vo.RequestCheckinInfo;
 import org.iot.hotelitybackend.hotelservice.vo.RequestModifyStay;
+import org.iot.hotelitybackend.hotelservice.vo.StaySearchCriteria;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -39,33 +40,10 @@ public class StayController {
 
 	/* 투숙 전체 내역 조회 (다중 조건 검색) */
 	@GetMapping("/stays/page")
-	public ResponseEntity<ResponseVO> selectStaysList(
-		@RequestParam(required = false) Integer pageNum,
-		@RequestParam(required = false) Integer stayCodePk,
-		@RequestParam(required = false) Integer customerCodeFk,
-		@RequestParam(required = false) String customerName,
-		@RequestParam(required = false) String roomCodeFk,
-		@RequestParam(required = false) String roomName,
-		@RequestParam(required = false) String roomLevelName,
-		@RequestParam(required = false) Integer roomCapacity,
-		@RequestParam(required = false) Integer stayPeopleCount,
-		@RequestParam(required = false) LocalDateTime stayCheckinTime,
-		@RequestParam(required = false) LocalDateTime stayCheckoutTime,
-		@RequestParam(required = false) String branchCodeFk,
-		@RequestParam(required = false) Integer employeeCodeFk,
-		@RequestParam(required = false) String employeeName,
-		@RequestParam(required = false) Integer reservationCodeFk,
-		@RequestParam(required = false) Integer stayCheckoutStatus,
-		@RequestParam(required = false) String orderBy,
-		@RequestParam(required = false) Integer sortBy) {
+	public ResponseEntity<ResponseVO> selectStaysList(@ModelAttribute StaySearchCriteria criteria) {
 
 		Map<String, Object> stayListInfo =
-			stayService.selectStaysList(
-				pageNum, stayCodePk, customerCodeFk, customerName, roomCodeFk,
-				roomName, roomLevelName, roomCapacity, stayPeopleCount, stayCheckinTime,
-				stayCheckoutTime, branchCodeFk, employeeCodeFk, employeeName, reservationCodeFk,
-				stayCheckoutStatus, orderBy, sortBy
-			);
+			stayService.selectStaysList(criteria);
 
 		ResponseVO response = null;
 
@@ -81,6 +59,21 @@ public class StayController {
 				.message("조회 실패")
 				.build();
 		}
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	/* 일자별 투숙 내역 리스트 조회 (메인페이지 대시보드용) */
+	/* 날짜는 2024-06-14 형식으로 넣어줄 것. */
+	@GetMapping("/stays/daily/{dateString}")
+	public ResponseEntity<ResponseVO> selectStayByReservationCheckinDate(
+		@PathVariable("dateString") String dateString) {
+		Map<String, Object> stayListInfo = stayService.selectStayByReservationCheckinDate(dateString);
+		ResponseVO response = ResponseVO.builder()
+			.data(stayListInfo)
+			.resultCode(HttpStatus.OK.value())
+			.message("일자별 조회: \n"+ stayListInfo.get("dateString") + " 투숙 내역 조회 성공")
+			.build();
+
 		return ResponseEntity.status(response.getResultCode()).body(response);
 	}
 
@@ -192,35 +185,11 @@ public class StayController {
 	}
 
 	@GetMapping("stays/page/excel/download")
-	public ResponseEntity<InputStreamResource> downloadStaysList(
-		@RequestParam(required = false) Integer pageNum,
-		@RequestParam(required = false) Integer stayCodePk,
-		@RequestParam(required = false) Integer customerCodeFk,
-		@RequestParam(required = false) String customerName,
-		@RequestParam(required = false) String roomCodeFk,
-		@RequestParam(required = false) String roomName,
-		@RequestParam(required = false) String roomLevelName,
-		@RequestParam(required = false) Integer roomCapacity,
-		@RequestParam(required = false) Integer stayPeopleCount,
-		@RequestParam(required = false) LocalDateTime stayCheckinTime,
-		@RequestParam(required = false) LocalDateTime stayCheckoutTime,
-		@RequestParam(required = false) String branchCodeFk,
-		@RequestParam(required = false) Integer employeeCodeFk,
-		@RequestParam(required = false) String employeeName,
-		@RequestParam(required = false) Integer reservationCodeFk,
-		@RequestParam(required = false) Integer stayCheckoutStatus,
-		@RequestParam(required = false) String orderBy,
-		@RequestParam(required = false) Integer sortBy
-	) {
+	public ResponseEntity<InputStreamResource> downloadStaysList(@ModelAttribute StaySearchCriteria criteria) {
 
 		// 조회해서 DTO 리스트 가져오기
 		Map<String, Object> stayListInfo =
-			stayService.selectStaysList(
-				pageNum, stayCodePk, customerCodeFk, customerName, roomCodeFk,
-				roomName, roomLevelName, roomCapacity, stayPeopleCount, stayCheckinTime,
-				stayCheckoutTime, branchCodeFk, employeeCodeFk, employeeName, reservationCodeFk,
-				stayCheckoutStatus, orderBy, sortBy
-			);
+			stayService.selectStaysList(criteria);
 
 		try {
 

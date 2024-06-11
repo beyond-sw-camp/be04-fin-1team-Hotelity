@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.hotelservice.dto.ReservationDTO;
 import org.iot.hotelitybackend.hotelservice.service.ReservationService;
+import org.iot.hotelitybackend.hotelservice.vo.ReservationSearchCriteria;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -39,38 +41,42 @@ public class ReservationController {
 	/* 월별 예약 리스트 전체 조회 */
 	/* 해당 월에 예약된 전체 리스트(페이징 처리 x)를 프론트로 넘겨주면
 	 * 프론트에서 해당 리스트를 받아 날짜를 기준으로 예약 건 수를 카운트 하여 캘린더에 출력 */
-	@GetMapping("/reservations/{reservationCheckinDate}")
+	@GetMapping("/reservations/{reservationCheckinDatePathVariable}")
 	public ResponseEntity<ResponseVO> selectReservationListByMonth(
-		@PathVariable("reservationCheckinDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime reservationCheckinDate,
-		@RequestParam(required = false) Integer reservationCodePk,
-		@RequestParam(required = false) Integer customerCodeFk,
-		@RequestParam(required = false) String customerName,
-		@RequestParam(required = false) String customerEnglishName,
-		@RequestParam(required = false) String roomCodeFk,
-		@RequestParam(required = false) String roomName,
-		@RequestParam(required = false) String roomLevelName,
-		@RequestParam(required = false) Integer roomCapacity,
-		@RequestParam(required = false) String branchCodeFk,
-		@RequestParam(required = false) LocalDateTime reservationDate,
-		@RequestParam(required = false) LocalDateTime reservationCheckInDate,
-		@RequestParam(required = false) LocalDateTime reservationCheckoutDate,
-		@RequestParam(required = false) Integer reservationCancelStatus,
-		@RequestParam(required = false) String orderBy,
-		@RequestParam(required = false) Integer sortBy) {
-		int year = reservationCheckinDate.getYear();
-		int month = reservationCheckinDate.getMonthValue();
+		@PathVariable("reservationCheckinDatePathVariable") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime reservationCheckinDatePathVariable,
+		@ModelAttribute ReservationSearchCriteria criteria
+	) {
+		int year = reservationCheckinDatePathVariable.getYear();
+		int month = reservationCheckinDatePathVariable.getMonthValue();
 
 		Map<String, Object> reservationInfo =
-			reservationService.selectReservationListByMonth(
-				year, month,
-				reservationCodePk, customerCodeFk,
-				customerName,customerEnglishName,
-				roomCodeFk,roomName,
-				roomLevelName,roomCapacity,
-				branchCodeFk,reservationDate,
-				reservationCheckInDate, reservationCheckoutDate,
-				reservationCancelStatus, orderBy, sortBy
-			);
+			reservationService.selectReservationListByMonth(reservationCheckinDatePathVariable, year, month, criteria);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(reservationInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	/* 예약 시간 순서대로 최신 3개 조회 (대시보드용) */
+	@GetMapping("/reservations/latest")
+	public ResponseEntity<ResponseVO> selectLatestReservationList() {
+		Map<String, Object> latestReservationInfo = reservationService.selectLatestReservationList();
+
+		ResponseVO response = ResponseVO.builder()
+			.data(latestReservationInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	@GetMapping("/reservations/year/{yearInput}")
+	public ResponseEntity<ResponseVO> selectReservationsByYear(@PathVariable("yearInput") Integer yearInput) {
+
+		Map<String, Object> reservationInfo = reservationService.selectReservationsByYear(yearInput);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(reservationInfo)
@@ -121,37 +127,14 @@ public class ReservationController {
 	@GetMapping("/reservations/{reservationCheckinDate}/excel/download")
 	public ResponseEntity<InputStreamResource> downloadReservationListByMonth(
 		@PathVariable("reservationCheckinDate") LocalDateTime reservationCheckinDate,
-		@RequestParam(required = false) Integer reservationCodePk,
-		@RequestParam(required = false) Integer customerCodeFk,
-		@RequestParam(required = false) String customerName,
-		@RequestParam(required = false) String customerEnglishName,
-		@RequestParam(required = false) String roomCodeFk,
-		@RequestParam(required = false) String roomName,
-		@RequestParam(required = false) String roomLevelName,
-		@RequestParam(required = false) Integer roomCapacity,
-		@RequestParam(required = false) String branchCodeFk,
-		@RequestParam(required = false) LocalDateTime reservationDate,
-		@RequestParam(required = false) LocalDateTime reservationCheckInDate,
-		@RequestParam(required = false) LocalDateTime reservationCheckoutDate,
-		@RequestParam(required = false) Integer reservationCancelStatus,
-		@RequestParam(required = false) String orderBy,
-		@RequestParam(required = false) Integer sortBy
+		@ModelAttribute ReservationSearchCriteria criteria
 	) {
 		int year = reservationCheckinDate.getYear();
 		int month = reservationCheckinDate.getMonthValue();
 
 		// 조회해서 DTO 리스트 가져오기
 		Map<String, Object> reservationInfo =
-			reservationService.selectReservationListByMonth(
-				year, month,
-				reservationCodePk, customerCodeFk,
-				customerName, customerEnglishName,
-				roomCodeFk, roomName,
-				roomLevelName, roomCapacity,
-				branchCodeFk, reservationDate,
-				reservationCheckInDate, reservationCheckoutDate,
-				reservationCancelStatus, orderBy, sortBy
-			);
+			reservationService.selectReservationListByMonth(reservationCheckinDate, year, month, criteria);
 
 		try {
 

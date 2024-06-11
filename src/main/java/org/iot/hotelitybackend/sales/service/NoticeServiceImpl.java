@@ -6,6 +6,8 @@ import org.iot.hotelitybackend.sales.aggregate.NoticeEntity;
 import org.iot.hotelitybackend.sales.aggregate.NoticeSpecification;
 import org.iot.hotelitybackend.sales.dto.NoticeDTO;
 import org.iot.hotelitybackend.sales.repository.NoticeRepository;
+import org.iot.hotelitybackend.sales.vo.NoticeDashboardVO;
+import org.iot.hotelitybackend.sales.vo.NoticeSearchCriteria;
 import org.iot.hotelitybackend.sales.vo.RequestModifyNotice;
 import org.iot.hotelitybackend.sales.vo.RequestNotice;
 import org.modelmapper.ModelMapper;
@@ -21,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
@@ -40,11 +43,11 @@ public class NoticeServiceImpl implements NoticeService {
 	}
 
 	@Override
-	public Map<String, Object> selectNoticesList(
-		int pageNum, Integer noticeCodePk, String noticeTitle, String noticeContent,
-		Integer employeeCodeFk, String employeeName, String branchCodeFk,
-		LocalDateTime noticePostedDate, LocalDateTime noticeLastUpdatedDate,
-		String orderBy, Integer sortBy) {
+	public Map<String, Object> selectNoticesList(NoticeSearchCriteria criteria) {
+
+		Integer pageNum = criteria.getPageNum();
+		Integer sortBy = criteria.getSortBy();
+		String orderBy = criteria.getOrderBy();
 
 		Pageable pageable;
 
@@ -57,6 +60,39 @@ public class NoticeServiceImpl implements NoticeService {
 				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
 			}
 		}
+
+		Specification<NoticeEntity> spec = buildSpecification(criteria);
+
+		Page<NoticeEntity> noticeEntityPage = noticeRepository.findAll(spec, pageable);
+
+		List<NoticeDTO> noticeDTOList = noticeEntityPage
+			.stream()
+			.map(noticeEntity -> mapper.map(noticeEntity, NoticeDTO.class))
+			.peek(noticeDTO -> noticeDTO.setPICEmployeeName(getEmployeeName(noticeDTO)))
+			.toList();
+
+		int totalPagesCount = noticeEntityPage.getTotalPages();
+		int currentPageIndex = noticeEntityPage.getNumber();
+
+		Map<String, Object> noticePageInfo = new HashMap<>();
+
+		noticePageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+		noticePageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+		noticePageInfo.put(KEY_CONTENT, noticeDTOList);
+
+		return noticePageInfo;
+	}
+
+	private Specification<NoticeEntity> buildSpecification(NoticeSearchCriteria criteria) {
+
+		Integer noticeCodePk = criteria.getNoticeCodePk();
+		String noticeTitle = criteria.getNoticeTitle();
+		String noticeContent = criteria.getNoticeContent();
+		Integer employeeCodeFk = criteria.getEmployeeCodeFk();
+		String employeeName = criteria.getEmployeeName();
+		String branchCodeFk = criteria.getBranchCodeFk();
+		LocalDateTime noticePostedDate = criteria.getNoticePostedDate();
+		LocalDateTime noticeLastUpdatedDate = criteria.getNoticeLastUpdatedDate();
 
 		Specification<NoticeEntity> spec = (root, query, criteriaBuilder) -> null;
 
@@ -100,24 +136,7 @@ public class NoticeServiceImpl implements NoticeService {
 			spec = spec.and(NoticeSpecification.equalsNoticeLastUpdatedDate(noticeLastUpdatedDate));
 		}
 
-		Page<NoticeEntity> noticeEntityPage = noticeRepository.findAll(spec, pageable);
-
-		List<NoticeDTO> noticeDTOList = noticeEntityPage
-			.stream()
-			.map(noticeEntity -> mapper.map(noticeEntity, NoticeDTO.class))
-			.peek(noticeDTO -> noticeDTO.setPICEmployeeName(getEmployeeName(noticeDTO)))
-			.toList();
-
-		int totalPagesCount = noticeEntityPage.getTotalPages();
-		int currentPageIndex = noticeEntityPage.getNumber();
-
-		Map<String, Object> noticePageInfo = new HashMap<>();
-
-		noticePageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-		noticePageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-		noticePageInfo.put(KEY_CONTENT, noticeDTOList);
-
-		return noticePageInfo;
+		return spec;
 	}
 
 	@Override
@@ -169,6 +188,7 @@ public class NoticeServiceImpl implements NoticeService {
 			.employeeCodeFk(noticeRepository.findById(noticeCodePk).get().getEmployeeCodeFk())
 			.noticePostedDate(noticeRepository.findById(noticeCodePk).get().getNoticePostedDate())
 			.noticeLastUpdatedDate(LocalDateTime.now())
+			.branchCodeFk(requestModifyNotice.getBranchCodeFk())
 			.build();
 
 		Map<String, Object> modifyNoticeInfo = new HashMap<>();
@@ -189,6 +209,34 @@ public class NoticeServiceImpl implements NoticeService {
 		}
 
 		return deleteNoticeInfo;
+	}
+
+	@Override
+	public Map<String, Object> selectLatestNoticeList() {
+		List<NoticeEntity> noticeEntityList = noticeRepository.findTop3ByOrderByNoticeCodePkDesc();
+		List<NoticeDashboardVO> noticeDashboardVOList = noticeEntityList
+			.stream()
+			.map(noticeEntity -> mapper.map(noticeEntity, NoticeDashboardVO.class))
+			.peek(noticeDashboardVO -> noticeDashboardVO.setPICEmployeeName(
+				employeeRepository.findById(
+					noticeDashboardVO.getEmployeeCodeFk()).get().getEmployeeName()
+			))
+			.collect(Collectors.toList());
+
+		// 공지 개수가 3개보다 부족할 때
+		if (noticeDashboardVOList.size() < 3) {
+			int limit = 3 - noticeDashboardVOList.size();
+			for (int i = 0; i < limit; i++) {
+				NoticeDashboardVO noticeDashboardVO = new NoticeDashboardVO();
+				noticeDashboardVO.setNoticeTitle("공지가 없습니다.");
+				noticeDashboardVOList.add(noticeDashboardVO);
+			}
+		}
+
+		Map<String, Object> latestNoticeList = new HashMap<>();
+		latestNoticeList.put(KEY_CONTENT, noticeDashboardVOList);
+
+		return latestNoticeList;
 	}
 
 }

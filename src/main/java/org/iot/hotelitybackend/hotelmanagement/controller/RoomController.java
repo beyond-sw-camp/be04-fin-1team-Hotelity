@@ -5,6 +5,7 @@ import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.hotelmanagement.dto.RoomDTO;
 import org.iot.hotelitybackend.hotelmanagement.service.RoomService;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyRoom;
+import org.iot.hotelitybackend.hotelmanagement.vo.RoomSearchCriteria;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -36,25 +37,24 @@ public class RoomController {
 	}
 
 	@GetMapping("/rooms")
-	public ResponseEntity<ResponseVO> selectSearchedRoomsList(
-		@RequestParam(required = false) Integer pageNum,
-		@RequestParam(required = false) String roomCodePk,
-		@RequestParam(required = false) String branchCodeFk,
-		@RequestParam(required = false) Integer roomNumber,
-		@RequestParam(required = false) String roomName,
-		@RequestParam(required = false) String roomCurrentStatus,
-		@RequestParam(required = false) Float roomDiscountRate,
-		@RequestParam(required = false) String roomView,
-		@RequestParam(required = false) Integer roomSubRoomsCount,
-		@RequestParam(required = false) String orderBy,
-		@RequestParam(required = false) Integer sortBy
-	) {
+	public ResponseEntity<ResponseVO> selectSearchedRoomsList(@ModelAttribute RoomSearchCriteria criteria) {
 
-		Map<String, Object> roomListInfo = roomService.selectSearchedRoomsList(
-			pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount, orderBy, sortBy);
+		Map<String, Object> roomListInfo = roomService.selectSearchedRoomsList(criteria);
 
 		ResponseVO response = ResponseVO.builder()
 			.data(roomListInfo)
+			.resultCode(HttpStatus.OK.value())
+			.build();
+
+		return ResponseEntity.status(response.getResultCode()).body(response);
+	}
+
+	@GetMapping("/rooms/{roomCodePk}")
+	public ResponseEntity<ResponseVO> selectRoomInfo(@PathVariable("roomCodePk") String roomCodePk) {
+		Map<String, Object> roomInfo = roomService.selectRoomInfo(roomCodePk);
+
+		ResponseVO response = ResponseVO.builder()
+			.data(roomInfo)
 			.resultCode(HttpStatus.OK.value())
 			.build();
 
@@ -90,24 +90,13 @@ public class RoomController {
 	}
 
 	@GetMapping("rooms/excel/download")
-	public ResponseEntity<InputStreamResource> downloadSearchedRoomsAsExcel(
-		@RequestParam(required = false) Integer pageNum,
-		@RequestParam(required = false) String roomCodePk,
-		@RequestParam(required = false) String branchCodeFk,
-		@RequestParam(required = false) Integer roomNumber,
-		@RequestParam(required = false) String roomName,
-		@RequestParam(required = false) String roomCurrentStatus,
-		@RequestParam(required = false) Float roomDiscountRate,
-		@RequestParam(required = false) String roomView,
-		@RequestParam(required = false) Integer roomSubRoomsCount,
-		@RequestParam(required = false) String orderBy,
-		@RequestParam(required = false) Integer sortBy
-	) {
+	public ResponseEntity<InputStreamResource> downloadSearchedRoomsAsExcel(@ModelAttribute RoomSearchCriteria criteria) {
 		try {
 
 			// 조회해서 DTO 리스트 가져오기
 			Map<String, Object> roomListInfo = roomService.selectSearchedRoomsList(
-				pageNum, roomCodePk, branchCodeFk, roomNumber, roomName, roomCurrentStatus, roomDiscountRate, roomView, roomSubRoomsCount, orderBy, sortBy);
+				criteria
+			);
 
 			// 엑셀 시트와 파일 만들기
 			Map<String, Object> result = createExcelFile(

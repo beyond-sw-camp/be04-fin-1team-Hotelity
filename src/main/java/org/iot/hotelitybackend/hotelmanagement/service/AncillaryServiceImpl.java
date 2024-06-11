@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -26,20 +27,27 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.AncillaryEntity;
 import org.iot.hotelitybackend.hotelmanagement.aggregate.AncillarySpecification;
 import org.iot.hotelitybackend.hotelmanagement.dto.AncillaryDTO;
+import org.iot.hotelitybackend.hotelmanagement.dto.AncillaryImageDTO;
+import org.iot.hotelitybackend.hotelmanagement.dto.SelectAncillaryDTO;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryCategoryRepository;
+import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryImageRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.AncillaryRepository;
 import org.iot.hotelitybackend.hotelmanagement.repository.BranchRepository;
+import org.iot.hotelitybackend.hotelmanagement.vo.AncillarySearchCriteria;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyFacility;
 import org.iot.hotelitybackend.hotelmanagement.vo.RequestRegistFacility;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -49,33 +57,132 @@ public class AncillaryServiceImpl implements AncillaryService{
 	private final AncillaryRepository ancillaryRepository;
 	private final AncillaryCategoryRepository ancillaryCategoryRepository;
 	private final BranchRepository branchRepository;
+	private final AncillaryImageRepository ancillaryImageRepository;
 	private final ModelMapper mapper;
 
 	@Autowired
-	public AncillaryServiceImpl(AncillaryRepository ancillaryRepository, AncillaryCategoryRepository ancillaryCategoryRepository, BranchRepository branchRepository, ModelMapper mapper) {
+	public AncillaryServiceImpl(AncillaryRepository ancillaryRepository, AncillaryCategoryRepository ancillaryCategoryRepository, BranchRepository branchRepository,
+		AncillaryImageRepository ancillaryImageRepository, ModelMapper mapper) {
 		this.ancillaryRepository = ancillaryRepository;
 		this.ancillaryCategoryRepository = ancillaryCategoryRepository;
 		this.branchRepository = branchRepository;
+		this.ancillaryImageRepository = ancillaryImageRepository;
 		this.mapper = mapper;
+		this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		this.mapper.typeMap(AncillaryEntity.class, AncillaryDTO.class)
+				.addMappings(mapperNew -> mapperNew.map(
+						src -> src.getBranchName(),
+						AncillaryDTO::setBranchName
+				))
+				.addMappings(mapperNew -> mapperNew.map(
+						src -> src.getAncillaryCategoryName(),
+						AncillaryDTO::setAncillaryCategoryName
+				));
 	}
 
 	@Override
-	public Map<String, Object> selectAllFacilities(
-		Integer pageNum,
-		Integer ancillaryCodePk,
-		String ancillaryName,
-		String branchCodeFk,
-		String ancillaryLocation,
-		LocalTime ancillaryOpenTime,
-		LocalTime ancillaryCloseTime,
-		String ancillaryPhoneNumber,
-		Integer ancillaryCategoryCodeFk,
-		String branchName,
-		String ancillaryCategoryName
-	) {
+	public Map<String, Object> selectAllFacilities(AncillarySearchCriteria criteria) {
+
+		Specification<AncillaryEntity> spec = buildSpecification(criteria);
+
+		List<AncillaryDTO> ancillaryDTOList;
+		Map<String, Object> ancillaryListInfo = new HashMap<>();
+
+		Integer pageNum = criteria.getPageNum();
+		String orderBy = criteria.getOrderBy();
+		Integer sortBy = criteria.getSortBy();
+
+		// 2-1. 페이징처리 할 때
+		if (pageNum != null) {
+			Pageable pageable;
+
+			if (orderBy != null && !orderBy.isEmpty() && sortBy != null) {
+				pageable = PageRequest.of(pageNum, PAGE_SIZE, sortBy == 1
+						? Sort.by(orderBy).ascending()
+						: Sort.by(orderBy).descending());
+			} else {
+				pageable = PageRequest.of(pageNum, PAGE_SIZE);
+			}
+
+			Page<AncillaryEntity> ancillaryEntityList = ancillaryRepository.findAll(spec, pageable);
+
+			ancillaryDTOList = ancillaryEntityList
+				.stream()
+				.map(ancillaryEntity -> mapper.map(ancillaryEntity, AncillaryDTO.class))
+				.peek(ancillaryDTO -> {
+
+					// 지점 이름 가져와 붙이기
+					ancillaryDTO.setBranchName(
+						branchRepository.findById(
+							ancillaryDTO.getBranchCodeFk()
+						).orElseThrow(IllegalArgumentException::new).getBranchName()
+					);
+
+					// 부대시설 카테고리 이름 가져와 붙이기
+					ancillaryDTO.setAncillaryCategoryName(
+						ancillaryCategoryRepository.findById(
+							ancillaryDTO.getAncillaryCategoryCodeFk()
+						).orElseThrow(IllegalArgumentException::new).getAncillaryCategoryName()
+					);
+				})
+				.toList();
+
+			int totalPagesCount = ancillaryEntityList.getTotalPages();
+			int currentPageIndex = ancillaryEntityList.getNumber();
+			ancillaryListInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+			ancillaryListInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+
+		// 2-2. 페이징 처리 안할 때
+		} else {
+			List<AncillaryEntity> ancillaryEntityList;
+
+			if (orderBy != null && !orderBy.isEmpty() && sortBy != null) {
+				ancillaryEntityList = ancillaryRepository.findAll(spec, sortBy == 1 ? Sort.by(orderBy).descending() : Sort.by(orderBy).ascending());
+			} else {
+				ancillaryEntityList = ancillaryRepository.findAll(spec);
+			}
+
+			ancillaryDTOList = ancillaryEntityList
+				.stream()
+				.map(ancillaryEntity -> mapper.map(ancillaryEntity, AncillaryDTO.class))
+				.peek(ancillaryDTO -> {
+
+					// 지점 이름 가져와 붙이기
+					ancillaryDTO.setBranchName(
+						branchRepository.findById(
+							ancillaryDTO.getBranchCodeFk()
+						).orElseThrow(IllegalArgumentException::new).getBranchName()
+					);
+
+					// 부대시설 카테고리 이름 가져와 붙이기
+					ancillaryDTO.setAncillaryCategoryName(
+						ancillaryCategoryRepository.findById(
+							ancillaryDTO.getAncillaryCategoryCodeFk()
+						).orElseThrow(IllegalArgumentException::new).getAncillaryCategoryName()
+					);
+				})
+				.toList();
+		}
+
+		ancillaryListInfo.put(KEY_CONTENT, ancillaryDTOList);
+
+		return ancillaryListInfo;
+	}
+
+	private Specification<AncillaryEntity> buildSpecification(AncillarySearchCriteria criteria) {
+		Integer pageNum = criteria.getPageNum();
+		Integer ancillaryCodePk = criteria.getAncillaryCodePk();
+		String ancillaryName = criteria.getAncillaryName();
+		String branchCodeFk = criteria.getBranchCodeFk();
+		String ancillaryLocation = criteria.getAncillaryLocation();
+		LocalTime ancillaryOpenTime = criteria.getAncillaryOpenTime();
+		LocalTime ancillaryCloseTime = criteria.getAncillaryCloseTime();
+		String ancillaryPhoneNumber = criteria.getAncillaryPhoneNumber();
+		Integer ancillaryCategoryCodeFk = criteria.getAncillaryCategoryCodeFk();
+		String branchName = criteria.getBranchName();
+		String ancillaryCategoryName = criteria.getAncillaryCategoryName();
 
 		Specification<AncillaryEntity> spec = (root, query, criteriaBuilder) -> null;
-
 
 		// 1-1. 부대시설코드 기준으로 필터링
 		if (ancillaryCodePk != null) {
@@ -127,97 +234,10 @@ public class AncillaryServiceImpl implements AncillaryService{
 			);
 		}
 
-		// 2. 위에서 구성한 Specification 을 적용하여 findAll
-		List<AncillaryDTO> ancillaryDTOList;
-		Map<String, Object> ancillaryListInfo = new HashMap<>();
-
-		// 2-1. 페이징처리 할 때
-		if (pageNum != null) {
-			Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE);
-			Page<AncillaryEntity> ancillaryEntityList = ancillaryRepository.findAll(spec, pageable);
-
-			ancillaryDTOList = ancillaryEntityList
-				.stream()
-				.map(ancillaryEntity -> mapper.map(ancillaryEntity, AncillaryDTO.class))
-				.peek(ancillaryDTO -> {
-
-					// 지점 이름 가져와 붙이기
-					ancillaryDTO.setBranchName(
-						branchRepository.findById(
-							ancillaryDTO.getBranchCodeFk()
-						).orElseThrow(IllegalArgumentException::new).getBranchName()
-					);
-
-					// 부대시설 카테고리 이름 가져와 붙이기
-					ancillaryDTO.setAncillaryCategoryName(
-						ancillaryCategoryRepository.findById(
-							ancillaryDTO.getAncillaryCategoryCodeFk()
-						).orElseThrow(IllegalArgumentException::new).getAncillaryCategoryName()
-					);
-				})
-				.toList();
-
-			int totalPagesCount = ancillaryEntityList.getTotalPages();
-			int currentPageIndex = ancillaryEntityList.getNumber();
-			ancillaryListInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-			ancillaryListInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-
-		// 2-2. 페이징 처리 안할 때
-		} else {
-			List<AncillaryEntity> ancillaryEntityList = ancillaryRepository.findAll(spec);
-			ancillaryDTOList = ancillaryEntityList
-				.stream()
-				.map(ancillaryEntity -> mapper.map(ancillaryEntity, AncillaryDTO.class))
-				.peek(ancillaryDTO -> {
-
-					// 지점 이름 가져와 붙이기
-					ancillaryDTO.setBranchName(
-						branchRepository.findById(
-							ancillaryDTO.getBranchCodeFk()
-						).orElseThrow(IllegalArgumentException::new).getBranchName()
-					);
-
-					// 부대시설 카테고리 이름 가져와 붙이기
-					ancillaryDTO.setAncillaryCategoryName(
-						ancillaryCategoryRepository.findById(
-							ancillaryDTO.getAncillaryCategoryCodeFk()
-						).orElseThrow(IllegalArgumentException::new).getAncillaryCategoryName()
-					);
-				})
-				.toList();
-		}
-
-		ancillaryListInfo.put(KEY_CONTENT, ancillaryDTOList);
-
-		// List<AncillaryDTO> ancillaryDTOList = ancillaryEntityPage
-		// 	.stream()
-		// 	.map(ancillaryEntity -> mapper.map(ancillaryEntity, AncillaryDTO.class))
-		// 	.peek(ancillaryDTO -> {
-		//
-		// 		// 지점 이름 가져와 붙이기
-		// 		ancillaryDTO.setBranchName(
-		// 			branchRepository.findById(
-		// 				ancillaryDTO.getBranchCodeFk()
-		// 			).orElseThrow(IllegalArgumentException::new).getBranchName()
-		// 		);
-		//
-		// 		// 부대시설 카테고리 이름 가져와 붙이기
-		// 		ancillaryDTO.setAncillaryCategoryName(
-		// 			ancillaryCategoryRepository.findById(
-		// 				ancillaryDTO.getAncillaryCategoryCodeFk()
-		// 			).orElseThrow(IllegalArgumentException::new).getAncillaryCategoryName()
-		// 		);
-		// 	})
-		// 	.toList();
-		//
-		//
-		// Map<String, Object> ancillaryPageInfo = new HashMap<>();
-		//
-		// ancillaryPageInfo.put(KEY_CONTENT, ancillaryDTOList);
-
-		return ancillaryListInfo;
+		return spec;
 	}
 
+	@Transactional
 	@Override
 	public Map<String, Object> registFacility(RequestRegistFacility requestRegistFacility) {
 		AncillaryEntity ancillaryEntity = AncillaryEntity.builder()
@@ -238,6 +258,7 @@ public class AncillaryServiceImpl implements AncillaryService{
 		return registFacilityInfo;
 	}
 
+	@Transactional
 	@Override
 	public Map<String, Object> modifyFacilityInfo(RequestModifyFacility requestModifyFacility, int ancillaryCodePk) {
 		AncillaryEntity ancillaryEntity = AncillaryEntity.builder()
@@ -248,16 +269,32 @@ public class AncillaryServiceImpl implements AncillaryService{
 				.ancillaryOpenTime(requestModifyFacility.getAncillaryOpenTime())
 				.ancillaryCloseTime(requestModifyFacility.getAncillaryCloseTime())
 				.ancillaryPhoneNumber(requestModifyFacility.getAncillaryPhoneNumber())
-				.ancillaryCategoryCodeFk(requestModifyFacility.getAncillaryCategoryCodeFk())
+				.ancillaryCategoryCodeFk(
+					ancillaryCategoryRepository.findByAncillaryCategoryName(
+						requestModifyFacility.getAncillaryCategoryName()
+					).getAncillaryCategoryCodePk()
+				)
 				.build();
 
 		Map<String, Object> modifyFacilityInfo = new HashMap<>();
+		AncillaryDTO ancillaryDTO = mapper.map(ancillaryRepository.save(ancillaryEntity), AncillaryDTO.class);
+		ancillaryDTO.setBranchName(
+			branchRepository.findById(
+				ancillaryDTO.getBranchCodeFk()
+			).orElseThrow(IllegalArgumentException::new).getBranchName()
+		);
+		ancillaryDTO.setAncillaryCategoryName(
+			ancillaryCategoryRepository.findById(
+				ancillaryDTO.getAncillaryCategoryCodeFk()
+			).orElseThrow(IllegalArgumentException::new).getAncillaryCategoryName()
+		);
 
-		modifyFacilityInfo.put(KEY_CONTENT, mapper.map(ancillaryRepository.save(ancillaryEntity), AncillaryDTO.class));
+		modifyFacilityInfo.put(KEY_CONTENT, ancillaryDTO);
 
 		return modifyFacilityInfo;
 	}
 
+	@Transactional
 	@Override
 	public Map<String, Object> deleteFacilityInfo(int ancillaryCodePk) {
 		Map<String, Object> deleteFacilityInfo = new HashMap<>();
@@ -332,6 +369,33 @@ public class AncillaryServiceImpl implements AncillaryService{
 		result.put("fileName", fileName);
 		result.put("headers", headers);
 		return result;
+	}
+
+	@Override
+	public Map<String, Object> selectFacility(int ancillaryCodePk) {
+		Map<String, Object> facilityInfo = new HashMap<>();
+		SelectAncillaryDTO selectAncillaryDTO = mapper.map(
+			ancillaryRepository.findById(ancillaryCodePk).orElseThrow(IllegalArgumentException::new),
+			SelectAncillaryDTO.class
+		);
+		selectAncillaryDTO.setBranchName(
+			branchRepository.findById(selectAncillaryDTO.getBranchCodeFk())
+				.orElseThrow(IllegalArgumentException::new)
+				.getBranchName()
+		);
+		selectAncillaryDTO.setAncillaryCategoryName(
+			ancillaryCategoryRepository.findById(selectAncillaryDTO.getAncillaryCategoryCodeFk())
+				.orElseThrow(IllegalArgumentException::new)
+				.getAncillaryCategoryName()
+		);
+		selectAncillaryDTO.setAncillaryImageDTOList(
+			ancillaryImageRepository.findAllByAncillaryCodeFk(ancillaryCodePk)
+				.stream()
+				.map(ancillaryImageEntity -> mapper.map(ancillaryImageEntity, AncillaryImageDTO.class))
+				.collect(Collectors.toList())
+		);
+		facilityInfo.put(KEY_CONTENT, selectAncillaryDTO);
+		return facilityInfo;
 	}
 
 	// 첫번째 인자인 List<RoomDTO> 만 바꿔서 쓰면 됨

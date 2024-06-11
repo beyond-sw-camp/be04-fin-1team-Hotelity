@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hotelity-backend-dep
+spec:
+  selector:
+    matchLabels:
+      app: hotelity-backend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hotelity-backend
+    spec:
+      containers:
+        - name: hotelity-backend
+          image: eodud3196/backend-test:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8888

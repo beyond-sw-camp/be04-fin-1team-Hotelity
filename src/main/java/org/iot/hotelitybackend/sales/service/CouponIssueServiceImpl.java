@@ -8,8 +8,10 @@ import org.iot.hotelitybackend.sales.dto.CouponDTO;
 import org.iot.hotelitybackend.sales.dto.CouponIssueDTO;
 import org.iot.hotelitybackend.sales.repository.CouponIssueRepository;
 import org.iot.hotelitybackend.sales.repository.CouponRepository;
+import org.iot.hotelitybackend.sales.vo.CouponIssueSearchCriteria;
 import org.iot.hotelitybackend.sales.vo.RequestCouponIssue;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,39 +41,26 @@ public class CouponIssueServiceImpl implements CouponIssueService{
         this.couponIssueRepository = couponIssueRepository;
         this.customerRepository = customerRepository;
         this.couponRepository = couponRepository;
+
+        this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        this.mapper.typeMap(CouponIssueEntity.class, CouponIssueDTO.class).addMappings(modelMapper -> {
+            modelMapper.map(CouponIssueEntity::getCouponName, CouponIssueDTO::setCustomerName);
+            modelMapper.map(CouponIssueEntity::getCustomerName, CouponIssueDTO::setCouponDiscountRate);
+            modelMapper.map(CouponIssueEntity::getCouponDiscountRate, CouponIssueDTO::setCouponDiscountRate);
+            modelMapper.map(CouponIssueEntity::getMembershipLevelName, CouponIssueDTO::setMembershipLevelName);
+        });
     }
 
     @Override
-    public Map<String, Object> selectCouponIssueList(Integer pageNum, Integer couponIssueCodePk, String couponName,
-        Integer customerCodePk, String customerName, Double couponDiscountRate, LocalDateTime couponIssueDate, LocalDateTime couponExpireDate,
-        LocalDateTime couponUseDate, String orderBy, Integer sortBy) {
+    public Map<String, Object> selectCouponIssueList(
+        CouponIssueSearchCriteria criteria
+    ) {
 
-        Specification<CouponIssueEntity> specification = (root, query, criteriaBuilder) -> null;
+        Specification<CouponIssueEntity> specification = buildSpecification(criteria);
 
-        if(couponIssueCodePk != null){
-            specification = specification.and(CouponIssueSpecification.equalsCouponIssueCodePk(couponIssueCodePk));
-        }
-        if(couponName != null){
-            specification = specification.and(CouponIssueSpecification.likeCouponName(couponName));
-        }
-        if(customerName != null){
-            specification = specification.and(CouponIssueSpecification.likeCustomerName(customerName));
-        }
-        if(couponDiscountRate != null){
-            specification = specification.and(CouponIssueSpecification.equalsCouponDiscountRate(couponDiscountRate));
-        }
-        if(couponIssueDate != null){
-            specification = specification.and(CouponIssueSpecification.equalsCouponIssueDate(couponIssueDate));
-        }
-        if(couponExpireDate != null){
-            specification = specification.and(CouponIssueSpecification.equalsCouponExpireDate(couponExpireDate));
-        }
-        if(couponUseDate != null){
-            specification = specification.and(CouponIssueSpecification.equalsCouponUseDate(couponUseDate));
-        }
-        if(customerCodePk != null){
-            specification = specification.and(CouponIssueSpecification.equalsCustomerCodePk(customerCodePk));
-        }
+        Integer pageNum = criteria.getPageNum();
+        String orderBy = criteria.getOrderBy();
+        Integer sortBy = criteria.getSortBy();
 
         Map<String, Object> couponIssuePageInfo = new HashMap<>();
 
@@ -132,6 +121,49 @@ public class CouponIssueServiceImpl implements CouponIssueService{
         }
 
         return couponIssuePageInfo;
+    }
+
+    private Specification<CouponIssueEntity> buildSpecification(CouponIssueSearchCriteria criteria) {
+
+        Integer pageNum = criteria.getPageNum();
+        Integer couponIssueCodePk = criteria.getCouponIssueCodePk();
+        String couponName = criteria.getCouponName();
+        String customerName = criteria.getCustomerName();
+        Integer customerCodePk = criteria.getCustomerCodePk();
+        Double couponDiscountRate = criteria.getCouponDiscountRate();
+        LocalDateTime couponIssueDate = criteria.getCouponIssueDate();
+        LocalDateTime couponExpireDate = criteria.getCouponExpireDate();
+        LocalDateTime couponUseDate = criteria.getCouponUseDate();
+        String orderBy;
+        Integer sortBy;
+
+        Specification<CouponIssueEntity> specification = (root, query, criteriaBuilder) -> null;
+
+        if(couponIssueCodePk != null){
+            specification = specification.and(CouponIssueSpecification.equalsCouponIssueCodePk(couponIssueCodePk));
+        }
+        if(couponName != null){
+            specification = specification.and(CouponIssueSpecification.likeCouponName(couponName));
+        }
+        if(customerName != null){
+            specification = specification.and(CouponIssueSpecification.likeCustomerName(customerName));
+        }
+        if(couponDiscountRate != null){
+            specification = specification.and(CouponIssueSpecification.equalsCouponDiscountRate(couponDiscountRate));
+        }
+        if(couponIssueDate != null){
+            specification = specification.and(CouponIssueSpecification.equalsCouponIssueDate(couponIssueDate));
+        }
+        if(couponExpireDate != null){
+            specification = specification.and(CouponIssueSpecification.equalsCouponExpireDate(couponExpireDate));
+        }
+        if(couponUseDate != null){
+            specification = specification.and(CouponIssueSpecification.equalsCouponUseDate(couponUseDate));
+        }
+        if(customerCodePk != null){
+            specification = specification.and(CouponIssueSpecification.equalsCustomerCodePk(customerCodePk));
+        }
+        return specification;
     }
 
     @Override

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import org.hibernate.annotations.Formula;
 import org.iot.hotelitybackend.employee.aggregate.EmployeeEntity;
 
 @Entity
@@ -29,6 +30,14 @@ public class NoticeEntity {
 	private LocalDateTime noticePostedDate;
 	private LocalDateTime noticeLastUpdatedDate;
 
+	@Formula("("
+		+ "SELECT e.employee_name "
+		+ "FROM notice_tb n "
+		+ "JOIN employee_tb e ON n.employee_code_fk = e.employee_code_pk "
+		+ "WHERE n.notice_code_pk = notice_code_pk "
+		+ ")")
+	private String picemployeeName;
+
 	@Builder
 	public NoticeEntity(
 		Integer noticeCodePk,
@@ -37,7 +46,8 @@ public class NoticeEntity {
 		Integer employeeCodeFk,
 		String branchCodeFk,
 		LocalDateTime noticePostedDate,
-		LocalDateTime noticeLastUpdatedDate
+		LocalDateTime noticeLastUpdatedDate,
+		String picemployeeName
 	) {
 		this.noticeCodePk = noticeCodePk;
 		this.noticeTitle = noticeTitle;
@@ -46,6 +56,20 @@ public class NoticeEntity {
 		this.employeeCodeFk = employeeCodeFk;
 		this.noticeLastUpdatedDate = noticeLastUpdatedDate;
 		this.branchCodeFk = branchCodeFk;
+		this.picemployeeName = picemployeeName;
+	}
+
+	@Override
+	public String toString() {
+		return "NoticeEntity{" +
+				"noticeCodePk=" + noticeCodePk +
+				", noticeTitle='" + noticeTitle + '\'' +
+				", noticeContent='" + noticeContent + '\'' +
+				", employeeCodeFk=" + employeeCodeFk +
+				", branchCodeFk='" + branchCodeFk + '\'' +
+				", noticePostedDate=" + noticePostedDate +
+				", noticeLastUpdatedDate=" + noticeLastUpdatedDate +
+				'}';
 	}
 
 	@ManyToOne

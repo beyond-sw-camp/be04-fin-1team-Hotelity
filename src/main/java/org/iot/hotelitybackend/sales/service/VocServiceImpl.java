@@ -21,7 +21,10 @@ import org.iot.hotelitybackend.sales.dto.VocDTO;
 import org.iot.hotelitybackend.sales.repository.VocRepository;
 import org.iot.hotelitybackend.sales.vo.RequestReplyVoc;
 import org.iot.hotelitybackend.sales.vo.ResponseVoc;
+import org.iot.hotelitybackend.sales.vo.VocDashboardVO;
+import org.iot.hotelitybackend.sales.vo.VocSearchCriteria;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,6 +46,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.iot.hotelitybackend.common.constant.Constant.*;
 
@@ -66,14 +70,18 @@ public class VocServiceImpl implements VocService {
 		this.vocRepository = vocRepository;
 		this.customerRepository = customerRepository;
 		this.employeeRepository = employeeRepository;
+		this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		this.mapper.typeMap(VocEntity.class, VocDTO.class).addMappings(modelMapper -> {
+			modelMapper.map(VocEntity::getPicEmployeeName, VocDTO::setPICEmployeeName);
+		});
 	}
 
 	@Override
-	public Map<String, Object> selectVocsList(
-		int pageNum, Integer vocCodePk, String vocTitle, String vocCategory,
-		Integer customerCodeFk, String customerName, LocalDateTime vocCreatedDate, LocalDateTime vocLastUpdatedDate,
-		String branchCodeFk,
-		Integer employeeCodeFk, String PICEmployeeName, Integer vocProcessStatus, String orderBy, Integer sortBy) {
+	public Map<String, Object> selectVocsList(VocSearchCriteria criteria) {
+
+		Integer pageNum = criteria.getPageNum();
+		String orderBy = criteria.getOrderBy();
+		Integer sortBy = criteria.getSortBy();
 
 		Pageable pageable;
 
@@ -86,6 +94,46 @@ public class VocServiceImpl implements VocService {
 				pageable = PageRequest.of(pageNum, PAGE_SIZE, Sort.by(orderBy).descending());
 			}
 		}
+
+		Specification<VocEntity> spec = buildSpecification(criteria);
+
+		Page<VocEntity> vocEntityPage = vocRepository.findAll(spec, pageable);
+		List<VocDTO> vocDTOList = vocEntityPage.stream()
+			.map(vocEntity -> mapper.map(vocEntity, VocDTO.class))
+			.peek(vocDTO -> vocDTO.setCustomerName(
+				mapper.map(customerRepository.findById(vocDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()
+			))
+			.peek(vocDTO -> vocDTO.setPICEmployeeName(
+				mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
+			))
+			.toList();
+
+		int totalPagesCount = vocEntityPage.getTotalPages();
+		int currentPageIndex = vocEntityPage.getNumber();
+
+		Map<String, Object> vocPageInfo = new HashMap<>();
+
+		vocPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
+		vocPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
+		vocPageInfo.put(KEY_CONTENT, vocDTOList);
+
+		return vocPageInfo;
+	}
+
+	private Specification<VocEntity> buildSpecification(VocSearchCriteria criteria) {
+
+		Integer pageNum = criteria.getPageNum();
+		Integer vocCodePk = criteria.getVocCodePk();
+		String vocTitle = criteria.getVocTitle();
+		String vocCategory = criteria.getVocCategory();
+		Integer customerCodeFk = criteria.getCustomerCodeFk();
+		String customerName = criteria.getCustomerName();
+		LocalDateTime vocCreatedDate = criteria.getVocCreatedDate();
+		LocalDateTime vocLastUpdatedDate = criteria.getVocLastUpdatedDate();
+		String branchCodeFk = criteria.getBranchCodeFk();
+		Integer employeeCodeFk = criteria.getEmployeeCodeFk();
+		String picEmployeeName = criteria.getPicEmployeeName();
+		Integer vocProcessStatus = criteria.getVocProcessStatus();
 
 		Specification<VocEntity> spec = (root, query, criteriaBuilder) -> null;
 
@@ -135,36 +183,15 @@ public class VocServiceImpl implements VocService {
 		}
 
 		// 직원명
-		if (PICEmployeeName != null) {
-			spec = spec.and(VocSpecification.likeEmployeeName(PICEmployeeName));
+		if (picEmployeeName != null) {
+			spec = spec.and(VocSpecification.likeEmployeeName(picEmployeeName));
 		}
 
 		// voc 처리상태
 		if (vocProcessStatus != null) {
 			spec = spec.and(VocSpecification.equalsVocProcessStatus(vocProcessStatus));
 		}
-
-		Page<VocEntity> vocEntityPage = vocRepository.findAll(spec, pageable);
-		List<VocDTO> vocDTOList = vocEntityPage.stream()
-			.map(vocEntity -> mapper.map(vocEntity, VocDTO.class))
-			.peek(vocDTO -> vocDTO.setCustomerName(
-				mapper.map(customerRepository.findById(vocDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()
-			))
-			.peek(vocDTO -> vocDTO.setPICEmployeeName(
-				mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
-			))
-			.toList();
-
-		int totalPagesCount = vocEntityPage.getTotalPages();
-		int currentPageIndex = vocEntityPage.getNumber();
-
-		Map<String, Object> vocPageInfo = new HashMap<>();
-
-		vocPageInfo.put(KEY_TOTAL_PAGES_COUNT, totalPagesCount);
-		vocPageInfo.put(KEY_CURRENT_PAGE_INDEX, currentPageIndex);
-		vocPageInfo.put(KEY_CONTENT, vocDTOList);
-
-		return vocPageInfo;
+		return spec;
 	}
 
 	@Override
@@ -200,7 +227,7 @@ public class VocServiceImpl implements VocService {
 			.vocLastUpdatedDate(LocalDateTime.now())
 			.customerCodeFk(vocRepository.findById(vocCodePk).get().getCustomerCodeFk())
 			.vocCategory(vocRepository.findById(vocCodePk).get().getVocCategory())
-			.employeeCodeFk(vocRepository.findById(vocCodePk).get().getEmployeeCodeFk())
+			.employeeCodeFk(requestReplyVoc.getEmployeeCodeFk())
 			.branchCodeFk(vocRepository.findById(vocCodePk).get().getBranchCodeFk())
 			.vocImageLink(requestReplyVoc.getVocImageLink())
 			.vocResponse(requestReplyVoc.getVocResponse())
@@ -238,6 +265,35 @@ public class VocServiceImpl implements VocService {
 			deleteVoc.put(KEY_CONTENT, "Failed to delete content.");
 		}
 		return deleteVoc;
+	}
+
+	@Override
+	public Map<String, Object> selectLatestVocList() {
+		List<VocEntity> vocEntityList = vocRepository.findTop3ByOrderByVocCodePkDesc();
+		List<VocDashboardVO> vocDashboardVOList = vocEntityList
+			.stream()
+			.map(vocEntity -> mapper.map(vocEntity, VocDashboardVO.class))
+			.peek(vocDashboardVO -> vocDashboardVO.setPICEmployeeName(
+				employeeRepository.findById(
+					vocDashboardVO.getEmployeeCodeFk()
+				).get().getEmployeeName()
+			))
+			.collect(Collectors.toList());
+
+		// VOC 개수가 3개보다 부족할 때
+		if (vocDashboardVOList.size() < 3) {
+			int limit = 3 - vocDashboardVOList.size();
+			for (int i = 0; i < limit; i++) {
+				VocDashboardVO vocDashboardVO = new VocDashboardVO();
+				vocDashboardVO.setVocTitle("VOC가 없습니다");
+				vocDashboardVOList.add(vocDashboardVO);
+			}
+		}
+
+		Map<String, Object> latestVocList = new HashMap<>();
+		latestVocList.put(KEY_CONTENT, vocDashboardVOList);
+
+		return latestVocList;
 	}
 
 	@Override
