@@ -47,6 +47,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -236,6 +237,7 @@ public class AncillaryServiceImpl implements AncillaryService{
 		return spec;
 	}
 
+	@Transactional
 	@Override
 	public Map<String, Object> registFacility(RequestRegistFacility requestRegistFacility) {
 		AncillaryEntity ancillaryEntity = AncillaryEntity.builder()
@@ -256,6 +258,7 @@ public class AncillaryServiceImpl implements AncillaryService{
 		return registFacilityInfo;
 	}
 
+	@Transactional
 	@Override
 	public Map<String, Object> modifyFacilityInfo(RequestModifyFacility requestModifyFacility, int ancillaryCodePk) {
 		AncillaryEntity ancillaryEntity = AncillaryEntity.builder()
@@ -266,16 +269,32 @@ public class AncillaryServiceImpl implements AncillaryService{
 				.ancillaryOpenTime(requestModifyFacility.getAncillaryOpenTime())
 				.ancillaryCloseTime(requestModifyFacility.getAncillaryCloseTime())
 				.ancillaryPhoneNumber(requestModifyFacility.getAncillaryPhoneNumber())
-				.ancillaryCategoryCodeFk(requestModifyFacility.getAncillaryCategoryCodeFk())
+				.ancillaryCategoryCodeFk(
+					ancillaryCategoryRepository.findByAncillaryCategoryName(
+						requestModifyFacility.getAncillaryCategoryName()
+					).getAncillaryCategoryCodePk()
+				)
 				.build();
 
 		Map<String, Object> modifyFacilityInfo = new HashMap<>();
+		AncillaryDTO ancillaryDTO = mapper.map(ancillaryRepository.save(ancillaryEntity), AncillaryDTO.class);
+		ancillaryDTO.setBranchName(
+			branchRepository.findById(
+				ancillaryDTO.getBranchCodeFk()
+			).orElseThrow(IllegalArgumentException::new).getBranchName()
+		);
+		ancillaryDTO.setAncillaryCategoryName(
+			ancillaryCategoryRepository.findById(
+				ancillaryDTO.getAncillaryCategoryCodeFk()
+			).orElseThrow(IllegalArgumentException::new).getAncillaryCategoryName()
+		);
 
-		modifyFacilityInfo.put(KEY_CONTENT, mapper.map(ancillaryRepository.save(ancillaryEntity), AncillaryDTO.class));
+		modifyFacilityInfo.put(KEY_CONTENT, ancillaryDTO);
 
 		return modifyFacilityInfo;
 	}
 
+	@Transactional
 	@Override
 	public Map<String, Object> deleteFacilityInfo(int ancillaryCodePk) {
 		Map<String, Object> deleteFacilityInfo = new HashMap<>();

@@ -46,34 +46,10 @@ public class CouponServiceImpl implements CouponService{
 	}
 
     @Override
-    public Map<String, Object> selectAllCouponsType(
-        // Integer pageNum, Integer couponCodePk, String couponName,
-        // String couponType, Double couponDiscountRate, Date couponLaunchingDate, String couponInfo,
-        // Integer membershipLevelCodeFk, String orderBy, Integer sortBy
-        CouponSearchCriteria criteria
-    ) {
+    public Map<String, Object> selectAllCouponsType(CouponSearchCriteria criteria) {
 
         Specification<CouponEntity> specification = buildSpecification(criteria);
-        // Specification<CouponEntity> specification = (root, query, criteriaBuilder) -> null;
-        //
-        // if(couponCodePk != null){
-        //     specification = specification.and(CouponSpecification.equalsCouponCodePk(couponCodePk));
-        // }
-        // if(couponName != null){
-        //     specification = specification.and(CouponSpecification.likesCouponName(couponName));
-        // }
-        // if(couponType != null){
-        //     specification = specification.and(CouponSpecification.likesCouponType(couponType));
-        // }
-        // if(couponDiscountRate != null){
-        //     specification = specification.and(CouponSpecification.equalsCouponDiscountRate(couponDiscountRate));
-        // }
-        // if(couponLaunchingDate != null){
-        //     specification = specification.and(CouponSpecification.equalsCouponLaunchingDate(couponLaunchingDate));
-        // }
-        // if(couponInfo != null){
-        //     specification = specification.and(CouponSpecification.likesCouponInfo(couponInfo));
-        // }
+
 
         Integer pageNum = criteria.getPageNum();
         String orderBy = criteria.getOrderBy();
