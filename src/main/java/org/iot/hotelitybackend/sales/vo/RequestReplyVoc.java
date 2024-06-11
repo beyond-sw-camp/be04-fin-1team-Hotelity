@@ -11,7 +11,7 @@ public class RequestReplyVoc {
     private Date vocCreatedDate;
     private Date vocLastUpdatedDate;
     private int customerCodeFk;
-    private String employeeCodeFk;
+    private int employeeCodeFk;
     private String branchCodeFk;
     private String vocResponse;
     private int vocProcessStatus;

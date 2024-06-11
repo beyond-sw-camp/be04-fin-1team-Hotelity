@@ -227,7 +227,7 @@ public class VocServiceImpl implements VocService {
 			.vocLastUpdatedDate(LocalDateTime.now())
 			.customerCodeFk(vocRepository.findById(vocCodePk).get().getCustomerCodeFk())
 			.vocCategory(vocRepository.findById(vocCodePk).get().getVocCategory())
-			.employeeCodeFk(vocRepository.findById(vocCodePk).get().getEmployeeCodeFk())
+			.employeeCodeFk(requestReplyVoc.getEmployeeCodeFk())
 			.branchCodeFk(vocRepository.findById(vocCodePk).get().getBranchCodeFk())
 			.vocImageLink(requestReplyVoc.getVocImageLink())
 			.vocResponse(requestReplyVoc.getVocResponse())
