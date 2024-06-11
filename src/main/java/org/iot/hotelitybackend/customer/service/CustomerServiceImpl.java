@@ -154,7 +154,7 @@ public class CustomerServiceImpl implements CustomerService {
 					0, null, customerCodePk, null, null,
 					null, null, null, null,
 					null, null, null, null, null,
-					null, null, null, null, null)
+					null, null, null, null, null, null)
 			).get(KEY_CONTENT)
         );
         selectCustomerDTO.setCouponIssue(

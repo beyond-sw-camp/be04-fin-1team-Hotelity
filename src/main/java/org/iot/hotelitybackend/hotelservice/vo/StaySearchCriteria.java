@@ -23,6 +23,7 @@ public class StaySearchCriteria {
 	private String employeeName;
 	private Integer reservationCodeFk;
 	private Integer stayCheckoutStatus;
+	private Integer stayPeriod;
 	private String orderBy;
 	private Integer sortBy;
 
@@ -30,7 +31,7 @@ public class StaySearchCriteria {
 		String roomCodeFk, String roomName, String roomLevelName, Integer roomCapacity, Integer stayPeopleCount,
 		LocalDateTime stayCheckinTime, LocalDateTime reservationCheckoutDate, LocalDateTime stayCheckoutTime,
 		String branchCodeFk, Integer employeeCodeFk, String employeeName, Integer reservationCodeFk,
-		Integer stayCheckoutStatus, String orderBy, Integer sortBy) {
+		Integer stayCheckoutStatus, Integer stayPeriod, String orderBy, Integer sortBy) {
 		this.pageNum = pageNum;
 		this.stayCodePk = stayCodePk;
 		this.customerCodeFk = customerCodeFk;
@@ -48,6 +49,7 @@ public class StaySearchCriteria {
 		this.employeeName = employeeName;
 		this.reservationCodeFk = reservationCodeFk;
 		this.stayCheckoutStatus = stayCheckoutStatus;
+		this.stayPeriod = stayPeriod;
 		this.orderBy = orderBy;
 		this.sortBy = sortBy;
 	}
