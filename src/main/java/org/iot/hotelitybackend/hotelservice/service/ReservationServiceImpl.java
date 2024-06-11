@@ -376,6 +376,9 @@ public class ReservationServiceImpl implements ReservationService {
 					mapper.map(customerRepository.findById(reservationDTO.getCustomerCodeFk()).orElse(null),
 						CustomerDTO.class).getCustomerName());
 
+				// 객실 번호
+				reservationDTO.setRoomNumber(
+					roomRepository.findById(reservationDTO.getRoomCodeFk()).get().getRoomNumber());
 				// 객실명
 				reservationDTO.setRoomName(String.valueOf(roomCategoryRepository.findById(
 					roomRepository.findById(reservationDTO.getRoomCodeFk()).get().getRoomCategoryCodeFk()
@@ -398,6 +401,10 @@ public class ReservationServiceImpl implements ReservationService {
 							reservationDTO.getRoomCodeFk()
 						).get().getRoomCategoryCodeFk()
 					).get().getRoomCapacity());
+
+				// 지점명
+				reservationDTO.setBranchName(
+					branchRepository.findById(reservationDTO.getBranchCodeFk()).get().getBranchName());
 
 				// 투숙 상태
 				existingStayEntity.set(stayRepository.findByReservationCodeFk(reservationDTO.getReservationCodePk())
