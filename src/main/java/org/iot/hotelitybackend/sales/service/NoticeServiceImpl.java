@@ -169,6 +169,7 @@ public class NoticeServiceImpl implements NoticeService {
 			.noticeTitle(requestNotice.getNoticeTitle())
 			.noticeContent(requestNotice.getNoticeContent())
 			.employeeCodeFk(requestNotice.getEmployeeCodeFk())
+				.branchCodeFk(requestNotice.getBranchCodeFk())
 			.noticePostedDate(LocalDateTime.now())
 			.build();
 
