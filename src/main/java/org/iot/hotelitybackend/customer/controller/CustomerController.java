@@ -10,6 +10,7 @@ import org.iot.hotelitybackend.common.vo.ResponseVO;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.dto.SelectCustomerDTO;
 import org.iot.hotelitybackend.customer.service.CustomerService;
+import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyCustomer;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -74,6 +75,28 @@ public class CustomerController {
             .resultCode(HttpStatus.OK.value())
             .build();
 
+        return ResponseEntity.status(response.getResultCode()).body(response);
+    }
+
+    @PutMapping("/{customerCodePk}")
+    public ResponseEntity<ResponseVO> modifyCustomer(
+        @PathVariable("customerCodePk") int customerCodePk,
+        @RequestBody RequestModifyCustomer requestModifyCustomer
+    ) {
+        CustomerDTO modifiedCustomer = customerService.modifyCustomerByCustomerCodePk(customerCodePk, requestModifyCustomer);
+
+        ResponseVO response;
+
+        if (modifiedCustomer != null) {
+            response = ResponseVO.builder()
+                .data(modifiedCustomer)
+                .resultCode(HttpStatus.OK.value())
+                .build();
+        } else {
+            response = ResponseVO.builder()
+                .resultCode(HttpStatus.NO_CONTENT.value())
+                .build();
+        }
         return ResponseEntity.status(response.getResultCode()).body(response);
     }
 

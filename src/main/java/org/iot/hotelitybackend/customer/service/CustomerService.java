@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.iot.hotelitybackend.common.vo.CustomerCriteria;
 import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.dto.SelectCustomerDTO;
+import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyCustomer;
 
 public interface CustomerService {
 
@@ -27,4 +28,5 @@ public interface CustomerService {
 
 	Map<String, Object> selectCustomersList(CustomerCriteria criteria);
 
+	CustomerDTO modifyCustomerByCustomerCodePk(int customerCodePk, RequestModifyCustomer requestModifyCustomer);
 }
