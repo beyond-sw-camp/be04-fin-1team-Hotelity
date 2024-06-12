@@ -56,7 +56,7 @@ public class UserLogoutFilter extends GenericFilterBean {
         }
 
         String refreshToken = null;
-        for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+        for (Cookie cookie : request.getCookies()) {
             if (cookie.getName().equals(KEY_REFRESH_TOKEN)) {
                 refreshToken = cookie.getValue();
             }

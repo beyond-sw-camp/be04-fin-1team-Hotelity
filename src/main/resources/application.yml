@@ -13,8 +13,8 @@ spring:
 #    password: ENC(iMwe5lEyyaFkIqpSxsGwrzAs4YOJlsBY)
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mariadb://localhost:3306/hotelity
-    username: root
-    password: mariadb
+    username: swcamp
+    password: swcamp
     hikari:
       maximumPoolSize: 15
       minimumIdle: 5
