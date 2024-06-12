@@ -101,11 +101,7 @@ public class EmailServiceImpl implements EmailService {
 		// 캠페인 생성 후 campaign_tb 에 save
 		CampaignEntity campaignEntity = CampaignEntity.builder()
 			.campaignSendType(requestSendMailByLevelDTO.getSendType())
-			.campaignContent(
-				templateRepository.findById(
-					requestSendMailByLevelDTO.getTemplateCode()
-				).get().getTemplateContent() + requestSendMailByLevelDTO.getMessageContent()
-			)
+			.campaignContent(requestSendMailByLevelDTO.getMessageContent())
 			.campaignSentDate(requestSendMailByLevelDTO.getMailSendDate())
 			.campaignSentStatus(1)
 			.employeeCodeFk(requestSendMailByLevelDTO.getEmployeeCode())
