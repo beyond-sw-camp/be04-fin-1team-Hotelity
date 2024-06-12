@@ -13,6 +13,7 @@ import org.iot.hotelitybackend.customer.dto.CustomerDTO;
 import org.iot.hotelitybackend.customer.dto.SelectCustomerDTO;
 import org.iot.hotelitybackend.customer.repository.CustomerRepository;
 import org.iot.hotelitybackend.customer.repository.NationRepository;
+import org.iot.hotelitybackend.hotelmanagement.vo.RequestModifyCustomer;
 import org.iot.hotelitybackend.hotelservice.dto.PaymentDTO;
 import org.iot.hotelitybackend.hotelservice.dto.StayDTO;
 import org.iot.hotelitybackend.hotelservice.service.PaymentServiceImpl;
@@ -127,7 +128,42 @@ public class CustomerServiceImpl implements CustomerService {
         return customerPageInfo;
     }
 
-    @Override
+	@Transactional
+	@Override
+	public CustomerDTO modifyCustomerByCustomerCodePk(int customerCodePk, RequestModifyCustomer requestModifyCustomer) {
+
+		CustomerEntity foundCustomer = customerRepository.findById(customerCodePk).orElseThrow(IllegalArgumentException::new);
+		CustomerEntity customerEntity = CustomerEntity.builder()
+			.customerCodePk(customerCodePk)
+			.customerName(requestModifyCustomer.getCustomerName())
+			.customerEmail(requestModifyCustomer.getCustomerEmail())
+			.customerPhoneNumber(requestModifyCustomer.getCustomerPhoneNumber())
+			.customerEnglishName(requestModifyCustomer.getCustomerEnglishName())
+			.customerAddress(requestModifyCustomer.getCustomerAddress())
+			.customerInfoAgreement(foundCustomer.getCustomerInfoAgreement())
+			.customerStatus(requestModifyCustomer.getCustomerStatus())
+			.customerRegisteredDate(foundCustomer.getCustomerRegisteredDate())
+			.customerType(requestModifyCustomer.getCustomerType())
+			.nationCodeFk(requestModifyCustomer.getNationCodeFk())
+			.customerGender(requestModifyCustomer.getCustomerGender())
+			.build();
+
+		MembershipIssueEntity membershipIssueEntity = MembershipIssueEntity.builder()
+			.customerCodeFk(customerCodePk)
+			.membershipLevelCodeFk(requestModifyCustomer.getMembershipLevelCode())
+			.membershipIssueDate(new Date())
+			.build();
+
+		// 기존에 있던 발급 기록 삭제
+		membershipIssueRepository.deleteByCustomerCodeFk(customerCodePk);
+
+		// 멤버십 새로 발급
+		membershipIssueRepository.save(membershipIssueEntity);
+
+		return mapper.map(customerRepository.save(customerEntity), CustomerDTO.class);
+	}
+
+	@Override
     public SelectCustomerDTO selectCustomerByCustomerCodePk(Integer customerCodePk) {
 
         SelectCustomerDTO selectCustomerDTO =
