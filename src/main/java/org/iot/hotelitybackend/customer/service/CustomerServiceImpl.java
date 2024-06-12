@@ -208,23 +208,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional
     public Map<String, Object> deleteCustomerByCustomerCodePk(int customerCodePk) {
-
-        CustomerEntity customerEntity = customerRepository.findById(customerCodePk).get();
-        CustomerEntity customer = CustomerEntity.builder()
-            .customerCodePk(customerCodePk)
-            .customerName(customerEntity.getCustomerName())
-            .customerEmail(customerEntity.getCustomerEmail())
-            .customerPhoneNumber(customerEntity.getCustomerPhoneNumber())
-            .customerEnglishName(customerEntity.getCustomerEnglishName())
-            .customerAddress(customerEntity.customerAddress)
-            .customerInfoAgreement(customerEntity.getCustomerInfoAgreement())
-            .customerStatus(0)
-            .customerRegisteredDate(customerEntity.getCustomerRegisteredDate())
-            .customerType(customerEntity.getCustomerType())
-            .nationCodeFk(customerEntity.getNationCodeFk())
-            .customerGender(customerEntity.getCustomerGender())
-            .build();
-        customerRepository.save(customer);
+        customerRepository.deleteById(customerCodePk);
 
         Map<String, Object> modifiedCustomerInfo = new HashMap<>();
         modifiedCustomerInfo.put(KEY_CONTENT, "success");
