@@ -241,7 +241,7 @@ public class StayServiceImpl implements StayService {
 		// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.parse(dateString + "T00:00:00");
 		LocalDateTime end = LocalDateTime.parse(dateString + "T23:59:59");
-		List<StayEntity> stayEntityList = stayRepository.findAllByStayCheckoutTimeBetween(start, end);
+		List<StayEntity> stayEntityList = stayRepository.findAllByStayCheckinTimeBetween(start, end);
 		List<StayDTO> stayDTOList = setDTOField(stayEntityList);
 		// List<StayDTO> stayDTOList = stayEntityList
 		// 	.stream()
