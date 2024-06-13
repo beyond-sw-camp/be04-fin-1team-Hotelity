@@ -103,9 +103,13 @@ public class VocServiceImpl implements VocService {
 			.peek(vocDTO -> vocDTO.setCustomerName(
 				mapper.map(customerRepository.findById(vocDTO.getCustomerCodeFk()), CustomerDTO.class).getCustomerName()
 			))
-			.peek(vocDTO -> vocDTO.setPICEmployeeName(
-				mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
-			))
+			.peek(vocDTO -> {
+				if (vocDTO.getEmployeeCodeFk() != null) {
+					vocDTO.setPICEmployeeName(
+						mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
+					);
+				}
+			})
 			.toList();
 
 		int totalPagesCount = vocEntityPage.getTotalPages();
