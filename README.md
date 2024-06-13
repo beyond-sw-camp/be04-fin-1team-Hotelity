@@ -36,38 +36,8 @@
 
 |IntelliJ IDEA|Visual Studio|HeidiSQL|Figma|GitHub|Slack|Jira|
 |---|---|---|---|---|---|---|
-|<img src="https://img.shields.io/badge/IntelliJ IDEA-000000?style=for-the-badge&logo=IntelliJ IDEA&logoColor=white">|<img src="https://img.shields.io/badge/Visual Studio-007ACC?style=for-the-badge&logo=Visual Studio Code&logoColor=white">|<img src="https://img.shields.io/badge/HeidiSQL-6DB33F?style=for-the-badge">|<img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=Figma&logoColor=white">|<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white">|<img src="https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=Slack&logoColor=white">|<img src="https://img.shields.io/badge/Jira-0052CC?style=for-the-badge&logo=Jira&logoColor=white">|
-
-</div>
-
+|<img src="https://img.shields.io/badge/IntelliJ IDEA-000000?style=f리
 <br>
-
-<details>
-<summary><b>개발도구 및 기술스택 Version</b></summary>
- 
-- Java17
-- Spring 3.2.4
-- Gradle 8.5+
-- Spring Security 6
-- Jwt 0.11.5
-- CSS 3
-- HTML 5
-- Bootstrap 5
-- Kubernetis 1.29.1
-- Docker 25.0.3
-- Jasypt 3.0.5
-- J soup 1.17.2
-</details>
-
-<hr>
-
-## 2. 프로젝트 관련 문서
-
-## 3. Architecture
-아키텍쳐가 들어갈 자리
-<br>
-
-
 
 ## 회고
 
