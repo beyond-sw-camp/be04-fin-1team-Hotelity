@@ -4,7 +4,7 @@
 ###  팀명 : 1oT
 
 <div align="center">
-호텔리티 로고
+ <img src="https://github.com/1oT-organization/hotelity-infra/blob/b3c4d32ff6102f6d74b3aa720e821e11af1a8365/img/hotelity_logo.png" height=150;/>
 </div>
 
 ###  팀원 :
@@ -93,7 +93,8 @@
 <details>
 <summary><b>Architecture Image</b></summary>
 
-아키텍쳐 이미지가 들어갈 자리
+<img src="https://github.com/1oT-organization/hotelity-infra/blob/b3c4d32ff6102f6d74b3aa720e821e11af1a8365/img/hotelity_architecture.png"/>
+
 </details>
 
 ## 4. 배포 과정
