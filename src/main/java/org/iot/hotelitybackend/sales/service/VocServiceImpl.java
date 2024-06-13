@@ -23,6 +23,7 @@ import org.iot.hotelitybackend.sales.vo.RequestReplyVoc;
 import org.iot.hotelitybackend.sales.vo.ResponseVoc;
 import org.iot.hotelitybackend.sales.vo.VocDashboardVO;
 import org.iot.hotelitybackend.sales.vo.VocSearchCriteria;
+import org.iot.hotelitybackend.smpt.EmailService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,13 +64,21 @@ public class VocServiceImpl implements VocService {
 	private final CustomerRepository customerRepository;
 	private final EmployeeRepository employeeRepository;
 
+	private final EmailService emailService;
+
 	@Autowired
-	public VocServiceImpl(ModelMapper mapper, VocRepository vocRepository, CustomerRepository customerRepository,
-		EmployeeRepository employeeRepository) {
+	public VocServiceImpl(
+			ModelMapper mapper,
+			VocRepository vocRepository,
+			CustomerRepository customerRepository,
+			EmployeeRepository employeeRepository,
+			EmailService emailService
+	) {
 		this.mapper = mapper;
 		this.vocRepository = vocRepository;
 		this.customerRepository = customerRepository;
 		this.employeeRepository = employeeRepository;
+		this.emailService = emailService;
 		this.mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 		this.mapper.typeMap(VocEntity.class, VocDTO.class).addMappings(modelMapper -> {
 			modelMapper.map(VocEntity::getPicEmployeeName, VocDTO::setPICEmployeeName);
@@ -106,7 +115,7 @@ public class VocServiceImpl implements VocService {
 			.peek(vocDTO -> {
 				if (vocDTO.getEmployeeCodeFk() != null) {
 					vocDTO.setPICEmployeeName(
-						mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
+							mapper.map(employeeRepository.findById(vocDTO.getEmployeeCodeFk()), EmployeeDTO.class).getEmployeeName()
 					);
 				}
 			})
@@ -237,6 +246,8 @@ public class VocServiceImpl implements VocService {
 			.vocResponse(requestReplyVoc.getVocResponse())
 			.vocProcessStatus(1)
 			.build();
+
+		emailService.sendVocProcessedEmail(vocEntity);
 
 		Map<String, Object> vocReply = new HashMap<>();
 
