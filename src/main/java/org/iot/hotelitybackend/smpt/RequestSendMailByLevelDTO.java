@@ -11,7 +11,7 @@ public class RequestSendMailByLevelDTO {
 	private String sendType;
 	private String title;
 	private String messageContent;
-	private int employeeCode;
-	private int templateCode;
-	private int reservationFk;
+	private Integer employeeCode;
+	private Integer templateCode;
+	private Integer reservationFk;
 }
