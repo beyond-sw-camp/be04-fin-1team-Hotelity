@@ -12,6 +12,7 @@ import org.iot.hotelitybackend.employee.repository.EmployeeRepository;
 import org.iot.hotelitybackend.marketing.aggregate.CampaignCustomerEntity;
 import org.iot.hotelitybackend.marketing.aggregate.CampaignCustomerSpecification;
 import org.iot.hotelitybackend.marketing.aggregate.CampaignEntity;
+import org.iot.hotelitybackend.marketing.aggregate.TemplateEntity;
 import org.iot.hotelitybackend.marketing.dto.CampaignCustomerDTO;
 import org.iot.hotelitybackend.marketing.repository.CampaignCustomerRepository;
 import org.iot.hotelitybackend.marketing.repository.CampaignRepository;
@@ -121,11 +122,13 @@ public class CampaignCustomerServiceImpl implements CampaignCustomerService{
                 campaignCustomerDTO.setTemplateCodeFk(
                     campaignEntity.getTemplateCodeFk()
                 );
-                campaignCustomerDTO.setTemplateName(
-                    templateRepository.findById(
-                        campaignEntity.getTemplateCodeFk()
-                    ).get().getTemplateName()
-                );
+
+                if (campaignEntity.getTemplateCodeFk() != null) {
+                    templateRepository.findById(campaignEntity.getTemplateCodeFk()).ifPresent(
+                            template -> campaignCustomerDTO.setTemplateName(template.getTemplateName())
+                    );
+                }
+
                 campaignCustomerDTO.setEmployeeName(
                     employeeRepository.findById(
                         campaignEntity.getEmployeeCodeFk()
