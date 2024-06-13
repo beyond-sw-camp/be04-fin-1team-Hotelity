@@ -36,7 +36,7 @@
 
 |IntelliJ IDEA|Visual Studio|HeidiSQL|Figma|GitHub|Slack|Jira|
 |---|---|---|---|---|---|---|
-|<img src="https://img.shields.io/badge/IntelliJ IDEA-000000?style=f리
+|||||||
 <br>
 
 ## 회고
