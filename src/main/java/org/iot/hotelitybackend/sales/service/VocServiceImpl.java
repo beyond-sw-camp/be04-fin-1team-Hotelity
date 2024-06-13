@@ -203,20 +203,20 @@ public class VocServiceImpl implements VocService {
 		VocEntity vocEntity = vocRepository.findById(vocCodePk)
 			.orElseThrow(IllegalArgumentException::new);
 
+		VocDTO vocDTO = mapper.map(vocEntity, VocDTO.class);
+
 		String customerName = customerRepository
 			.findById(vocEntity.getCustomerCodeFk())
 			.get()
 			.getCustomerName();
 
-		String employeeName = employeeRepository
-			.findById(vocEntity.getEmployeeCodeFk())
-			.get()
-			.getEmployeeName();
-
-		VocDTO vocDTO = mapper.map(vocEntity, VocDTO.class);
+		if (vocEntity.getEmployeeCodeFk() != null) {
+			vocDTO.setPICEmployeeName(
+				employeeRepository.findById(vocEntity.getEmployeeCodeFk()).get().getEmployeeName()
+			);
+		}
 
 		vocDTO.setCustomerName(customerName);
-		vocDTO.setPICEmployeeName(employeeName);
 
 		return vocDTO;
 	}
