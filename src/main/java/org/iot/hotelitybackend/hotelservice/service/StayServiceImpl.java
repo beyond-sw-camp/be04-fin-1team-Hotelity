@@ -238,15 +238,10 @@ public class StayServiceImpl implements StayService {
 	/* 특정 일자 투숙 정보 조회 */
 	@Override
 	public Map<String, Object> selectStayByReservationCheckinDate(String dateString) {
-		// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.parse(dateString + "T00:00:00");
 		LocalDateTime end = LocalDateTime.parse(dateString + "T23:59:59");
-		List<StayEntity> stayEntityList = stayRepository.findAllByStayCheckoutTimeBetween(start, end);
+		List<StayEntity> stayEntityList = stayRepository.findAllByStayCheckinTimeBetween(start, end);
 		List<StayDTO> stayDTOList = setDTOField(stayEntityList);
-		// List<StayDTO> stayDTOList = stayEntityList
-		// 	.stream()
-		// 	.map(stayEntity -> mapper.map(stayEntity, StayDTO.class))
-		// 	.toList();
 
 		Map<String, Object> stayInfo = new HashMap<>();
 		int stayYear = start.getYear();
