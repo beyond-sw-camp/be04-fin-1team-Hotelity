@@ -42,7 +42,7 @@
 
 ## 2. 프로젝트 관련 문서
 <details>
-<summary><b>관련 문서</b></summary>
+<summary><b>프로젝트 관련 문서</b></summary>
   
 </details>
 
