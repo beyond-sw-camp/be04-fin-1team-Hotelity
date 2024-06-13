@@ -1,4 +1,4 @@
-# 🏨Hotelity
+![test](https://github.com/beyond-sw-camp/be04-fin-1team-Hotelity/assets/87284220/20b93a63-9e36-4bd5-bdb9-eef87e01c202)# 🏨Hotelity
 <p align="center"></p>
 
 
@@ -208,6 +208,8 @@
 
 <details>
  <summary><b>테스트 명세서</b></summary>
+
+![test](https://github.com/beyond-sw-camp/be04-fin-1team-Hotelity/assets/87284220/31aba490-fc7b-4c7e-abc7-d8c73e425262)
 
 
 </details>
