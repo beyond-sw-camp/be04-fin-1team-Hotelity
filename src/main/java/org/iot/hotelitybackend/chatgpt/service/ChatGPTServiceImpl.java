@@ -239,6 +239,8 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 				+ "지난달과 이번달 결제 내용 중 특이사항으로는 ~가 있습니다. \n";
 		}
 
+		prompt = promptDataString + " \n " + prompt + " 만약 데이터가 0개이거나 없으면 앞의 내용 다 빼고 그냥 '데이터가 없습니다'라고 말해. 변수 이름은 제외하고 말해.";
+
 		ChatGPTRequest request = new ChatGPTRequest(model, prompt);
 		ChatGPTResponse chatGPTResponse =  template.postForObject(apiURL, request, ChatGPTResponse.class);
 
@@ -327,6 +329,8 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 				+ "작년에 비해 올해 결제 금액 총합은 ~% 증가/감소 했습니다. \n"
 				+ "작년과 올해 결제 내용 중 특이사항으로는 ~가 있습니다. \n";
 		}
+
+		prompt = promptDataString + " \n " + prompt + " 만약 데이터가 0개이거나 없으면 앞의 내용 다 빼고 그냥 '데이터가 없습니다'라고 말해. 변수 이름은 제외하고 말해.";
 
 		ChatGPTRequest request = new ChatGPTRequest(model, prompt);
 		ChatGPTResponse chatGPTResponse =  template.postForObject(apiURL, request, ChatGPTResponse.class);
