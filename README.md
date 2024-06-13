@@ -17,9 +17,19 @@
 
 ## 1. 프로젝트 소개
 
-> 
+<details><summary><b>주제 및 목표</b></summary>
 
-## ⚙️ 기술스택
+> 주제 : 모;ㅣㅏ롣ㅁㅈ;ㅣㅏ헌ㅁ;ㅣ화ㅣ;ㅁㅈ거ㅗㅁ;ㅈ딯
+<br>
+
+> 목표 : ㅁ오ㅑㅣㄹ모호ㅓㅏㅁ고히ㅏㅓㄴㅇ뫼;ㅏ험ㄴ;ㅣㅏ헉ㄴㄷ
+
+</details>
+
+## ⚙️ Stack / Tool
+
+<details><summary><b>기술스택</b></summary>
+
 <div align="center">
 
 |SpringBoot|SpringSecurity|Vue|HTML|CSS|JavaScript|MariaDB|Spring Data JPA|Bootstrap|
@@ -31,7 +41,10 @@
 |<img src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=Jenkins&logoColor=white">|<img src="https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=Kubernetes&logoColor=white">|<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=Docker&logoColor=white">|<img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=Redis&logoColor=white">|<img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=Grafana&logoColor=white">|<img src="https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=Prometheus&logoColor=white">|<img src="https://img.shields.io/badge/ngrok-1F1E37?style=for-the-badge&logo=ngrok&logoColor=white">|<img src="https://img.shields.io/badge/JSON Web Tokens-000000?style=for-the-badge&logo=JSON Web Tokens&logoColor=white">|
 </div>
 
-## ⚙️ 개발도구
+</details>
+
+<details><summary><b>개발도구</b></summary>
+
 <div align="center">
 
 |IntelliJ IDEA|Visual Studio|HeidiSQL|Figma|GitHub|Slcak|
@@ -40,17 +53,59 @@
 </div>
 <br>
 
+</details>
+
+<details>
+<summary><b>개발도구 및 기술스택 Version</b></summary>
+ 
+- Java17
+- Spring 3.2.4
+- Gradle 8.5+
+- Spring Security 6
+- Jwt 0.11.5
+- CSS 3
+- HTML 5
+- Bootstrap 5
+- Kubernetis 1.29.1
+- Docker 25.0.3
+- Jasypt 3.0.5
+- J soup 1.17.2
+</details>
+
 ## 2. 프로젝트 관련 문서
 <details>
 <summary><b>프로젝트 관련 문서</b></summary>
   
+[1. WBS](https://docs.google.com/spreadsheets/d/1nIMcXA5wvR99ZwuX6Gx1To4bg2wPHJF_zwTAuSmr3-A/edit?gid=1444080875#gid=1444080875) <br><br>
+[2. 요구사항 명세서](https://docs.google.com/spreadsheets/d/1nIMcXA5wvR99ZwuX6Gx1To4bg2wPHJF_zwTAuSmr3-A/edit?gid=0#gid=0) <br><br>
+[3. API 명세서](https://docs.google.com/spreadsheets/d/1nIMcXA5wvR99ZwuX6Gx1To4bg2wPHJF_zwTAuSmr3-A/edit?gid=1876309897#gid=1876309897) <br><br>
+[4. Modeling]() <br><br>
+[5. 단위 테스트 결과서](https://docs.google.com/spreadsheets/d/1nIMcXA5wvR99ZwuX6Gx1To4bg2wPHJF_zwTAuSmr3-A/edit?gid=1864668365#gid=1864668365) <br><br>
+[6. Storyboard](https://docs.google.com/presentation/d/1fFkUNXekWkG8kKijYO7SF2k90IW9AAv20bGaDZq1ods/edit#slide=id.g2d182c3161f_1_123) <br><br>
+[7. 화면설계서]() <br><br>
+[8. UI/UX 테스트]() <br><br>
+[9. 통합 테스트 결과서](https://docs.google.com/spreadsheets/d/1nIMcXA5wvR99ZwuX6Gx1To4bg2wPHJF_zwTAuSmr3-A/edit?gid=1620676381#gid=1620676381) <br><br>
+
+  
 </details>
 
 ## 3. Architecture
+<details>
+<summary><b>Architecture Image</b></summary>
+
+아키텍쳐 이미지가 들어갈 자리
+</details>
 
 ## 4. 배포 과정
 
 ## 5. 통합 테스트
+
+<details><summary><b>테스트 결과</b></summary>
+
+
+
+</details>
+
 
 ## 회고
 
