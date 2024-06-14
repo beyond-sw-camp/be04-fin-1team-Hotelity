@@ -36,5 +36,6 @@ public class FileDownloadController {
 		return ResponseEntity.ok()
 			.headers(headers)
 			.body(resource);
+
 	}
 }
