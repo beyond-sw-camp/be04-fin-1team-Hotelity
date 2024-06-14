@@ -1,6 +1,5 @@
 package org.iot.hotelitybackend.filedownload.controller;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +22,19 @@ public class FileDownloadController {
 
 	// src/main/resources/ 폴더에 있는 파일을 다운로드
 	@GetMapping("/{filename}")
-	public ResponseEntity fileDownload(@PathVariable("filename") String filename) throws IOException {
+	public ResponseEntity<Resource> fileDownload(@PathVariable("filename") String filename) throws IOException {
 		Resource resource = resourceLoader.getResource("classpath:" + filename);
-		File file = resource.getFile();
-		String fileLen = file.length() + "";
+
+		if (!resource.exists()) {
+			return ResponseEntity.notFound().build();
+		}
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"");
+		headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
 
 		return ResponseEntity.ok()
-			.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
-			.header(HttpHeaders.CONTENT_LENGTH, fileLen)
+			.headers(headers)
 			.body(resource);
 	}
 }
