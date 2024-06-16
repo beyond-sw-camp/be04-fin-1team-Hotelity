@@ -3,10 +3,7 @@ package org.iot.hotelitybackend.smpt;
 import static java.time.LocalTime.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.iot.hotelitybackend.customer.aggregate.CustomerEntity;
@@ -17,6 +14,7 @@ import org.iot.hotelitybackend.marketing.repository.CampaignCustomerRepository;
 import org.iot.hotelitybackend.marketing.repository.CampaignRepository;
 import org.iot.hotelitybackend.marketing.repository.TemplateRepository;
 import org.iot.hotelitybackend.sales.aggregate.MembershipIssueEntity;
+import org.iot.hotelitybackend.sales.aggregate.VocEntity;
 import org.iot.hotelitybackend.sales.repository.MembershipIssueRepository;
 import org.iot.hotelitybackend.sales.repository.MembershipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,11 +99,7 @@ public class EmailServiceImpl implements EmailService {
 		// 캠페인 생성 후 campaign_tb 에 save
 		CampaignEntity campaignEntity = CampaignEntity.builder()
 			.campaignSendType(requestSendMailByLevelDTO.getSendType())
-			.campaignContent(
-				templateRepository.findById(
-					requestSendMailByLevelDTO.getTemplateCode()
-				).get().getTemplateContent() + requestSendMailByLevelDTO.getMessageContent()
-			)
+			.campaignContent(requestSendMailByLevelDTO.getMessageContent())
 			.campaignSentDate(requestSendMailByLevelDTO.getMailSendDate())
 			.campaignSentStatus(1)
 			.employeeCodeFk(requestSendMailByLevelDTO.getEmployeeCode())
@@ -144,5 +138,47 @@ public class EmailServiceImpl implements EmailService {
 		);
 
 		return sendResult;
+	}
+
+	@Override
+	public void sendVocProcessedEmail(VocEntity vocEntity) {
+		SimpleMailMessage message = new SimpleMailMessage();
+
+		CustomerEntity customer = customerRepository.findById(vocEntity.getCustomerCodeFk()).get();
+
+		String emailTitle = "[Hotelity 문의 처리 완료]";
+		String emailContent = customer.getCustomerName() +
+			"님, 안녕하세요. Hotelity 입니다.<br>" +
+			"고객님의 VOC 처리가 완료되었습니다." +
+			"\n\n문의내역 : " + vocEntity.getVocTitle() +
+			"\n문의일자 : " + vocEntity.getVocCreatedDate() +
+			"\n처리상태 : 처리완료" +
+			"\n문의내용 : " + vocEntity.getVocContent() +
+			"\n처리내용 : " + vocEntity.getVocResponse() +
+			"\n\nHotelity를 이용해주셔서 감사합니다. 더욱 좋은 서비스로 보답하겠습니다.";
+
+		message.setTo(customer.getCustomerEmail());
+		message.setSubject(emailTitle);
+		message.setText(emailContent);
+
+		mailSender.send(message);
+
+		CampaignEntity campaignEntity = CampaignEntity.builder()
+				.campaignSendType("Email")
+				.campaignTitle(emailTitle)
+				.campaignContent(emailContent)
+				.campaignSentDate(LocalDateTime.now())
+				.campaignSentStatus(1)
+				.employeeCodeFk(vocEntity.getEmployeeCodeFk())
+				.build();
+
+		Integer campaignCodePk = campaignRepository.save(campaignEntity).getCampaignCodePk();
+
+		CampaignCustomerEntity campaignCustomerEntity = CampaignCustomerEntity.builder()
+				.campaignCodeFk(campaignCodePk)
+				.customerCodeFk(customer.getCustomerCodePk())
+				.build();
+
+		campaignCustomerRepository.save(campaignCustomerEntity);
 	}
 }
