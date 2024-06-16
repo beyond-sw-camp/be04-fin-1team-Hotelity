@@ -131,19 +131,19 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 	public String getDailyChatGPTResponse(String promptDataString, String contentType) {
 		String prompt;
 		if (contentType.equals("예약")) {
-			prompt = "금일 예약과 투숙 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
+			prompt = "\"금일 예약과 투숙 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
 				+ "금일 체크인 예정인 예약은 ~건이며, 현재 체크인 투숙이 진행된 예약은 ~건입니다. \n "
-				+ "그리고 금일 예약 객실 관련 특이사항으로는 ~가 있습니다. \n ";
+				+ "그리고 금일 예약 객실 관련 특이사항으로는 ~가 있습니다.\" \n ";
 		} else if (contentType.equals("결제")) {
 			prompt = "금일 결제 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
-				+ "금일 결제 건수는 ~건이며, 결제 금액 총합은 ~원입니다. \n "
-				+ "그리고 금일 결제 관련 특이사항으로는 ~가 있습니다. \n ";
+				+ "\"금일 결제 건수는 ~건이며, 결제 금액 총합은 ~원입니다. \n "
+				+ "그리고 금일 결제 관련 특이사항으로는 ~가 있습니다.\" \n ";
 		} else if (contentType.equals("공지")) {
 			prompt = "금일 공지사항 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
-				+ "어제 공지사항은 ~건, 금일 공지사항은 ~건이며, 주요 공지사항 내용으로는 ~~, ~~, ~~ 등이 있습니다. \n ";
+				+ "\"어제 공지사항은 ~건, 금일 공지사항은 ~건이며, 주요 공지사항 내용으로는 ~~, ~~, ~~ 등이 있습니다.\" \n ";
 		} else {
 			prompt = "금일 VOC 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
-				+ "어제 VOC는 ~건, 금일 VOC는 ~건이며, 주요 VOC 내용으로는 ~~, ~~, ~~ 등이 있습니다. \n ";
+				+ "\"어제 VOC는 ~건, 금일 VOC는 ~건이며, 주요 VOC 내용으로는 ~~, ~~, ~~ 등이 있습니다.\" \n ";
 		}
 
 		prompt = promptDataString + " \n " + prompt + " 만약 데이터가 0개이거나 없으면 앞의 내용 다 빼고 그냥 '데이터가 없습니다'라고 말해. 변수 이름은 제외하고 말해.";
@@ -227,17 +227,19 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 		if (contentType.equals("예약")) {
 			prompt = promptDataString + " \n"
 				+ "이러한 이번달과 지난달의 예약 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
-				+ "지난달 예약 건수: ~건, 지난달 예약 건수: ~건\n"
+				+ "\"지난달 예약 건수: ~건, 지난달 예약 건수: ~건\n"
 				+ "지난달에 비해 이번달 예약 건수 총합은 ~% 증가/감소 했습니다. \n"
-				+ "지난달과 이번달 예약 내용 중 특이사항으로는 ~가 있습니다. \n";
+				+ "지난달과 이번달 예약 내용 중 특이사항으로는 ~가 있습니다.\" \n";
 		} else {
 			prompt = promptDataString + " \n"
 				+ "이러한 이번달과 지난달의 결제 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
-				+ "지난달 결제 건수: ~건, 결제 금액 총합: ~원 \n"
+				+ "\"지난달 결제 건수: ~건, 결제 금액 총합: ~원 \n"
 				+ "이번달 결제 건수: ~건, 결제 금액 총합: ~원 \n"
 				+ "지난달에 비해 이번달 결제 금액 총합은 ~% 증가/감소 했습니다. \n"
-				+ "지난달과 이번달 결제 내용 중 특이사항으로는 ~가 있습니다. \n";
+				+ "지난달과 이번달 결제 내용 중 특이사항으로는 ~가 있습니다.\" \n";
 		}
+
+		prompt = promptDataString + " \n " + prompt + " 만약 데이터가 0개이거나 없으면 앞의 내용 다 빼고 그냥 '데이터가 없습니다'라고 말해. 변수 이름은 제외하고 말해.";
 
 		ChatGPTRequest request = new ChatGPTRequest(model, prompt);
 		ChatGPTResponse chatGPTResponse =  template.postForObject(apiURL, request, ChatGPTResponse.class);
@@ -316,17 +318,19 @@ public class ChatGPTServiceImpl implements ChatGPTService{
 		if (contentType.equals("예약")) {
 			prompt = promptDataString + " \n"
 				+ "이러한 올해와 지난해의 예약 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
-				+ "작년 예약 건수: ~건, 올해 예약 건수: ~건 \n"
+				+ "\"작년 예약 건수: ~건, 올해 예약 건수: ~건 \n"
 				+ "작년에 비해 올해 예약 건수 총합은 ~% 증가/감소 했습니다. \n"
-				+ "작년과 올해 예약 내용 중 특이사항으로는 ~가 있습니다. \n";
+				+ "작년과 올해 예약 내용 중 특이사항으로는 ~가 있습니다.\" \n";
 		} else {
 			prompt = promptDataString + " \n"
 				+ "이러한 올해와 지난해의 결제 정보를 아래의 양식에 맞게 150자 내외로 요약하여 설명해. \n"
-				+ "작년 결제 건수: ~건, 결제 금액 총합: ~원 \n"
+				+ "\"작년 결제 건수: ~건, 결제 금액 총합: ~원 \n"
 				+ "올해 결제 건수: ~건, 결제 금액 총합: ~원 \n"
 				+ "작년에 비해 올해 결제 금액 총합은 ~% 증가/감소 했습니다. \n"
-				+ "작년과 올해 결제 내용 중 특이사항으로는 ~가 있습니다. \n";
+				+ "작년과 올해 결제 내용 중 특이사항으로는 ~가 있습니다.\" \n";
 		}
+
+		prompt = promptDataString + " \n " + prompt + " 만약 데이터가 0개이거나 없으면 앞의 내용 다 빼고 그냥 '데이터가 없습니다'라고 말해. 변수 이름은 제외하고 말해.";
 
 		ChatGPTRequest request = new ChatGPTRequest(model, prompt);
 		ChatGPTResponse chatGPTResponse =  template.postForObject(apiURL, request, ChatGPTResponse.class);

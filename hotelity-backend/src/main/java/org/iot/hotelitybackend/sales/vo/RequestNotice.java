@@ -8,4 +8,5 @@ public class RequestNotice {
     private String noticeTitle;
     private String noticeContent;
     private Integer employeeCodeFk;
+    private String branchCodeFk;
 }

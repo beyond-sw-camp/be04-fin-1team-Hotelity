@@ -13,4 +13,6 @@ public interface MembershipIssueRepository extends JpaRepository<MembershipIssue
 	List<MembershipIssueEntity> findMembershipByCustomerCodeFk(int customerCodePk);
 
 	List<MembershipIssueEntity> findAllByMembershipLevelCodeFk(Integer membershipLevelCodePk);
+
+	void deleteByCustomerCodeFk(int customerCodePk);
 }
