@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vue001dep
+spec:
+  selector:
+    matchLabels:
+      app: vue001kube
+  template:
+    metadata:
+      labels:
+        app: vue001kube
+    spec:
+      containers:
+        - name: vue-container
+          image: eodud3196/hotelity-frontend:v1.2.1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+            - containerPort: 443
