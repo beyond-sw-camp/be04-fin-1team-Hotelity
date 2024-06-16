@@ -88,7 +88,7 @@
 [4. Modeling]() <br><br>
 [5. 단위 테스트 결과서](https://docs.google.com/spreadsheets/d/1nIMcXA5wvR99ZwuX6Gx1To4bg2wPHJF_zwTAuSmr3-A/edit?gid=1864668365#gid=1864668365) <br><br>
 [6. Storyboard](https://docs.google.com/presentation/d/1fFkUNXekWkG8kKijYO7SF2k90IW9AAv20bGaDZq1ods/edit#slide=id.g2d182c3161f_1_123) <br><br>
-[7. 화면설계서]() <br><br>
+[7. 화면설계서]() (https://app.visily.ai/projects/a1b383a3-77c1-4991-9fc2-f75dbed802e4/boards/903886)<br><br>
 [8. UI/UX 테스트]() <br><br>
 
   
